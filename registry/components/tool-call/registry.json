@@ -1,0 +1,10 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "tool-call",
+  "type": "registry:component",
+  "title": "Tool call",
+  "description": "A compact status and output view for a normalized tool call.",
+  "files": [{ "path": "registry/components/tool-call/tool-call.tsx", "type": "registry:component" }],
+  "dependencies": ["@aifrontkit/react@^0.1.0"],
+  "meta": { "version": "0.1.0", "schemaMajor": 1, "aifrontkit": ">=0.1.0 <1" }
+}

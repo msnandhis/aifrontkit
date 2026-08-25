@@ -1,0 +1,13 @@
+{
+  "name": "@aifrontkit/ai-sdk",
+  "version": "0.1.0",
+  "description": "Structural adapter from the AI SDK UI message stream protocol to AIFrontKit events",
+  "type": "module",
+  "sideEffects": false,
+  "license": "Apache-2.0",
+  "files": ["dist"],
+  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
+  "scripts": { "build": "tsc -p tsconfig.build.json", "typecheck": "tsc -p tsconfig.json --noEmit", "test": "vitest run" },
+  "dependencies": { "@aifrontkit/core": "workspace:^" },
+  "devDependencies": { "typescript": "^5.9.2", "vitest": "^3.2.4" }
+}

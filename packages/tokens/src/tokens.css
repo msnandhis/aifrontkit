@@ -1,0 +1,346 @@
+/*
+ * AIFrontKit's framework-neutral semantic variables.
+ *
+ * Add data-aifk-theme, data-aifk-temperature, data-aifk-density,
+ * data-aifk-radius, and data-aifk-motion to any provider/root element. All
+ * values inherit, so a workspace can safely scope a theme below the app root.
+ */
+
+:root,
+[data-aifk-theme="light"],
+[data-aifk-mode="light"] {
+  color-scheme: light;
+  --aifk-canvas: #fff;
+  --aifk-surface: #f7f7f8;
+  --aifk-surface-elevated: #fff;
+  --aifk-surface-subtle: #f2f3f5;
+  --aifk-text: #17191c;
+  --aifk-text-muted: #59616b;
+  --aifk-text-subtle: #737b86;
+  --aifk-border: #dfe2e6;
+  --aifk-border-strong: #c5c9d0;
+  --aifk-accent: #4f46e5;
+  --aifk-accent-foreground: #fff;
+  --aifk-accent-muted: #eef2ff;
+  --aifk-focus: #2563eb;
+  --aifk-selection: #c7d2fe;
+  --aifk-input: #fff;
+  --aifk-input-border: #c8cdd5;
+  --aifk-disabled: #eef0f2;
+  --aifk-disabled-foreground: #8a919b;
+  --aifk-destructive: #b91c1c;
+  --aifk-destructive-foreground: #fff;
+  --aifk-success: #15803d;
+  --aifk-success-foreground: #fff;
+  --aifk-warning: #a16207;
+  --aifk-warning-foreground: #fff;
+  --aifk-info: #0369a1;
+  --aifk-info-foreground: #fff;
+  --aifk-assistant-surface: #f5f5f4;
+  --aifk-user-surface: #eef2ff;
+  --aifk-tool-surface: #ecfeff;
+  --aifk-reasoning-surface: #f5f3ff;
+  --aifk-approval-surface: #fff7ed;
+  --aifk-artifact-surface: #f0fdf4;
+}
+
+[data-aifk-theme="dark"],
+[data-aifk-mode="dark"] {
+  color-scheme: dark;
+  --aifk-canvas: #0d0f12;
+  --aifk-surface: #15181d;
+  --aifk-surface-elevated: #1c2128;
+  --aifk-surface-subtle: #20242b;
+  --aifk-text: #f3f4f6;
+  --aifk-text-muted: #a6afb9;
+  --aifk-text-subtle: #8993a2;
+  --aifk-border: #303743;
+  --aifk-border-strong: #4a5563;
+  --aifk-accent: #818cf8;
+  --aifk-accent-foreground: #111827;
+  --aifk-accent-muted: #282b55;
+  --aifk-focus: #60a5fa;
+  --aifk-selection: #3730a3;
+  --aifk-input: #11151a;
+  --aifk-input-border: #4a5563;
+  --aifk-disabled: #242a31;
+  --aifk-disabled-foreground: #707986;
+  --aifk-destructive: #f87171;
+  --aifk-destructive-foreground: #450a0a;
+  --aifk-success: #4ade80;
+  --aifk-success-foreground: #052e16;
+  --aifk-warning: #fbbf24;
+  --aifk-warning-foreground: #422006;
+  --aifk-info: #38bdf8;
+  --aifk-info-foreground: #082f49;
+  --aifk-assistant-surface: #1c2026;
+  --aifk-user-surface: #20234a;
+  --aifk-tool-surface: #12313a;
+  --aifk-reasoning-surface: #2a2545;
+  --aifk-approval-surface: #332719;
+  --aifk-artifact-surface: #173424;
+}
+
+[data-aifk-theme="high-contrast"],
+[data-aifk-mode="high-contrast"] {
+  color-scheme: light;
+  --aifk-canvas: #fff;
+  --aifk-surface: #fff;
+  --aifk-surface-elevated: #fff;
+  --aifk-surface-subtle: #f7f7f7;
+  --aifk-text: #000;
+  --aifk-text-muted: #2b2b2b;
+  --aifk-text-subtle: #404040;
+  --aifk-border: #000;
+  --aifk-border-strong: #000;
+  --aifk-accent: #0000b8;
+  --aifk-accent-foreground: #fff;
+  --aifk-accent-muted: #e5e5ff;
+  --aifk-focus: #000;
+  --aifk-selection: #b8c7ff;
+  --aifk-input: #fff;
+  --aifk-input-border: #000;
+  --aifk-disabled: #e5e5e5;
+  --aifk-disabled-foreground: #404040;
+  --aifk-destructive: #a40000;
+  --aifk-destructive-foreground: #fff;
+  --aifk-success: #006b2d;
+  --aifk-success-foreground: #fff;
+  --aifk-warning: #6b3b00;
+  --aifk-warning-foreground: #fff;
+  --aifk-info: #005a8c;
+  --aifk-info-foreground: #fff;
+  --aifk-assistant-surface: #f3f3f3;
+  --aifk-user-surface: #e9e9ff;
+  --aifk-tool-surface: #e5ffff;
+  --aifk-reasoning-surface: #f0eaff;
+  --aifk-approval-surface: #fff0df;
+  --aifk-artifact-surface: #e9ffe9;
+}
+
+/* System dark mode is opt-in only when no explicit theme attribute exists. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-aifk-theme]):not([data-aifk-mode]) {
+    color-scheme: dark;
+    --aifk-canvas: #0d0f12;
+    --aifk-surface: #15181d;
+    --aifk-surface-elevated: #1c2128;
+    --aifk-surface-subtle: #20242b;
+    --aifk-text: #f3f4f6;
+    --aifk-text-muted: #a6afb9;
+    --aifk-text-subtle: #8993a2;
+    --aifk-border: #303743;
+    --aifk-border-strong: #4a5563;
+    --aifk-accent: #818cf8;
+    --aifk-accent-foreground: #111827;
+    --aifk-accent-muted: #282b55;
+    --aifk-focus: #60a5fa;
+    --aifk-selection: #3730a3;
+    --aifk-input: #11151a;
+    --aifk-input-border: #4a5563;
+    --aifk-disabled: #242a31;
+    --aifk-disabled-foreground: #707986;
+    --aifk-destructive: #f87171;
+    --aifk-destructive-foreground: #450a0a;
+    --aifk-success: #4ade80;
+    --aifk-success-foreground: #052e16;
+    --aifk-warning: #fbbf24;
+    --aifk-warning-foreground: #422006;
+    --aifk-info: #38bdf8;
+    --aifk-info-foreground: #082f49;
+    --aifk-assistant-surface: #1c2026;
+    --aifk-user-surface: #20234a;
+    --aifk-tool-surface: #12313a;
+    --aifk-reasoning-surface: #2a2545;
+    --aifk-approval-surface: #332719;
+    --aifk-artifact-surface: #173424;
+  }
+}
+
+/* Warm and cool neutrals are intentionally small overrides, preserving state colors. */
+[data-aifk-temperature="warm"] {
+  --aifk-canvas: #fffdfa;
+  --aifk-surface: #faf7f2;
+  --aifk-surface-elevated: #fffefa;
+  --aifk-surface-subtle: #f6f0e8;
+  --aifk-text: #241f1b;
+  --aifk-text-muted: #685f57;
+  --aifk-text-subtle: #7c7168;
+  --aifk-border: #e4ded5;
+  --aifk-border-strong: #cfc5ba;
+  --aifk-input: #fffefa;
+  --aifk-input-border: #cfc5ba;
+  --aifk-assistant-surface: #f8f4ee;
+}
+[data-aifk-theme="dark"][data-aifk-temperature="warm"],
+[data-aifk-mode="dark"][data-aifk-temperature="warm"] {
+  --aifk-canvas: #120f0c;
+  --aifk-surface: #1b1713;
+  --aifk-surface-elevated: #24201b;
+  --aifk-surface-subtle: #2a241e;
+  --aifk-text: #f6f2ed;
+  --aifk-text-muted: #b9ada1;
+  --aifk-text-subtle: #9a8e83;
+  --aifk-border: #3c342c;
+  --aifk-border-strong: #5a4b3f;
+  --aifk-input: #17130f;
+  --aifk-input-border: #5a4b3f;
+  --aifk-assistant-surface: #24201b;
+}
+[data-aifk-temperature="cool"] {
+  --aifk-canvas: #fbfdff;
+  --aifk-surface: #f5f8fc;
+  --aifk-surface-elevated: #fff;
+  --aifk-surface-subtle: #eef3f8;
+  --aifk-text: #18212b;
+  --aifk-text-muted: #5d6875;
+  --aifk-text-subtle: #758291;
+  --aifk-border: #dce3ec;
+  --aifk-border-strong: #c0ccd9;
+  --aifk-input: #fff;
+  --aifk-input-border: #c0ccd9;
+  --aifk-assistant-surface: #f1f5f9;
+}
+[data-aifk-theme="dark"][data-aifk-temperature="cool"],
+[data-aifk-mode="dark"][data-aifk-temperature="cool"] {
+  --aifk-canvas: #0b1118;
+  --aifk-surface: #121a23;
+  --aifk-surface-elevated: #1a2530;
+  --aifk-surface-subtle: #202d39;
+  --aifk-text: #f0f6fc;
+  --aifk-text-muted: #a7b6c5;
+  --aifk-text-subtle: #899bab;
+  --aifk-border: #2d3d4d;
+  --aifk-border-strong: #496073;
+  --aifk-input: #0f171f;
+  --aifk-input-border: #496073;
+  --aifk-assistant-surface: #1b2530;
+}
+
+/* Typography. */
+:root {
+  --aifk-type-font-family-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --aifk-type-font-family-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  --aifk-type-font-size-xs: 0.75rem;
+  --aifk-type-font-size-sm: 0.875rem;
+  --aifk-type-font-size-md: 1rem;
+  --aifk-type-font-size-lg: 1.125rem;
+  --aifk-type-font-size-xl: 1.25rem;
+  --aifk-type-font-size-2xl: 1.5rem;
+  --aifk-type-font-size-3xl: 1.875rem;
+  --aifk-type-line-height-tight: 1.25;
+  --aifk-type-line-height-normal: 1.5;
+  --aifk-type-line-height-relaxed: 1.75;
+  --aifk-type-font-weight-normal: 400;
+  --aifk-type-font-weight-medium: 500;
+  --aifk-type-font-weight-semibold: 600;
+  --aifk-type-font-weight-bold: 700;
+  --aifk-type-letter-spacing-tight: -0.0125em;
+  --aifk-type-letter-spacing-normal: 0;
+  --aifk-type-letter-spacing-wide: 0.025em;
+}
+
+/* Spacing, density, radius and elevation. */
+:root {
+  --aifk-space-space-0: 0;
+  --aifk-space-space-1: 0.25rem;
+  --aifk-space-space-2: 0.5rem;
+  --aifk-space-space-3: 0.75rem;
+  --aifk-space-space-4: 1rem;
+  --aifk-space-space-5: 1.25rem;
+  --aifk-space-space-6: 1.5rem;
+  --aifk-space-space-7: 2rem;
+  --aifk-space-space-8: 3rem;
+  --aifk-space-content-gap: 0.75rem;
+  --aifk-space-section-gap: 1.5rem;
+  --aifk-space-control-height-sm: 2rem;
+  --aifk-space-control-height: 2.5rem;
+  --aifk-space-control-height-lg: 3rem;
+  --aifk-space-touch-target: 2.75rem;
+  --aifk-density-control-height-sm: 2rem;
+  --aifk-density-control-height: 2.5rem;
+  --aifk-density-control-height-lg: 3rem;
+  --aifk-density-touch-target: 2.75rem;
+  --aifk-density-content-gap: 0.75rem;
+  --aifk-density-section-gap: 1.5rem;
+  --aifk-radius-none: 0;
+  --aifk-radius-small: 0.375rem;
+  --aifk-radius-medium: 0.625rem;
+  --aifk-radius-large: 0.875rem;
+  --aifk-radius-full: 9999px;
+  --aifk-radius-control: 0.625rem;
+  --aifk-radius-panel: 0.875rem;
+  --aifk-radius-pill: 9999px;
+  --aifk-shadow-none: none;
+  --aifk-shadow-sm: 0 1px 2px rgb(15 23 42 / 0.06);
+  --aifk-shadow-md: 0 4px 12px rgb(15 23 42 / 0.10);
+  --aifk-shadow-lg: 0 12px 32px rgb(15 23 42 / 0.14);
+  --aifk-shadow-focus: 0 0 0 3px rgb(37 99 235 / 0.28);
+}
+[data-aifk-density="compact"] { --aifk-density-control-height-sm: 1.75rem; --aifk-density-control-height: 2.1875rem; --aifk-density-control-height-lg: 2.625rem; --aifk-density-touch-target: 2.75rem; --aifk-density-content-gap: 0.625rem; --aifk-density-section-gap: 1.25rem; }
+[data-aifk-density="spacious"] { --aifk-density-control-height-sm: 2.25rem; --aifk-density-control-height: 2.8125rem; --aifk-density-control-height-lg: 3.375rem; --aifk-density-touch-target: 2.875rem; --aifk-density-content-gap: 0.875rem; --aifk-density-section-gap: 1.75rem; }
+[data-aifk-radius="none"] { --aifk-radius-control: 0; --aifk-radius-panel: 0; }
+[data-aifk-radius="small"] { --aifk-radius-control: 0.375rem; --aifk-radius-panel: 0.5rem; }
+[data-aifk-radius="large"] { --aifk-radius-control: 0.75rem; --aifk-radius-panel: 1rem; }
+[data-aifk-radius="full"] { --aifk-radius-control: 9999px; --aifk-radius-panel: 1.25rem; }
+
+/* Motion is semantic and bounded; components consume recipes instead of inventing timings. */
+:root {
+  --aifk-motion-level: subtle;
+  --aifk-motion-duration-instant: 0ms;
+  --aifk-motion-duration-fast: 120ms;
+  --aifk-motion-duration-normal: 180ms;
+  --aifk-motion-duration-slow: 280ms;
+  --aifk-motion-easing-linear: linear;
+  --aifk-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --aifk-motion-easing-enter: cubic-bezier(0, 0, 0.2, 1);
+  --aifk-motion-easing-exit: cubic-bezier(0.4, 0, 1, 1);
+  --aifk-motion-easing-emphasis: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --aifk-motion-distance: 8px;
+  --aifk-motion-scale: 0.985;
+  --aifk-motion-opacity: 0;
+  --aifk-motion-stagger: 24ms;
+  --aifk-motion-message-entry-duration: 120ms;
+  --aifk-motion-message-entry-easing: cubic-bezier(0, 0, 0.2, 1);
+  --aifk-motion-message-entry-distance: 4px;
+  --aifk-motion-message-entry-scale: 0.99;
+  --aifk-motion-message-entry-opacity: 0;
+  --aifk-motion-message-entry-stagger: 0ms;
+  --aifk-motion-stream-activity-duration: 0ms;
+  --aifk-motion-panel-transition-duration: 180ms;
+  --aifk-motion-panel-transition-distance: 8px;
+  --aifk-motion-artifact-update-duration: 180ms;
+  --aifk-motion-tool-progress-duration: 120ms;
+  --aifk-motion-approval-attention-duration: 180ms;
+}
+[data-aifk-motion="none"] { --aifk-motion-level: none; --aifk-motion-duration-fast: 0ms; --aifk-motion-duration-normal: 0ms; --aifk-motion-duration-slow: 0ms; --aifk-motion-distance: 0px; --aifk-motion-scale: 1; --aifk-motion-opacity: 1; --aifk-motion-stagger: 0ms; --aifk-motion-message-entry-duration: 0ms; --aifk-motion-message-entry-distance: 0px; --aifk-motion-message-entry-scale: 1; --aifk-motion-message-entry-opacity: 1; --aifk-motion-panel-transition-duration: 0ms; --aifk-motion-panel-transition-distance: 0px; --aifk-motion-artifact-update-duration: 0ms; --aifk-motion-tool-progress-duration: 0ms; --aifk-motion-approval-attention-duration: 0ms; }
+[data-aifk-motion="expressive"] { --aifk-motion-level: expressive; --aifk-motion-duration-fast: 150ms; --aifk-motion-duration-normal: 225ms; --aifk-motion-duration-slow: 350ms; --aifk-motion-distance: 10px; --aifk-motion-scale: 0.98; --aifk-motion-stagger: 48ms; --aifk-motion-message-entry-duration: 150ms; --aifk-motion-message-entry-distance: 5px; --aifk-motion-panel-transition-duration: 225ms; --aifk-motion-panel-transition-distance: 10px; --aifk-motion-artifact-update-duration: 225ms; --aifk-motion-tool-progress-duration: 150ms; --aifk-motion-approval-attention-duration: 225ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  :root, [data-aifk-motion], [data-aifk-motion="expressive"], [data-aifk-motion="subtle"] {
+    --aifk-motion-level: none;
+    --aifk-motion-duration-instant: 0ms;
+    --aifk-motion-duration-fast: 0ms;
+    --aifk-motion-duration-normal: 0ms;
+    --aifk-motion-duration-slow: 0ms;
+    --aifk-motion-distance: 0px;
+    --aifk-motion-scale: 1;
+    --aifk-motion-opacity: 1;
+    --aifk-motion-stagger: 0ms;
+    --aifk-motion-message-entry-duration: 0ms;
+    --aifk-motion-message-entry-distance: 0px;
+    --aifk-motion-message-entry-scale: 1;
+    --aifk-motion-message-entry-opacity: 1;
+    --aifk-motion-message-entry-stagger: 0ms;
+    --aifk-motion-stream-activity-duration: 0ms;
+    --aifk-motion-panel-transition-duration: 0ms;
+    --aifk-motion-panel-transition-distance: 0px;
+    --aifk-motion-artifact-update-duration: 0ms;
+    --aifk-motion-tool-progress-duration: 0ms;
+    --aifk-motion-approval-attention-duration: 0ms;
+  }
+}
+
+:where([data-aifk-root], [data-aifk-theme]) :where(*, *::before, *::after) { border-color: var(--aifk-border); }
+:where([data-aifk-root], [data-aifk-theme]) :where(:focus-visible) { outline: 2px solid var(--aifk-focus); outline-offset: 2px; }
+:where([data-aifk-root], [data-aifk-theme]) :where(::selection) { background: var(--aifk-selection); color: var(--aifk-text); }

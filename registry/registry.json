@@ -1,0 +1,11 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "aifrontkit",
+  "homepage": "https://aifrontkit.dev",
+  "items": [
+    { "name": "message", "type": "registry:component", "title": "AI message", "description": "Accessible source-owned message presentation." },
+    { "name": "prompt-input", "type": "registry:component", "title": "Prompt input", "description": "Composable prompt input with submit behavior." },
+    { "name": "tool-call", "type": "registry:component", "title": "Tool call", "description": "Status-aware tool call presentation." },
+    { "name": "tool-approval", "type": "registry:block", "title": "Tool approval", "description": "Explicit consequential-action approval pattern." }
+  ]
+}

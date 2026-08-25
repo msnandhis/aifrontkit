@@ -1,0 +1,5 @@
+[
+  { "schemaVersion": 1, "id": "fixture-1", "threadId": "fixture-thread", "timestamp": 1, "type": "message.started", "messageId": "assistant-1", "role": "assistant" },
+  { "schemaVersion": 1, "id": "fixture-2", "threadId": "fixture-thread", "timestamp": 2, "type": "message.delta", "messageId": "assistant-1", "delta": "Hello" },
+  { "schemaVersion": 1, "id": "fixture-3", "threadId": "fixture-thread", "timestamp": 3, "type": "message.completed", "messageId": "assistant-1" }
+]

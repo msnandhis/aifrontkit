@@ -1,0 +1,35 @@
+{
+  "name": "@aifrontkit/react",
+  "version": "0.1.0",
+  "description": "React providers, hooks, and headless primitives for AIFrontKit",
+  "type": "module",
+  "sideEffects": false,
+  "license": "Apache-2.0",
+  "files": ["dist"],
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
+    "./runtime": { "types": "./dist/runtime/index.d.ts", "import": "./dist/runtime/index.js" },
+    "./theme": { "types": "./dist/theme/index.d.ts", "import": "./dist/theme/index.js" },
+    "./message": { "types": "./dist/message/index.d.ts", "import": "./dist/message/index.js" },
+    "./composer": { "types": "./dist/composer/index.d.ts", "import": "./dist/composer/index.js" },
+    "./tool": { "types": "./dist/tool/index.d.ts", "import": "./dist/tool/index.js" }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@aifrontkit/core": "workspace:^",
+    "@aifrontkit/tokens": "workspace:^"
+  },
+  "peerDependencies": { "react": ">=18.3 <20", "react-dom": ">=18.3 <20" },
+  "devDependencies": {
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}

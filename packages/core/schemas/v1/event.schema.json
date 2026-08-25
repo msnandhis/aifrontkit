@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aifrontkit.dev/schemas/events/v1.json",
+  "title": "AIFrontKit event envelope v1",
+  "type": "object",
+  "required": ["schemaVersion", "id", "threadId", "timestamp", "type"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "id": { "type": "string", "minLength": 1 },
+    "threadId": { "type": "string", "minLength": 1 },
+    "timestamp": { "type": "number" },
+    "type": {
+      "enum": ["message.started", "message.delta", "message.completed", "message.failed", "tool.updated", "approval.requested", "approval.resolved", "artifact.updated"]
+    }
+  },
+  "additionalProperties": true
+}
