@@ -6,26 +6,29 @@ export type MessageVariant = "minimal" | "conversation" | "dense" | "workspace";
 export type MessageMotion = "none" | "subtle" | "expressive";
 
 export interface MessageProps extends Omit<MessageRootProps, "children" | "className"> {
-  /** A layout treatment; state and accessibility semantics stay identical. */
   variant?: MessageVariant;
-  /** Controls entrance motion. `none` is useful in dense or user-controlled contexts. */
   motion?: MessageMotion;
   className?: string;
-  /** Supply a Markdown renderer or other custom content in place of default parts. */
   children?: ReactNode;
+  actions?: ReactNode;
+  metadata?: ReactNode;
+  recovery?: ReactNode;
+  /** Disable when a parent Conversation provides the shared announcement. */
+  announceStatus?: boolean;
   contentProps?: Omit<ComponentPropsWithoutRef<"div">, "children">;
 }
 
-/**
- * A deliberately neutral, source-owned presentation for a runtime message.
- * Edit this file and message.css after installation to match the host product.
- */
+/** A quiet, source-owned message presentation for normalized runtime state. */
 export function Message({
   messageId,
   variant = "conversation",
   motion = "subtle",
   className,
   children,
+  actions,
+  metadata,
+  recovery,
+  announceStatus = true,
   contentProps,
   ...props
 }: MessageProps) {
@@ -39,13 +42,21 @@ export function Message({
     >
       <header className="aifk-message__header">
         <MessagePrimitive.Role className="aifk-message__role" />
-        <span className="aifk-message__streaming-indicator" aria-hidden="true" />
+        {metadata ? <div className="aifk-message__metadata">{metadata}</div> : null}
       </header>
-      <MessagePrimitive.Content {...contentProps} className={["aifk-message__content", contentProps?.className].filter(Boolean).join(" ")}>
+      <MessagePrimitive.Content
+        {...contentProps}
+        className={["aifk-message__content", contentProps?.className].filter(Boolean).join(" ")}
+      >
         {children}
       </MessagePrimitive.Content>
-      <MessagePrimitive.Error className="aifk-message__error" />
-      <MessagePrimitive.Status className="aifk-message__status aifk-message__sr-only" />
+      <div className="aifk-message__state">
+        <span className="aifk-message__streaming-indicator" aria-hidden="true"><span /></span>
+        <MessagePrimitive.Error className="aifk-message__error" />
+        {recovery ? <div className="aifk-message__recovery">{recovery}</div> : null}
+      </div>
+      {actions ? <footer className="aifk-message__actions">{actions}</footer> : null}
+      <MessagePrimitive.Status announce={announceStatus} className="aifk-message__status aifk-message__sr-only" />
     </MessagePrimitive.Root>
   );
 }

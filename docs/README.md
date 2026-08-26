@@ -1,6 +1,15 @@
-# AIFrontKit OSS documentation
+# AIFrontKit engineering documentation
 
-Each capability has one primary document. Cross-cutting documents link to capabilities rather than redefining them.
+This directory is the repository's internal source of truth for architecture,
+engineering policy, decisions, and product strategy. It is written for
+maintainers and contributors rather than used as the public documentation site.
+
+Public, publishable product documentation lives in [`../content/docs`](../content/docs/README.md).
+That content has its own navigation and version manifests and may be imported by
+the platform without exposing private operational documentation.
+
+Each engineering capability has one primary document. Cross-cutting documents
+link to capabilities rather than redefining them.
 
 ## Foundation
 

@@ -1,53 +1,55 @@
 .aifk-message {
-  --aifk-message-max-width: 48rem;
-  --aifk-message-space: var(--aifk-space-space-1, 0.25rem);
-  --aifk-message-padding-block: calc(var(--aifk-message-space) * 3);
-  --aifk-message-padding-inline: calc(var(--aifk-message-space) * 4);
-  --aifk-message-gap: calc(var(--aifk-message-space) * 2);
-  --aifk-message-radius: var(--aifk-radius-panel, 0.75rem);
-  --aifk-message-duration: var(--aifk-motion-message-entry-duration, 160ms);
-  --aifk-message-streaming-duration: calc(var(--aifk-motion-duration-slow, 250ms) * 4);
-  --aifk-message-ease: var(--aifk-motion-message-entry-easing, ease-out);
+  --aifk-message-measure: 44rem;
+  --aifk-message-user-measure: 36rem;
+  --aifk-message-pad-block: 0.625rem;
+  --aifk-message-gap: 0.5rem;
   box-sizing: border-box;
   display: grid;
   gap: var(--aifk-message-gap);
-  max-inline-size: min(var(--aifk-message-max-width), 100%);
-  padding: var(--aifk-message-padding-block) var(--aifk-message-padding-inline);
-  border: 1px solid transparent;
-  border-radius: var(--aifk-message-radius);
-  color: var(--aifk-message-text, var(--aifk-text, CanvasText));
-  background: var(--aifk-message-background, transparent);
+  inline-size: min(100%, var(--aifk-message-measure));
+  padding-block: var(--aifk-message-pad-block);
+  color: var(--aifk-text, CanvasText);
+  background: transparent;
   font: inherit;
-  line-height: 1.55;
+  line-height: 1.58;
   overflow-wrap: anywhere;
 }
-
 .aifk-message *, .aifk-message *::before, .aifk-message *::after { box-sizing: border-box; }
-.aifk-message[data-role="user"] { justify-self: end; background: var(--aifk-message-user-background, var(--aifk-surface, Canvas)); }
-.aifk-message[data-role="assistant"] { justify-self: start; background: var(--aifk-message-assistant-background, var(--aifk-surface-elevated, Canvas)); }
-.aifk-message[data-role="system"] { justify-self: stretch; background: var(--aifk-message-system-background, var(--aifk-surface, Canvas)); color: var(--aifk-message-system-text, var(--aifk-text-muted, GrayText)); }
-
-.aifk-message[data-variant="minimal"] { padding-inline: 0; border-radius: 0; background: transparent; }
-.aifk-message[data-variant="conversation"] { border-color: var(--aifk-message-border, var(--aifk-border, ButtonBorder)); }
-.aifk-message[data-variant="dense"] { --aifk-message-padding-block: calc(var(--aifk-message-space) * 1.5); --aifk-message-padding-inline: calc(var(--aifk-message-space) * 2); --aifk-message-gap: var(--aifk-message-space); font-size: 0.9375em; }
-.aifk-message[data-variant="workspace"] { --aifk-message-max-width: 100%; border-color: var(--aifk-message-border, var(--aifk-border, ButtonBorder)); box-shadow: var(--aifk-message-shadow, 0 1px 2px color-mix(in srgb, CanvasText 10%, transparent)); }
-
-.aifk-message__header { display: flex; align-items: center; justify-content: space-between; gap: var(--aifk-message-gap); min-inline-size: 0; }
-.aifk-message__role { color: var(--aifk-message-role-text, var(--aifk-text-muted, GrayText)); font-size: 0.8125em; font-weight: 600; letter-spacing: 0.01em; }
-.aifk-message__content { display: grid; gap: var(--aifk-message-gap); min-inline-size: 0; white-space: pre-wrap; }
-.aifk-message__content [data-aifk-message-part="image"] { block-size: auto; border-radius: calc(var(--aifk-message-radius) * 0.75); max-inline-size: 100%; }
-.aifk-message__content [data-aifk-message-part="file"] { color: inherit; text-decoration-color: currentColor; text-underline-offset: 0.16em; }
-.aifk-message__content [data-aifk-message-part="file"]:focus-visible { outline: 2px solid var(--aifk-focus, Highlight); outline-offset: 3px; border-radius: 0.125rem; }
-.aifk-message__error { margin: 0; color: var(--aifk-message-error-text, var(--aifk-danger, var(--aifk-text, CanvasText))); font-size: 0.875em; font-weight: 600; }
-.aifk-message__streaming-indicator { display: none; inline-size: 0.5rem; block-size: 0.5rem; border-radius: 999px; background: currentColor; opacity: 0.7; }
-.aifk-message[data-status="streaming"] .aifk-message__streaming-indicator { display: inline-block; animation: aifk-message-pulse var(--aifk-message-streaming-duration) var(--aifk-message-ease) infinite alternate; }
-.aifk-message__sr-only { position: absolute; inline-size: 1px; block-size: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-
-.aifk-message[data-motion="subtle"] { animation: aifk-message-enter var(--aifk-message-duration) var(--aifk-message-ease) both; }
-.aifk-message[data-motion="expressive"] { animation: aifk-message-enter-expressive calc(var(--aifk-message-duration) * 1.5) var(--aifk-message-ease) both; }
+.aifk-message[data-role="assistant"] { justify-self: start; }
+.aifk-message[data-role="user"] { justify-self: end; inline-size: min(100%, var(--aifk-message-user-measure)); padding: 0.75rem 0.875rem; border-radius: var(--aifk-radius-panel, 0.875rem); background: var(--aifk-user-surface, var(--aifk-surface, Canvas)); }
+.aifk-message[data-role="system"] { justify-self: stretch; inline-size: 100%; padding: 0.625rem 0.75rem; border-inline-start: 2px solid var(--aifk-border-strong, ButtonBorder); color: var(--aifk-text-muted, GrayText); background: var(--aifk-surface-subtle, Canvas); }
+.aifk-message[data-variant="minimal"] { --aifk-message-pad-block: 0.25rem; }
+.aifk-message[data-variant="dense"] { --aifk-message-pad-block: 0.375rem; --aifk-message-gap: 0.25rem; font-size: 0.9375rem; }
+.aifk-message[data-variant="workspace"] { --aifk-message-measure: 100%; --aifk-message-user-measure: 42rem; }
+.aifk-message__header { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; min-inline-size: 0; }
+.aifk-message__role { color: var(--aifk-text-subtle, GrayText); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.01em; }
+.aifk-message[data-role="assistant"] .aifk-message__role, .aifk-message[data-role="user"] .aifk-message__role { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.aifk-message__metadata { color: var(--aifk-text-subtle, GrayText); font-size: 0.75rem; font-variant-numeric: tabular-nums; }
+.aifk-message__content { display: grid; gap: 0.75rem; min-inline-size: 0; white-space: pre-wrap; }
+.aifk-message__content > :first-child { margin-block-start: 0; }
+.aifk-message__content > :last-child { margin-block-end: 0; }
+.aifk-message__content pre { max-inline-size: 100%; overflow: auto; }
+.aifk-message__content [data-aifk-message-part="image"] { block-size: auto; border-radius: var(--aifk-radius-medium, 0.625rem); max-inline-size: 100%; }
+.aifk-message__content [data-aifk-message-part="file"] { color: var(--aifk-accent, LinkText); text-decoration-thickness: 1px; text-underline-offset: 0.16em; }
+.aifk-message__state:empty { display: none; }
+.aifk-message__state { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.aifk-message__error { margin: 0; color: var(--aifk-destructive, CanvasText); font-size: 0.875rem; font-weight: 550; }
+.aifk-message__recovery { display: flex; align-items: center; gap: 0.375rem; }
+.aifk-message__streaming-indicator { display: none; align-items: center; min-block-size: 1.25rem; color: var(--aifk-text-subtle, GrayText); }
+.aifk-message__streaming-indicator > span { inline-size: 1rem; block-size: 2px; border-radius: 1px; background: currentColor; transform-origin: left center; }
+.aifk-message[data-status="streaming"] .aifk-message__streaming-indicator { display: inline-flex; }
+.aifk-message[data-status="streaming"] .aifk-message__streaming-indicator > span { animation: aifk-message-progress 900ms ease-in-out infinite alternate; }
+.aifk-message__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem; min-block-size: 1.75rem; color: var(--aifk-text-muted, GrayText); opacity: 0.58; transition: opacity var(--aifk-motion-duration-fast, 120ms) ease-out; }
+.aifk-message:hover .aifk-message__actions, .aifk-message:focus-within .aifk-message__actions { opacity: 1; }
+.aifk-message__actions :where(button, a) { min-block-size: 2rem; }
+.aifk-message__sr-only { position: absolute; inline-size: 1px; block-size: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.aifk-message[data-motion="subtle"] { animation: aifk-message-enter var(--aifk-motion-message-entry-duration, 120ms) var(--aifk-motion-message-entry-easing, ease-out) both; }
+.aifk-message[data-motion="expressive"] { animation: aifk-message-enter-expressive calc(var(--aifk-motion-message-entry-duration, 160ms) * 1.35) var(--aifk-motion-message-entry-easing, ease-out) both; }
 .aifk-message[data-motion="none"] { animation: none; }
-@keyframes aifk-message-enter { from { opacity: 0; transform: translateY(var(--aifk-motion-distance, 0.25rem)); } to { opacity: 1; transform: translateY(0); } }
-@keyframes aifk-message-enter-expressive { from { opacity: 0; transform: translateY(var(--aifk-motion-distance, 0.5rem)) scale(var(--aifk-motion-start-scale, 0.985)); } 65% { opacity: 1; } to { opacity: 1; transform: translateY(0) scale(1); } }
-@keyframes aifk-message-pulse { from { transform: scale(0.72); opacity: 0.38; } to { transform: scale(1); opacity: 0.9; } }
-@media (max-width: 40rem) { .aifk-message { --aifk-message-padding-inline: calc(var(--aifk-message-space) * 3); max-inline-size: 100%; } .aifk-message[data-variant="workspace"] { border-inline: 0; border-radius: 0; } }
-@media (prefers-reduced-motion: reduce) { .aifk-message, .aifk-message__streaming-indicator { animation: none !important; } }
+@keyframes aifk-message-enter { from { opacity: 0; transform: translateY(var(--aifk-motion-message-entry-distance, 4px)); } to { opacity: 1; transform: translateY(0); } }
+@keyframes aifk-message-enter-expressive { from { opacity: 0; transform: translateY(var(--aifk-motion-message-entry-distance, 8px)) scale(var(--aifk-motion-message-entry-scale, 0.99)); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes aifk-message-progress { from { transform: scaleX(0.35); opacity: 0.4; } to { transform: scaleX(1); opacity: 0.9; } }
+@media (max-width: 40rem) { .aifk-message, .aifk-message[data-role="user"] { inline-size: 100%; max-inline-size: 100%; } .aifk-message[data-role="user"] { justify-self: stretch; } }
+@media (hover: none) { .aifk-message__actions { opacity: 1; } }
+@media (pointer: coarse) { .aifk-message__actions :where(button, a) { min-block-size: 2.75rem; min-inline-size: 2.75rem; } }
+@media (prefers-reduced-motion: reduce) { .aifk-message, .aifk-message__streaming-indicator > span, .aifk-message__actions { animation: none !important; transition: none !important; } }

@@ -42,7 +42,8 @@ export type MotionRecipeName = (typeof motionRecipeNames)[number];
 /** Semantic color token names. Keep these names about intent, not components. */
 export const tokenNames = [
   "canvas", "surface", "surfaceElevated", "surfaceSubtle", "text", "textMuted", "textSubtle",
-  "border", "borderStrong", "accent", "accentForeground", "accentMuted", "focus", "selection",
+  "border", "borderStrong", "action", "actionForeground", "actionHover",
+  "accent", "accentForeground", "accentMuted", "focus", "selection",
   "input", "inputBorder", "disabled", "disabledForeground", "destructive", "destructiveForeground",
   "success", "successForeground", "warning", "warningForeground", "info", "infoForeground",
   "assistantSurface", "userSurface", "toolSurface", "reasoningSurface", "approvalSurface", "artifactSurface"
@@ -111,6 +112,15 @@ export interface ShadowTokens {
   focus: string;
 }
 
+export interface ZIndexTokens {
+  base: number;
+  sticky: number;
+  dropdown: number;
+  overlay: number;
+  modal: number;
+  toast: number;
+}
+
 export interface MotionRecipe {
   duration: DurationName;
   easing: EasingName;
@@ -167,6 +177,7 @@ export interface ThemeOptions {
   typography?: Partial<TypographyTokens>;
   spacing?: Partial<SpacingTokens>;
   shadows?: Partial<ShadowTokens>;
+  zIndex?: Partial<ZIndexTokens>;
   motion?: MotionOptions;
 }
 
@@ -185,6 +196,7 @@ export interface ResolvedTheme {
   spacing: SpacingTokens;
   radii: RadiusTokens;
   shadows: ShadowTokens;
+  zIndex: ZIndexTokens;
   motion: MotionTokens;
 }
 
@@ -221,9 +233,11 @@ const baseRadii: Record<Radius, RadiusTokens> = {
 };
 
 const baseShadows: ShadowTokens = {
-  none: "none", sm: "0 1px 2px rgb(15 23 42 / 0.06)", md: "0 4px 12px rgb(15 23 42 / 0.10)",
-  lg: "0 12px 32px rgb(15 23 42 / 0.14)", focus: "0 0 0 3px rgb(37 99 235 / 0.28)"
+  none: "none", sm: "0 1px 2px rgb(24 24 27 / 0.06)", md: "0 4px 14px rgb(24 24 27 / 0.09)",
+  lg: "0 16px 40px rgb(24 24 27 / 0.13)", focus: "0 0 0 3px rgb(49 94 216 / 0.24)"
 };
+
+const baseZIndex: ZIndexTokens = { base: 0, sticky: 10, dropdown: 20, overlay: 30, modal: 40, toast: 50 };
 
 const defaultDurations: Record<DurationName, string> = { instant: "0ms", fast: "120ms", normal: "180ms", slow: "280ms" };
 const defaultEasings: Record<EasingName, string> = {
@@ -243,32 +257,48 @@ const densityMultipliers: Record<Density, number> = { compact: 0.875, comfortabl
 
 const paletteByMode: Record<ThemeMode, ThemeTokens> = {
   light: {
-    canvas: "#ffffff", surface: "#f7f7f8", surfaceElevated: "#ffffff", surfaceSubtle: "#f2f3f5", text: "#17191c", textMuted: "#59616b", textSubtle: "#737b86",
-    border: "#dfe2e6", borderStrong: "#c5c9d0", accent: "#4f46e5", accentForeground: "#ffffff", accentMuted: "#eef2ff", focus: "#2563eb", selection: "#c7d2fe",
-    input: "#ffffff", inputBorder: "#c8cdd5", disabled: "#eef0f2", disabledForeground: "#8a919b", destructive: "#b91c1c", destructiveForeground: "#ffffff",
+    canvas: "#ffffff", surface: "#f6f6f7", surfaceElevated: "#ffffff", surfaceSubtle: "#fafafa", text: "#18181b", textMuted: "#5f6068", textSubtle: "#7c7d86",
+    border: "#e7e7e9", borderStrong: "#d4d4d8", action: "#18181b", actionForeground: "#ffffff", actionHover: "#27272a",
+    accent: "#315ed8", accentForeground: "#ffffff", accentMuted: "#edf2ff", focus: "#315ed8", selection: "#dbe5ff",
+    input: "#ffffff", inputBorder: "#d4d4d8", disabled: "#f0f0f1", disabledForeground: "#8a8a93", destructive: "#b42318", destructiveForeground: "#ffffff",
     success: "#15803d", successForeground: "#ffffff", warning: "#a16207", warningForeground: "#ffffff", info: "#0369a1", infoForeground: "#ffffff",
-    assistantSurface: "#f5f5f4", userSurface: "#eef2ff", toolSurface: "#ecfeff", reasoningSurface: "#f5f3ff", approvalSurface: "#fff7ed", artifactSurface: "#f0fdf4"
+    assistantSurface: "#ffffff", userSurface: "#f1f1f3", toolSurface: "#f6f6f7", reasoningSurface: "#f6f6f7", approvalSurface: "#fafafa", artifactSurface: "#f6f6f7"
   },
   dark: {
-    canvas: "#0d0f12", surface: "#15181d", surfaceElevated: "#1c2128", surfaceSubtle: "#20242b", text: "#f3f4f6", textMuted: "#a6afb9", textSubtle: "#8993a2",
-    border: "#303743", borderStrong: "#4a5563", accent: "#818cf8", accentForeground: "#111827", accentMuted: "#282b55", focus: "#60a5fa", selection: "#3730a3",
-    input: "#11151a", inputBorder: "#4a5563", disabled: "#242a31", disabledForeground: "#707986", destructive: "#f87171", destructiveForeground: "#450a0a",
-    success: "#4ade80", successForeground: "#052e16", warning: "#fbbf24", warningForeground: "#422006", info: "#38bdf8", infoForeground: "#082f49",
-    assistantSurface: "#1c2026", userSurface: "#20234a", toolSurface: "#12313a", reasoningSurface: "#2a2545", approvalSurface: "#332719", artifactSurface: "#173424"
+    canvas: "#0d0d0f", surface: "#171719", surfaceElevated: "#1d1d20", surfaceSubtle: "#111113", text: "#f4f4f5", textMuted: "#b0b0b7", textSubtle: "#898991",
+    border: "#29292d", borderStrong: "#3a3a40", action: "#f4f4f5", actionForeground: "#18181b", actionHover: "#ffffff",
+    accent: "#8eaaff", accentForeground: "#111113", accentMuted: "#1d2b52", focus: "#8eaaff", selection: "#263867",
+    input: "#111113", inputBorder: "#3a3a40", disabled: "#222225", disabledForeground: "#74747d", destructive: "#ff8a80", destructiveForeground: "#3b0905",
+    success: "#62d98b", successForeground: "#062a14", warning: "#f3c969", warningForeground: "#332000", info: "#79c7ff", infoForeground: "#08263a",
+    assistantSurface: "#0d0d0f", userSurface: "#202023", toolSurface: "#171719", reasoningSurface: "#171719", approvalSurface: "#171719", artifactSurface: "#171719"
   },
   "high-contrast": {
     canvas: "#ffffff", surface: "#ffffff", surfaceElevated: "#ffffff", surfaceSubtle: "#f7f7f7", text: "#000000", textMuted: "#2b2b2b", textSubtle: "#404040",
-    border: "#000000", borderStrong: "#000000", accent: "#0000b8", accentForeground: "#ffffff", accentMuted: "#e5e5ff", focus: "#000000", selection: "#b8c7ff",
+    border: "#000000", borderStrong: "#000000", action: "#000000", actionForeground: "#ffffff", actionHover: "#202020",
+    accent: "#0000b8", accentForeground: "#ffffff", accentMuted: "#e5e5ff", focus: "#000000", selection: "#b8c7ff",
     input: "#ffffff", inputBorder: "#000000", disabled: "#e5e5e5", disabledForeground: "#404040", destructive: "#a40000", destructiveForeground: "#ffffff",
     success: "#006b2d", successForeground: "#ffffff", warning: "#6b3b00", warningForeground: "#ffffff", info: "#005a8c", infoForeground: "#ffffff",
-    assistantSurface: "#f3f3f3", userSurface: "#e9e9ff", toolSurface: "#e5ffff", reasoningSurface: "#f0eaff", approvalSurface: "#fff0df", artifactSurface: "#e9ffe9"
+    assistantSurface: "#ffffff", userSurface: "#f0f0f0", toolSurface: "#f7f7f7", reasoningSurface: "#f7f7f7", approvalSurface: "#f7f7f7", artifactSurface: "#f7f7f7"
   }
 };
 
-const accentPalettes: Record<AccentName, Pick<ThemeTokens, "accent" | "accentForeground" | "accentMuted">> = {
-  indigo: { accent: "#4f46e5", accentForeground: "#ffffff", accentMuted: "#eef2ff" }, blue: { accent: "#1d4ed8", accentForeground: "#ffffff", accentMuted: "#dbeafe" },
-  teal: { accent: "#0f766e", accentForeground: "#ffffff", accentMuted: "#ccfbf1" }, violet: { accent: "#6d28d9", accentForeground: "#ffffff", accentMuted: "#ede9fe" },
-  rose: { accent: "#be123c", accentForeground: "#ffffff", accentMuted: "#ffe4e6" }, amber: { accent: "#a16207", accentForeground: "#ffffff", accentMuted: "#fef3c7" }
+type AccentTokens = Pick<ThemeTokens, "accent" | "accentForeground" | "accentMuted">;
+const accentPalettes: Record<ThemeMode, Record<AccentName, AccentTokens>> = {
+  light: {
+    blue: { accent: "#315ed8", accentForeground: "#ffffff", accentMuted: "#edf2ff" }, indigo: { accent: "#4f46e5", accentForeground: "#ffffff", accentMuted: "#eef2ff" },
+    teal: { accent: "#0f766e", accentForeground: "#ffffff", accentMuted: "#ccfbf1" }, violet: { accent: "#6d28d9", accentForeground: "#ffffff", accentMuted: "#ede9fe" },
+    rose: { accent: "#be123c", accentForeground: "#ffffff", accentMuted: "#ffe4e6" }, amber: { accent: "#854d0e", accentForeground: "#ffffff", accentMuted: "#fef3c7" }
+  },
+  dark: {
+    blue: { accent: "#8eaaff", accentForeground: "#111113", accentMuted: "#1d2b52" }, indigo: { accent: "#a5b4fc", accentForeground: "#111113", accentMuted: "#292a4f" },
+    teal: { accent: "#5eead4", accentForeground: "#0d0d0f", accentMuted: "#153c38" }, violet: { accent: "#c4b5fd", accentForeground: "#111113", accentMuted: "#352b50" },
+    rose: { accent: "#fda4af", accentForeground: "#2b0b10", accentMuted: "#4a2028" }, amber: { accent: "#fcd34d", accentForeground: "#2d2100", accentMuted: "#433514" }
+  },
+  "high-contrast": {
+    blue: { accent: "#0000b8", accentForeground: "#ffffff", accentMuted: "#e5e5ff" }, indigo: { accent: "#310080", accentForeground: "#ffffff", accentMuted: "#eee5ff" },
+    teal: { accent: "#00594f", accentForeground: "#ffffff", accentMuted: "#dcfffb" }, violet: { accent: "#5900a8", accentForeground: "#ffffff", accentMuted: "#f2e5ff" },
+    rose: { accent: "#94002e", accentForeground: "#ffffff", accentMuted: "#ffe5ed" }, amber: { accent: "#6b3b00", accentForeground: "#ffffff", accentMuted: "#fff0d7" }
+  }
 };
 
 const temperatureOverrides: Record<ThemeMode, Record<ThemeTemperature, Partial<ThemeTokens>>> = {
@@ -349,14 +379,15 @@ export function createTheme(options: ThemeOptions = {}): ResolvedTheme {
   const temperature = options.temperature ?? "neutral";
   const density = options.density ?? "comfortable";
   const radius = options.radius ?? "medium";
-  const accent = options.accent ?? "indigo";
+  const accent = options.accent ?? "blue";
   const tokens: ThemeTokens = {
-    ...paletteByMode[mode], ...temperatureOverrides[mode][temperature], ...accentPalettes[accent], ...(options.tokens ?? {})
+    ...paletteByMode[mode], ...temperatureOverrides[mode][temperature], ...accentPalettes[mode][accent], ...(options.tokens ?? {})
   };
   return {
     schemaVersion: themeSchemaVersion, mode, temperature, density, radius, accent, tokens,
     typography: { ...baseTypography, ...(options.typography ?? {}) }, spacing: resolveSpacing(density, options.spacing),
-    radii: { ...baseRadii[radius] }, shadows: { ...baseShadows, ...(options.shadows ?? {}) }, motion: resolveMotion(options.motion)
+    radii: { ...baseRadii[radius] }, shadows: { ...baseShadows, ...(options.shadows ?? {}) },
+    zIndex: { ...baseZIndex, ...(options.zIndex ?? {}) }, motion: resolveMotion(options.motion)
   };
 }
 
@@ -376,7 +407,7 @@ export function toCssVariables(theme: ResolvedTheme): Record<string, string> {
   const add = (prefix: string, values: object) => {
     for (const [name, value] of Object.entries(values)) variables[`--aifk-${prefix ? `${prefix}-` : ""}${kebabCase(name)}`] = String(value);
   };
-  add("", theme.tokens); add("type", theme.typography); add("space", theme.spacing); add("radius", theme.radii); add("shadow", theme.shadows);
+  add("", theme.tokens); add("type", theme.typography); add("space", theme.spacing); add("radius", theme.radii); add("shadow", theme.shadows); add("z", theme.zIndex);
   add("motion-duration", theme.motion.durations); add("motion-easing", theme.motion.easings);
   for (const name of motionRecipeNames) {
     const recipe = theme.motion.recipes[name]; const prefix = `motion-${kebabCase(name)}`;
@@ -416,6 +447,6 @@ export function contrastRatio(foreground: string, background: string): number | 
 export interface ContrastCheck { foreground: TokenName; background: TokenName; ratio: number | null; minimum: 4.5; passes: boolean; }
 /** Check the text/status pairs used by official components against WCAG AA. */
 export function checkThemeContrast(theme: ResolvedTheme): ContrastCheck[] {
-  const pairs: Array<[TokenName, TokenName]> = [["text", "canvas"], ["text", "surface"], ["textMuted", "canvas"], ["accentForeground", "accent"], ["destructiveForeground", "destructive"], ["successForeground", "success"], ["warningForeground", "warning"], ["infoForeground", "info"]];
+  const pairs: Array<[TokenName, TokenName]> = [["text", "canvas"], ["text", "surface"], ["textMuted", "canvas"], ["actionForeground", "action"], ["accentForeground", "accent"], ["destructiveForeground", "destructive"], ["successForeground", "success"], ["warningForeground", "warning"], ["infoForeground", "info"]];
   return pairs.map(([foreground, background]) => { const ratio = contrastRatio(theme.tokens[foreground], theme.tokens[background]); return { foreground, background, ratio, minimum: 4.5, passes: ratio !== null && ratio >= 4.5 }; });
 }

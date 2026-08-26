@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { createRuntime } from "@aifrontkit/core";
-import { AIFrontKitProvider, ComposerPrimitive, MessagePrimitive, ThemeProvider } from "../src/index.js";
+import { AIFrontKitProvider, ComposerPrimitive, ConversationPrimitive, MessagePrimitive, ThemeProvider } from "../src/index.js";
 
 describe("React primitives", () => {
   it("renders normalized runtime state without owning visual styling", () => {
@@ -47,6 +47,47 @@ describe("React primitives", () => {
     expect(html).toBe("");
   });
 
+  it("renders an ordered, non-live conversation transcript from runtime state", () => {
+    const runtime = createRuntime("thread-conversation", [
+      { schemaVersion: 1, id: "1", threadId: "thread-conversation", timestamp: 1, type: "message.started", messageId: "m1", role: "user" },
+      { schemaVersion: 1, id: "2", threadId: "thread-conversation", timestamp: 2, type: "message.delta", messageId: "m1", delta: "Plan this" },
+      { schemaVersion: 1, id: "3", threadId: "thread-conversation", timestamp: 3, type: "message.completed", messageId: "m1" }
+    ]);
+    const html = renderToStaticMarkup(
+      <AIFrontKitProvider runtime={runtime}>
+        <ConversationPrimitive.Root>
+          <ConversationPrimitive.Viewport>
+            <ConversationPrimitive.List>
+              <ConversationPrimitive.Items>{(messageId) => <MessagePrimitive.Root messageId={messageId}><MessagePrimitive.Content /></MessagePrimitive.Root>}</ConversationPrimitive.Items>
+            </ConversationPrimitive.List>
+          </ConversationPrimitive.Viewport>
+          <ConversationPrimitive.Status />
+        </ConversationPrimitive.Root>
+      </AIFrontKitProvider>
+    );
+    expect(html).toContain('aria-label="Conversation"');
+    expect(html).toContain('data-empty="false"');
+    expect(html).toContain('role="list"');
+    expect(html).not.toContain('role="log"');
+    expect(html).toContain("Plan this");
+    expect(html).toContain("Conversation ready");
+  });
+
+  it("renders the conversation empty state without an empty list", () => {
+    const runtime = createRuntime("thread-empty");
+    const html = renderToStaticMarkup(
+      <AIFrontKitProvider runtime={runtime}>
+        <ConversationPrimitive.Root>
+          <ConversationPrimitive.Empty>No messages yet</ConversationPrimitive.Empty>
+          <ConversationPrimitive.List><li>Never rendered</li></ConversationPrimitive.List>
+        </ConversationPrimitive.Root>
+      </AIFrontKitProvider>
+    );
+    expect(html).toContain('data-empty="true"');
+    expect(html).toContain("No messages yet");
+    expect(html).not.toContain("Never rendered");
+  });
+
   it("server-renders an accessible composer", () => {
     const html = renderToStaticMarkup(<ComposerPrimitive.Root onSubmit={() => undefined}><ComposerPrimitive.Input /><ComposerPrimitive.Submit /></ComposerPrimitive.Root>);
     expect(html).toContain('aria-label="Message"');
@@ -63,7 +104,7 @@ describe("React primitives", () => {
     expect(html).toContain('data-aifk-density="compact"');
     expect(html).toContain('data-aifk-radius="large"');
     expect(html).toContain('data-aifk-motion="none"');
-    expect(html).toContain("--aifk-canvas:#0d0f12");
+    expect(html).toContain("--aifk-canvas:#0d0d0f");
     expect(html).toContain("Scoped content");
   });
 

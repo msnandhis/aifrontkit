@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aifrontkit.dev/schemas/docs-navigation-v1.json",
+  "title": "AIFrontKit documentation navigation",
+  "type": "object",
+  "required": ["schemaVersion", "sections"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "pages"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+          "title": { "type": "string", "minLength": 1 },
+          "pages": { "type": "array", "items": { "type": "string", "pattern": "\\.mdx?$" }, "minItems": 1 }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

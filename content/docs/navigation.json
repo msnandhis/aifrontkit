@@ -1,0 +1,62 @@
+{
+  "$schema": "./schemas/navigation.schema.json",
+  "schemaVersion": 1,
+  "sections": [
+    {
+      "id": "start",
+      "title": "Start",
+      "pages": [
+        "index.md",
+        "start/installation.md",
+        "start/first-conversation.md",
+        "start/choose-an-integration.md",
+        "start/customize-the-theme.md"
+      ]
+    },
+    {
+      "id": "concepts",
+      "title": "Core concepts",
+      "pages": [
+        "concepts/architecture.md",
+        "concepts/runtime.md",
+        "concepts/source-ownership.md",
+        "concepts/versioning.md"
+      ]
+    },
+    {
+      "id": "foundations",
+      "title": "Foundations",
+      "pages": [
+        "foundations/design-tokens.md",
+        "foundations/accessibility.md",
+        "foundations/motion.md"
+      ]
+    },
+    {
+      "id": "primitives",
+      "title": "Primitives",
+      "pages": [
+        "primitives/conversation.md",
+        "primitives/message.md"
+      ]
+    },
+    {
+      "id": "integrations",
+      "title": "Integrations",
+      "pages": [
+        "integrations/custom-transport.md",
+        "integrations/ai-sdk.md",
+        "integrations/ag-ui.md"
+      ]
+    },
+    {
+      "id": "reference",
+      "title": "Reference",
+      "pages": [
+        "reference/packages.md",
+        "reference/registry-manifest.md",
+        "reference/compatibility.md"
+      ]
+    }
+  ]
+}

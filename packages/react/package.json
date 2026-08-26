@@ -10,6 +10,7 @@
     ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
     "./runtime": { "types": "./dist/runtime/index.d.ts", "import": "./dist/runtime/index.js" },
     "./theme": { "types": "./dist/theme/index.d.ts", "import": "./dist/theme/index.js" },
+    "./conversation": { "types": "./dist/conversation/index.d.ts", "import": "./dist/conversation/index.js" },
     "./message": { "types": "./dist/message/index.d.ts", "import": "./dist/message/index.js" },
     "./composer": { "types": "./dist/composer/index.d.ts", "import": "./dist/composer/index.js" },
     "./tool": { "types": "./dist/tool/index.d.ts", "import": "./dist/tool/index.js" }

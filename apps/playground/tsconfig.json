@@ -5,6 +5,8 @@
     "types": ["vite/client"],
     "baseUrl": "../..",
     "paths": {
+      "@aifrontkit/react/conversation": ["packages/react/src/conversation/index.tsx"],
+      "@aifrontkit/react/composer": ["packages/react/src/composer/index.tsx"],
       "@aifrontkit/react/message": ["packages/react/src/message/index.tsx"]
     }
   },

@@ -6,26 +6,38 @@
  * values inherit, so a workspace can safely scope a theme below the app root.
  */
 
+:root {
+  --aifk-z-base: 0;
+  --aifk-z-sticky: 10;
+  --aifk-z-dropdown: 20;
+  --aifk-z-overlay: 30;
+  --aifk-z-modal: 40;
+  --aifk-z-toast: 50;
+}
+
 :root,
 [data-aifk-theme="light"],
 [data-aifk-mode="light"] {
   color-scheme: light;
   --aifk-canvas: #fff;
-  --aifk-surface: #f7f7f8;
+  --aifk-surface: #f6f6f7;
   --aifk-surface-elevated: #fff;
-  --aifk-surface-subtle: #f2f3f5;
-  --aifk-text: #17191c;
-  --aifk-text-muted: #59616b;
-  --aifk-text-subtle: #737b86;
-  --aifk-border: #dfe2e6;
-  --aifk-border-strong: #c5c9d0;
-  --aifk-accent: #4f46e5;
+  --aifk-surface-subtle: #fafafa;
+  --aifk-text: #18181b;
+  --aifk-text-muted: #5f6068;
+  --aifk-text-subtle: #7c7d86;
+  --aifk-border: #e7e7e9;
+  --aifk-border-strong: #d4d4d8;
+  --aifk-action: #18181b;
+  --aifk-action-foreground: #fff;
+  --aifk-action-hover: #27272a;
+  --aifk-accent: #315ed8;
   --aifk-accent-foreground: #fff;
-  --aifk-accent-muted: #eef2ff;
-  --aifk-focus: #2563eb;
-  --aifk-selection: #c7d2fe;
+  --aifk-accent-muted: #edf2ff;
+  --aifk-focus: #315ed8;
+  --aifk-selection: #dbe5ff;
   --aifk-input: #fff;
-  --aifk-input-border: #c8cdd5;
+  --aifk-input-border: #d4d4d8;
   --aifk-disabled: #eef0f2;
   --aifk-disabled-foreground: #8a919b;
   --aifk-destructive: #b91c1c;
@@ -36,33 +48,36 @@
   --aifk-warning-foreground: #fff;
   --aifk-info: #0369a1;
   --aifk-info-foreground: #fff;
-  --aifk-assistant-surface: #f5f5f4;
-  --aifk-user-surface: #eef2ff;
-  --aifk-tool-surface: #ecfeff;
-  --aifk-reasoning-surface: #f5f3ff;
-  --aifk-approval-surface: #fff7ed;
-  --aifk-artifact-surface: #f0fdf4;
+  --aifk-assistant-surface: #fff;
+  --aifk-user-surface: #f1f1f3;
+  --aifk-tool-surface: #f6f6f7;
+  --aifk-reasoning-surface: #f6f6f7;
+  --aifk-approval-surface: #fafafa;
+  --aifk-artifact-surface: #f6f6f7;
 }
 
 [data-aifk-theme="dark"],
 [data-aifk-mode="dark"] {
   color-scheme: dark;
-  --aifk-canvas: #0d0f12;
-  --aifk-surface: #15181d;
-  --aifk-surface-elevated: #1c2128;
-  --aifk-surface-subtle: #20242b;
-  --aifk-text: #f3f4f6;
-  --aifk-text-muted: #a6afb9;
-  --aifk-text-subtle: #8993a2;
-  --aifk-border: #303743;
-  --aifk-border-strong: #4a5563;
-  --aifk-accent: #818cf8;
-  --aifk-accent-foreground: #111827;
-  --aifk-accent-muted: #282b55;
-  --aifk-focus: #60a5fa;
-  --aifk-selection: #3730a3;
-  --aifk-input: #11151a;
-  --aifk-input-border: #4a5563;
+  --aifk-canvas: #0d0d0f;
+  --aifk-surface: #171719;
+  --aifk-surface-elevated: #1d1d20;
+  --aifk-surface-subtle: #111113;
+  --aifk-text: #f4f4f5;
+  --aifk-text-muted: #b0b0b7;
+  --aifk-text-subtle: #898991;
+  --aifk-border: #29292d;
+  --aifk-border-strong: #3a3a40;
+  --aifk-action: #f4f4f5;
+  --aifk-action-foreground: #18181b;
+  --aifk-action-hover: #fff;
+  --aifk-accent: #8eaaff;
+  --aifk-accent-foreground: #111113;
+  --aifk-accent-muted: #1d2b52;
+  --aifk-focus: #8eaaff;
+  --aifk-selection: #263867;
+  --aifk-input: #111113;
+  --aifk-input-border: #3a3a40;
   --aifk-disabled: #242a31;
   --aifk-disabled-foreground: #707986;
   --aifk-destructive: #f87171;
@@ -73,12 +88,12 @@
   --aifk-warning-foreground: #422006;
   --aifk-info: #38bdf8;
   --aifk-info-foreground: #082f49;
-  --aifk-assistant-surface: #1c2026;
-  --aifk-user-surface: #20234a;
-  --aifk-tool-surface: #12313a;
-  --aifk-reasoning-surface: #2a2545;
-  --aifk-approval-surface: #332719;
-  --aifk-artifact-surface: #173424;
+  --aifk-assistant-surface: #0d0d0f;
+  --aifk-user-surface: #202023;
+  --aifk-tool-surface: #171719;
+  --aifk-reasoning-surface: #171719;
+  --aifk-approval-surface: #171719;
+  --aifk-artifact-surface: #171719;
 }
 
 [data-aifk-theme="high-contrast"],
@@ -93,6 +108,9 @@
   --aifk-text-subtle: #404040;
   --aifk-border: #000;
   --aifk-border-strong: #000;
+  --aifk-action: #000;
+  --aifk-action-foreground: #fff;
+  --aifk-action-hover: #202020;
   --aifk-accent: #0000b8;
   --aifk-accent-foreground: #fff;
   --aifk-accent-muted: #e5e5ff;
@@ -110,34 +128,37 @@
   --aifk-warning-foreground: #fff;
   --aifk-info: #005a8c;
   --aifk-info-foreground: #fff;
-  --aifk-assistant-surface: #f3f3f3;
-  --aifk-user-surface: #e9e9ff;
-  --aifk-tool-surface: #e5ffff;
-  --aifk-reasoning-surface: #f0eaff;
-  --aifk-approval-surface: #fff0df;
-  --aifk-artifact-surface: #e9ffe9;
+  --aifk-assistant-surface: #fff;
+  --aifk-user-surface: #f0f0f0;
+  --aifk-tool-surface: #f7f7f7;
+  --aifk-reasoning-surface: #f7f7f7;
+  --aifk-approval-surface: #f7f7f7;
+  --aifk-artifact-surface: #f7f7f7;
 }
 
 /* System dark mode is opt-in only when no explicit theme attribute exists. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-aifk-theme]):not([data-aifk-mode]) {
     color-scheme: dark;
-    --aifk-canvas: #0d0f12;
-    --aifk-surface: #15181d;
-    --aifk-surface-elevated: #1c2128;
-    --aifk-surface-subtle: #20242b;
-    --aifk-text: #f3f4f6;
-    --aifk-text-muted: #a6afb9;
-    --aifk-text-subtle: #8993a2;
-    --aifk-border: #303743;
-    --aifk-border-strong: #4a5563;
-    --aifk-accent: #818cf8;
-    --aifk-accent-foreground: #111827;
-    --aifk-accent-muted: #282b55;
-    --aifk-focus: #60a5fa;
-    --aifk-selection: #3730a3;
-    --aifk-input: #11151a;
-    --aifk-input-border: #4a5563;
+    --aifk-canvas: #0d0d0f;
+    --aifk-surface: #171719;
+    --aifk-surface-elevated: #1d1d20;
+    --aifk-surface-subtle: #111113;
+    --aifk-text: #f4f4f5;
+    --aifk-text-muted: #b0b0b7;
+    --aifk-text-subtle: #898991;
+    --aifk-border: #29292d;
+    --aifk-border-strong: #3a3a40;
+    --aifk-action: #f4f4f5;
+    --aifk-action-foreground: #18181b;
+    --aifk-action-hover: #fff;
+    --aifk-accent: #8eaaff;
+    --aifk-accent-foreground: #111113;
+    --aifk-accent-muted: #1d2b52;
+    --aifk-focus: #8eaaff;
+    --aifk-selection: #263867;
+    --aifk-input: #111113;
+    --aifk-input-border: #3a3a40;
     --aifk-disabled: #242a31;
     --aifk-disabled-foreground: #707986;
     --aifk-destructive: #f87171;
@@ -148,12 +169,12 @@
     --aifk-warning-foreground: #422006;
     --aifk-info: #38bdf8;
     --aifk-info-foreground: #082f49;
-    --aifk-assistant-surface: #1c2026;
-    --aifk-user-surface: #20234a;
-    --aifk-tool-surface: #12313a;
-    --aifk-reasoning-surface: #2a2545;
-    --aifk-approval-surface: #332719;
-    --aifk-artifact-surface: #173424;
+    --aifk-assistant-surface: #0d0d0f;
+    --aifk-user-surface: #202023;
+    --aifk-tool-surface: #171719;
+    --aifk-reasoning-surface: #171719;
+    --aifk-approval-surface: #171719;
+    --aifk-artifact-surface: #171719;
   }
 }
 

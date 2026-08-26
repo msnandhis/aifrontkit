@@ -3,6 +3,7 @@
   "name": "aifrontkit",
   "homepage": "https://aifrontkit.dev",
   "items": [
+    { "name": "conversation", "type": "registry:component", "title": "Conversation", "description": "Accessible transcript and scroll-follow presentation." },
     { "name": "message", "type": "registry:component", "title": "AI message", "description": "Accessible source-owned message presentation." },
     { "name": "prompt-input", "type": "registry:component", "title": "Prompt input", "description": "Composable prompt input with submit behavior." },
     { "name": "tool-call", "type": "registry:component", "title": "Tool call", "description": "Status-aware tool call presentation." },

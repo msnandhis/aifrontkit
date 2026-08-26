@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aifrontkit.dev/schemas/docs-versions-v1.json",
+  "title": "AIFrontKit documentation versions",
+  "type": "object",
+  "required": ["schemaVersion", "current", "versions", "routePolicy"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "current": { "type": "string" },
+    "versions": { "type": "array", "minItems": 1 },
+    "routePolicy": { "type": "object" }
+  }
+}

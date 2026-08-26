@@ -16,6 +16,7 @@ describe("theme contract", () => {
       expect(theme.schemaVersion).toBe(1);
       expect(checkThemeContrast(theme).every((check) => check.passes)).toBe(true);
       expect(theme.tokens.canvas).toMatch(/^#/);
+      expect(theme.tokens.action).toMatch(/^#/);
       expect(theme.spacing.touchTarget).toBe("2.75rem");
     }
   });
@@ -45,7 +46,9 @@ describe("theme contract", () => {
   it("projects serializable values for non-DOM renderers", () => {
     const theme = createTheme({ mode: "dark", motion: { level: "expressive" } });
     const variables = toCssVariables(theme);
-    expect(variables["--aifk-canvas"]).toBe("#0d0f12");
+    expect(variables["--aifk-canvas"]).toBe("#0d0d0f");
+    expect(variables["--aifk-action"]).toBe("#f4f4f5");
+    expect(variables["--aifk-z-modal"]).toBe("40");
     expect(variables["--aifk-type-font-family-sans"]).toContain("system-ui");
     expect(variables["--aifk-motion-message-entry-duration"]).toBe("150ms");
     expect(variables["--aifk-motion-message-entry-reduced-duration"]).toBe("0ms");
@@ -64,4 +67,3 @@ describe("theme contract", () => {
     expect(contrastRatio("var(--aifk-text)", "#fff")).toBeNull();
   });
 });
-

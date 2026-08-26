@@ -3,8 +3,11 @@
   "name": "prompt-input",
   "type": "registry:component",
   "title": "Prompt input",
-  "description": "A minimal accessible composer composition.",
-  "files": [{ "path": "registry/components/prompt-input/prompt-input.tsx", "type": "registry:component" }],
+  "description": "A neutral accessible composer with visible focus, submit feedback, and source-owned presentation.",
+  "files": [
+    { "path": "registry/components/prompt-input/prompt-input.tsx", "type": "registry:component" },
+    { "path": "registry/components/prompt-input/prompt-input.css", "type": "registry:style" }
+  ],
   "dependencies": ["@aifrontkit/react@^0.1.0"],
   "meta": { "version": "0.1.0", "schemaMajor": 1, "aifrontkit": ">=0.1.0 <1" }
 }

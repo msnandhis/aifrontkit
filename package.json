@@ -12,7 +12,9 @@
     "lint": "node scripts/check-boundaries.mjs",
     "boundaries": "pnpm lint",
     "registry:validate": "node scripts/validate-registry.mjs",
-    "check": "pnpm lint && pnpm registry:validate && pnpm build && pnpm typecheck && pnpm test",
+    "docs:validate": "node tooling/docs/validate-docs.mjs",
+    "docs:test": "node --test tooling/docs/*.test.mjs",
+    "check": "pnpm lint && pnpm registry:validate && pnpm docs:validate && pnpm docs:test && pnpm build && pnpm typecheck && pnpm test",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "pnpm build && changeset publish"
