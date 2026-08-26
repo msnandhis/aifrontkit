@@ -38,6 +38,7 @@
 .aifk-message__state:empty { display: none; }
 .aifk-message__state { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
 .aifk-message__error { margin: 0; color: var(--aifk-destructive, CanvasText); font-size: 0.875rem; font-weight: 550; }
+.aifk-message__interruption { margin: 0; color: var(--aifk-text-muted, GrayText); font-size: 0.8125rem; }
 .aifk-message__recovery { display: flex; align-items: center; gap: 0.375rem; }
 .aifk-message__streaming-indicator { display: none; align-items: center; gap: 0.1875rem; min-block-size: 1.25rem; color: var(--aifk-text-subtle, GrayText); }
 .aifk-message__streaming-indicator > i { inline-size: 0.25rem; block-size: 0.25rem; border-radius: 50%; background: currentColor; }
@@ -58,4 +59,4 @@
 @media (max-width: 40rem) { .aifk-message { inline-size: 100%; max-inline-size: 100%; } .aifk-message[data-role="user"] { inline-size: fit-content; max-inline-size: 92%; } .aifk-message__avatar { inline-size: 1.625rem; block-size: 1.625rem; } }
 @media (hover: none) { .aifk-message__actions { opacity: 1; } }
 @media (pointer: coarse) { .aifk-message__actions :where(button, a) { min-block-size: 2.75rem; min-inline-size: 2.75rem; } }
-@media (prefers-reduced-motion: reduce) { .aifk-message, .aifk-message__streaming-indicator > span, .aifk-message__actions { animation: none !important; transition: none !important; } }
+@media (prefers-reduced-motion: reduce) { .aifk-message, .aifk-message__streaming-indicator > i, .aifk-message__actions { animation: none !important; transition: none !important; } }

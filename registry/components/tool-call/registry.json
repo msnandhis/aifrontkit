@@ -4,7 +4,10 @@
   "type": "registry:component",
   "title": "Tool call",
   "description": "A compact status and output view for a normalized tool call.",
-  "files": [{ "path": "registry/components/tool-call/tool-call.tsx", "type": "registry:component" }],
+  "files": [
+    { "path": "registry/components/tool-call/tool-call.tsx", "type": "registry:component" },
+    { "path": "registry/components/tool-call/tool-call.css", "type": "registry:style" }
+  ],
   "dependencies": ["@aifrontkit/react@^0.1.0"],
-  "meta": { "version": "0.1.0", "schemaMajor": 1, "aifrontkit": ">=0.1.0 <1" }
+  "meta": { "version": "0.3.0", "schemaMajor": 1, "aifrontkit": ">=0.1.0 <1" }
 }

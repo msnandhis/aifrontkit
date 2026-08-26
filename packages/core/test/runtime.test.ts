@@ -26,6 +26,20 @@ describe("framework-neutral runtime", () => {
     expect(listener).toHaveBeenCalledTimes(1);
   });
 
+  it("preserves partial content when a response is interrupted", () => {
+    const events: AIFrontEvent[] = [
+      { ...base, id: "interrupt-1", type: "message.started", messageId: "m-interrupted", role: "assistant" },
+      { ...base, id: "interrupt-2", type: "message.delta", messageId: "m-interrupted", delta: "Partial response" },
+      { ...base, id: "interrupt-3", type: "message.interrupted", messageId: "m-interrupted", reason: "Stopped by the user" }
+    ];
+    const state = events.reduce(reduceEvent, createInitialState("thread-1"));
+    expect(state.messages["m-interrupted"]).toMatchObject({
+      status: "interrupted",
+      parts: [{ type: "text", text: "Partial response" }],
+      interruptionReason: "Stopped by the user"
+    });
+  });
+
   it("rejects cross-thread events", () => {
     const event: AIFrontEvent = { ...base, threadId: "other", id: "1", type: "message.started", messageId: "m1", role: "assistant" };
     expect(() => reduceEvent(createInitialState("thread-1"), event)).toThrow(/does not match/);

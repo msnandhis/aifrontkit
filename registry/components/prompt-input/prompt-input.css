@@ -12,7 +12,10 @@
 .aifk-prompt-input__submit:active:not(:disabled) { transform: translateY(1px); }
 .aifk-prompt-input__submit:disabled { color: var(--aifk-text-subtle, GrayText); background: var(--aifk-surface, ButtonFace); cursor: not-allowed; }
 .aifk-prompt-input__submit svg { inline-size: 1rem; block-size: 1rem; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.5; }
+.aifk-prompt-input__spinner { inline-size: 0.875rem; block-size: 0.875rem; border: 1.5px solid currentColor; border-inline-end-color: transparent; border-radius: 50%; animation: aifk-prompt-input-spin 700ms linear infinite; }
+.aifk-prompt-input__error { grid-column: 1 / -1; margin: 0; padding-inline: 0.625rem; color: var(--aifk-destructive, CanvasText); font-size: 0.8125rem; font-weight: 550; }
 .aifk-prompt-input__sr-only { position: absolute; inline-size: 1px; block-size: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+@keyframes aifk-prompt-input-spin { to { transform: rotate(1turn); } }
 @media (max-width: 30rem) { .aifk-prompt-input__hint { display: none; } .aifk-prompt-input__toolbar { justify-content: flex-end; } }
-@media (pointer: coarse) { .aifk-prompt-input__submit { min-block-size: 2.75rem; } }
-@media (prefers-reduced-motion: reduce) { .aifk-prompt-input, .aifk-prompt-input__submit { transition: none; } }
+@media (pointer: coarse) { .aifk-prompt-input__submit { min-block-size: 2.75rem; min-inline-size: 2.75rem; } }
+@media (prefers-reduced-motion: reduce) { .aifk-prompt-input, .aifk-prompt-input__submit { transition: none; } .aifk-prompt-input__spinner { animation: none; border-inline-end-color: currentColor; } }

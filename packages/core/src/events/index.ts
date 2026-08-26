@@ -13,6 +13,7 @@ export type AIFrontEvent =
   | (EventEnvelope & { type: "message.started"; messageId: string; role: MessageRole })
   | (EventEnvelope & { type: "message.delta"; messageId: string; delta: string })
   | (EventEnvelope & { type: "message.completed"; messageId: string })
+  | (EventEnvelope & { type: "message.interrupted"; messageId: string; reason?: string })
   | (EventEnvelope & { type: "message.failed"; messageId: string; error: string })
   | (EventEnvelope & { type: "tool.updated"; toolCallId: string; messageId?: string; name: string; status: ToolStatus; input?: unknown; output?: unknown; error?: string })
   | (EventEnvelope & { type: "approval.requested"; approvalId: string; toolCallId: string; summary: string })

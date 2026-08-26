@@ -23,7 +23,8 @@ registry/
   patterns/           multi-component interaction flows
   themes/             installable theme source
 compatibility/        cross-version fixtures
-apps/playground/       interactive component and theme verification
+apps/playground/       public examples and integration exploration
+apps/lab/              internal component quality and stress-test workbench
 docs/                 architecture and product documentation
 ```
 
@@ -44,10 +45,12 @@ Requires Node.js 22+ and pnpm 10+.
 ```bash
 pnpm install
 pnpm check
+pnpm quality:browser
+pnpm lab:dev
 pnpm --filter @aifrontkit/playground dev
 ```
 
-`check` runs static type checks, package-boundary validation, tests, and builds. See [architecture](./docs/architecture.md), [versioning](./docs/versioning.md), and [contributing](./CONTRIBUTING.md).
+`check` runs package and installable-registry type checks, package-boundary validation, unit tests, component-contract validation, and builds. `quality:browser` runs the reviewed browser and visual gates separately. See [architecture](./docs/architecture.md), [component quality](./docs/quality/README.md), [versioning](./docs/versioning.md), and [contributing](./CONTRIBUTING.md).
 
 ## Configurable visual foundation
 

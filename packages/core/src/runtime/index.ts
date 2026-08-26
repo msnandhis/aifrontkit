@@ -37,6 +37,7 @@ export function reduceEvent(state: RuntimeState, event: AIFrontEvent): RuntimeSt
       return { ...state, processedEventIds, messages: { ...state.messages, [event.messageId]: { ...message, parts: [{ ...first, text: first.text + event.delta }, ...message.parts.slice(1)] } } };
     }
     case "message.completed":
+    case "message.interrupted":
     case "message.failed": {
       const message = state.messages[event.messageId];
       if (!message) throw new Error(`Cannot finish unknown message ${event.messageId}.`);
@@ -47,9 +48,10 @@ export function reduceEvent(state: RuntimeState, event: AIFrontEvent): RuntimeSt
           ...state.messages,
           [event.messageId]: {
             ...message,
-            status: event.type === "message.completed" ? "complete" : "failed",
+            status: event.type === "message.completed" ? "complete" : event.type === "message.interrupted" ? "interrupted" : "failed",
             completedAt: event.timestamp,
-            ...(event.type === "message.failed" ? { error: event.error } : {})
+            ...(event.type === "message.failed" ? { error: event.error } : {}),
+            ...(event.type === "message.interrupted" && event.reason ? { interruptionReason: event.reason } : {})
           }
         }
       };

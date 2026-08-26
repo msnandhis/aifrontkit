@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "packageManager": "pnpm@11.19.0",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
@@ -12,15 +14,22 @@
     "lint": "node scripts/check-boundaries.mjs",
     "boundaries": "pnpm lint",
     "registry:validate": "node scripts/validate-registry.mjs",
+    "registry:typecheck": "tsc -p registry/tsconfig.json",
     "docs:validate": "node tooling/docs/validate-docs.mjs",
     "docs:test": "node --test tooling/docs/*.test.mjs",
-    "check": "pnpm lint && pnpm registry:validate && pnpm docs:validate && pnpm docs:test && pnpm build && pnpm typecheck && pnpm test",
+    "quality:validate": "node tooling/quality/component-quality.mjs",
+    "quality:test": "node --test tooling/quality/component-quality.test.mjs",
+    "quality:browser": "pnpm --filter @aifrontkit/core build && pnpm --filter @aifrontkit/tokens build && pnpm --filter @aifrontkit/react build && pnpm --filter @aifrontkit/testing build && playwright test --config apps/lab/playwright.config.ts",
+    "lab:dev": "pnpm --filter @aifrontkit/lab dev",
+    "check": "pnpm lint && pnpm registry:validate && pnpm quality:validate && pnpm quality:test && pnpm docs:validate && pnpm docs:test && pnpm build && pnpm registry:typecheck && pnpm typecheck && pnpm test",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "pnpm build && changeset publish"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@changesets/cli": "^2.29.7",
+    "@playwright/test": "^1.62.1",
     "@types/node": "^24.3.0",
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",

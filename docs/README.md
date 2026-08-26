@@ -47,6 +47,7 @@ Cross-repository TypeScript, JavaScript output, loading, and performance-budget 
 - [Performance](./performance.md)
 - [Security](./security.md)
 - [Testing and quality](./testing-and-quality.md)
+- [Component quality standard, scorecard, and workflow](./quality/README.md)
 - [Releases and compatibility](./releases-and-compatibility.md)
 - [Contribution and governance](./contribution-and-governance.md)
 

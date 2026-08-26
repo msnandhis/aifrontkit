@@ -1,0 +1,18 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false,
+    "baseUrl": "..",
+    "paths": {
+      "@aifrontkit/core": ["packages/core/src/index.ts"],
+      "@aifrontkit/react": ["packages/react/src/index.ts"],
+      "@aifrontkit/react/*": ["packages/react/src/*/index.tsx"],
+      "@aifrontkit/testing": ["packages/testing/src/index.ts"],
+      "@aifrontkit/tokens": ["packages/tokens/src/index.ts"]
+    },
+    "types": ["react", "react-dom"]
+  },
+  "include": ["components/**/*.ts", "components/**/*.tsx", "patterns/**/*.ts", "patterns/**/*.tsx"]
+}

@@ -16,6 +16,7 @@ interface ConversationContextValue {
   messageIds: readonly string[];
   empty: boolean;
   streaming: boolean;
+  activity: "idle" | "streaming" | "interrupted" | "failed";
   atEnd: boolean;
   setAtEnd(value: boolean): void;
   viewport: HTMLDivElement | null;
@@ -42,13 +43,21 @@ export interface ConversationRootProps extends ComponentPropsWithoutRef<"section
 
 function Root({ label = "Conversation", children, "aria-label": ariaLabel, ...props }: ConversationRootProps) {
   const messageIds = useRuntimeState((state) => state.messageOrder);
-  const streaming = useRuntimeState((state) => state.messageOrder.some((id) => state.messages[id]?.status === "streaming"));
+  const activity = useRuntimeState((state) => {
+    const hasStreamingMessage = state.messageOrder.some((messageId) => state.messages[messageId]?.status === "streaming");
+    if (hasStreamingMessage) return "streaming";
+    const latestId = state.messageOrder.at(-1);
+    const latestStatus = latestId ? state.messages[latestId]?.status : undefined;
+    if (latestStatus === "interrupted" || latestStatus === "failed") return latestStatus;
+    return "idle";
+  });
+  const streaming = activity === "streaming";
   const [atEnd, setAtEnd] = useState(true);
   const [viewport, setViewport] = useState<HTMLDivElement | null>(null);
   const empty = messageIds.length === 0;
 
   return (
-    <ConversationContext.Provider value={{ messageIds, empty, streaming, atEnd, setAtEnd, viewport, setViewport }}>
+    <ConversationContext.Provider value={{ messageIds, empty, streaming, activity, atEnd, setAtEnd, viewport, setViewport }}>
       <section
         {...props}
         data-aifk-conversation=""
@@ -139,10 +148,17 @@ function Empty({ children = "Start a conversation.", ...props }: ComponentPropsW
 }
 
 function Status({ children, ...props }: ComponentPropsWithoutRef<"span">) {
-  const { streaming } = useConversation();
+  const { activity } = useConversation();
+  const label = activity === "streaming"
+    ? "Generating response"
+    : activity === "interrupted"
+      ? "Response interrupted. Partial response preserved."
+      : activity === "failed"
+        ? "Response failed"
+        : "Conversation ready";
   return (
-    <span {...props} data-aifk-conversation-status={streaming ? "streaming" : "idle"} role="status" aria-live="polite" aria-atomic="true">
-      {children ?? (streaming ? "Generating response" : "Conversation ready")}
+    <span {...props} data-aifk-conversation-status={activity} role="status" aria-live="polite" aria-atomic="true">
+      {children ?? label}
     </span>
   );
 }

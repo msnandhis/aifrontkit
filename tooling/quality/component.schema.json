@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aifrontkit.dev/schemas/component-quality-v1.json",
+  "title": "AIFrontKit component quality contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion", "name", "title", "version", "maturity", "purpose",
+    "anatomy", "slots", "states", "variants", "themes", "responsive",
+    "accessibility", "motion", "fixtures", "quality", "compatibility"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": 1 },
+    "name": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "title": { "type": "string", "minLength": 1 },
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$" },
+    "maturity": { "enum": ["experimental", "preview", "stable", "deprecated"] },
+    "purpose": { "type": "string", "minLength": 1 },
+    "anatomy": { "$ref": "#/$defs/namedItems" },
+    "slots": { "$ref": "#/$defs/namedItems" },
+    "states": { "$ref": "#/$defs/namedItems" },
+    "variants": { "$ref": "#/$defs/namedItems" },
+    "themes": { "$ref": "#/$defs/namedItems" },
+    "responsive": {
+      "type": "object",
+      "required": ["viewports"],
+      "properties": { "viewports": { "$ref": "#/$defs/namedItems" } }
+    },
+    "accessibility": {
+      "type": "object",
+      "required": ["semantics", "keyboard", "focus"],
+      "properties": {
+        "semantics": { "type": "string", "minLength": 1 },
+        "keyboard": { "$ref": "#/$defs/nonEmptyArray" },
+        "focus": { "$ref": "#/$defs/nonEmptyArray" }
+      }
+    },
+    "motion": {
+      "type": "object",
+      "required": ["usesMotion", "reducedMotion"],
+      "properties": {
+        "usesMotion": { "type": "boolean" },
+        "reducedMotion": { "type": "boolean" }
+      }
+    },
+    "fixtures": {
+      "type": "object",
+      "required": ["file", "scenarios"],
+      "properties": {
+        "file": { "type": "string", "minLength": 1 },
+        "scenarios": { "$ref": "#/$defs/namedItems" }
+      }
+    },
+    "quality": {
+      "type": "object",
+      "required": ["visualRegression", "a11y", "interaction", "documentation", "evidence"],
+      "properties": {
+        "visualRegression": { "const": true },
+        "a11y": { "const": true },
+        "interaction": { "const": true },
+        "documentation": { "const": true },
+        "evidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["visualRegression", "a11y", "interaction", "documentation"],
+          "properties": {
+            "visualRegression": { "type": "string", "minLength": 1 },
+            "a11y": { "type": "string", "minLength": 1 },
+            "interaction": { "type": "string", "minLength": 1 },
+            "documentation": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+    "compatibility": {
+      "type": "object",
+      "required": ["aifrontkit", "react", "schemaMajor", "registryDependencies", "runtimeDependencies", "platformRuntimeRequired"],
+      "properties": {
+        "aifrontkit": { "type": "string", "minLength": 1 },
+        "react": { "type": "string", "minLength": 1 },
+        "schemaMajor": { "type": "integer", "minimum": 1 },
+        "registryDependencies": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "runtimeDependencies": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "platformRuntimeRequired": { "const": false }
+      }
+    }
+  },
+  "$defs": {
+    "nonEmptyArray": { "type": "array", "minItems": 1 },
+    "namedItems": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "oneOf": [
+          { "type": "string", "minLength": 1 },
+          {
+            "type": "object",
+            "required": ["name"],
+            "properties": { "name": { "type": "string", "minLength": 1 } }
+          }
+        ]
+      }
+    }
+  }
+}

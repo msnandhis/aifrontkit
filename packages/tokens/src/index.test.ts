@@ -12,12 +12,14 @@ import {
 describe("theme contract", () => {
   it("creates polished accessible defaults for every supported mode", () => {
     for (const mode of ["light", "dark", "high-contrast"] as const) {
-      const theme = createTheme({ mode });
-      expect(theme.schemaVersion).toBe(1);
-      expect(checkThemeContrast(theme).every((check) => check.passes)).toBe(true);
-      expect(theme.tokens.canvas).toMatch(/^#/);
-      expect(theme.tokens.action).toMatch(/^#/);
-      expect(theme.spacing.touchTarget).toBe("2.75rem");
+      for (const temperature of ["neutral", "warm", "cool"] as const) {
+        const theme = createTheme({ mode, temperature });
+        expect(theme.schemaVersion).toBe(1);
+        expect(checkThemeContrast(theme).every((check) => check.passes)).toBe(true);
+        expect(theme.tokens.canvas).toMatch(/^#/);
+        expect(theme.tokens.action).toMatch(/^#/);
+        expect(theme.spacing.touchTarget).toBe("2.75rem");
+      }
     }
   });
 

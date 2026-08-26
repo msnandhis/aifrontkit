@@ -1,5 +1,5 @@
 export type MessageRole = "user" | "assistant" | "system";
-export type MessageStatus = "streaming" | "complete" | "failed";
+export type MessageStatus = "streaming" | "complete" | "interrupted" | "failed";
 
 export type ContentPart =
   | { type: "text"; text: string }
@@ -15,6 +15,7 @@ export interface Message {
   createdAt: number;
   completedAt?: number;
   error?: string;
+  interruptionReason?: string;
 }
 
 export type ToolStatus = "pending" | "running" | "complete" | "failed" | "cancelled";

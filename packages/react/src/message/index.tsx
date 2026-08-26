@@ -37,6 +37,7 @@ function messageLabel(role: MessageRole) {
 
 function statusLabel(status: MessageStatus) {
   if (status === "streaming") return "Generating response";
+  if (status === "interrupted") return "Response interrupted";
   if (status === "failed") return "Response failed";
   return "Response complete";
 }
@@ -105,4 +106,10 @@ function MessageError({ children, ...props }: PropsWithChildren<ComponentPropsWi
   return <p {...props} data-aifk-message-error="" role="alert">{children ?? message.error ?? "This response could not be completed."}</p>;
 }
 
-export const MessagePrimitive = { Root, Content, Status, Role, Error: MessageError, useMessage };
+function MessageInterruption({ children, ...props }: PropsWithChildren<ComponentPropsWithoutRef<"p">>) {
+  const message = useMessage();
+  if (message.status !== "interrupted") return null;
+  return <p {...props} data-aifk-message-interruption="">{children ?? message.interruptionReason ?? "Generation stopped. Partial response preserved."}</p>;
+}
+
+export const MessagePrimitive = { Root, Content, Status, Role, Error: MessageError, Interruption: MessageInterruption, useMessage };

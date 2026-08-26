@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["vite/client"],
+    "baseUrl": "../..",
+    "paths": {
+      "@aifrontkit/core": ["packages/core/src/index.ts"],
+      "@aifrontkit/react": ["packages/react/src/index.ts"],
+      "@aifrontkit/react/conversation": ["packages/react/src/conversation/index.tsx"],
+      "@aifrontkit/react/composer": ["packages/react/src/composer/index.tsx"],
+      "@aifrontkit/react/message": ["packages/react/src/message/index.tsx"],
+      "@aifrontkit/react/tool": ["packages/react/src/tool/index.tsx"],
+      "@aifrontkit/testing": ["packages/testing/src/index.ts"]
+    }
+  },
+  "include": ["src", "vite.config.ts"]
+}

@@ -57,6 +57,7 @@ export function Message({
           </MessagePrimitive.Content>
           <div className="aifk-message__state">
             <span className="aifk-message__streaming-indicator" aria-hidden="true"><i /><i /><i /></span>
+            <MessagePrimitive.Interruption className="aifk-message__interruption" />
             <MessagePrimitive.Error className="aifk-message__error" />
             {recovery ? <div className="aifk-message__recovery">{recovery}</div> : null}
           </div>

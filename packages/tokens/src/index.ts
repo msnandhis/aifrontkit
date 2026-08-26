@@ -257,7 +257,7 @@ const densityMultipliers: Record<Density, number> = { compact: 0.875, comfortabl
 
 const paletteByMode: Record<ThemeMode, ThemeTokens> = {
   light: {
-    canvas: "#ffffff", surface: "#f6f6f7", surfaceElevated: "#ffffff", surfaceSubtle: "#fafafa", text: "#18181b", textMuted: "#5f6068", textSubtle: "#7c7d86",
+    canvas: "#ffffff", surface: "#f6f6f7", surfaceElevated: "#ffffff", surfaceSubtle: "#fafafa", text: "#18181b", textMuted: "#5f6068", textSubtle: "#707078",
     border: "#e7e7e9", borderStrong: "#d4d4d8", action: "#18181b", actionForeground: "#ffffff", actionHover: "#27272a",
     accent: "#315ed8", accentForeground: "#ffffff", accentMuted: "#edf2ff", focus: "#315ed8", selection: "#dbe5ff",
     input: "#ffffff", inputBorder: "#d4d4d8", disabled: "#f0f0f1", disabledForeground: "#8a8a93", destructive: "#b42318", destructiveForeground: "#ffffff",
@@ -304,8 +304,8 @@ const accentPalettes: Record<ThemeMode, Record<AccentName, AccentTokens>> = {
 const temperatureOverrides: Record<ThemeMode, Record<ThemeTemperature, Partial<ThemeTokens>>> = {
   light: {
     neutral: {},
-    warm: { canvas: "#fffdfa", surface: "#faf7f2", surfaceElevated: "#fffefa", surfaceSubtle: "#f6f0e8", text: "#241f1b", textMuted: "#685f57", textSubtle: "#7c7168", border: "#e4ded5", borderStrong: "#cfc5ba", input: "#fffefa", inputBorder: "#cfc5ba", assistantSurface: "#f8f4ee", reasoningSurface: "#f6f0ff" },
-    cool: { canvas: "#fbfdff", surface: "#f5f8fc", surfaceElevated: "#ffffff", surfaceSubtle: "#eef3f8", text: "#18212b", textMuted: "#5d6875", textSubtle: "#758291", border: "#dce3ec", borderStrong: "#c0ccd9", input: "#ffffff", inputBorder: "#c0ccd9", assistantSurface: "#f1f5f9", reasoningSurface: "#f2f2ff" }
+    warm: { canvas: "#fffdfa", surface: "#faf7f2", surfaceElevated: "#fffefa", surfaceSubtle: "#f6f0e8", text: "#241f1b", textMuted: "#685f57", textSubtle: "#74685f", border: "#e4ded5", borderStrong: "#cfc5ba", input: "#fffefa", inputBorder: "#cfc5ba", assistantSurface: "#f8f4ee", reasoningSurface: "#f6f0ff" },
+    cool: { canvas: "#fbfdff", surface: "#f5f8fc", surfaceElevated: "#ffffff", surfaceSubtle: "#eef3f8", text: "#18212b", textMuted: "#5d6875", textSubtle: "#667584", border: "#dce3ec", borderStrong: "#c0ccd9", input: "#ffffff", inputBorder: "#c0ccd9", assistantSurface: "#f1f5f9", reasoningSurface: "#f2f2ff" }
   },
   dark: {
     neutral: {},
@@ -447,6 +447,6 @@ export function contrastRatio(foreground: string, background: string): number | 
 export interface ContrastCheck { foreground: TokenName; background: TokenName; ratio: number | null; minimum: 4.5; passes: boolean; }
 /** Check the text/status pairs used by official components against WCAG AA. */
 export function checkThemeContrast(theme: ResolvedTheme): ContrastCheck[] {
-  const pairs: Array<[TokenName, TokenName]> = [["text", "canvas"], ["text", "surface"], ["textMuted", "canvas"], ["actionForeground", "action"], ["accentForeground", "accent"], ["destructiveForeground", "destructive"], ["successForeground", "success"], ["warningForeground", "warning"], ["infoForeground", "info"]];
+  const pairs: Array<[TokenName, TokenName]> = [["text", "canvas"], ["text", "surface"], ["textMuted", "canvas"], ["textSubtle", "canvas"], ["actionForeground", "action"], ["accentForeground", "accent"], ["destructiveForeground", "destructive"], ["successForeground", "success"], ["warningForeground", "warning"], ["infoForeground", "info"]];
   return pairs.map(([foreground, background]) => { const ratio = contrastRatio(theme.tokens[foreground], theme.tokens[background]); return { foreground, background, ratio, minimum: 4.5, passes: ratio !== null && ratio >= 4.5 }; });
 }

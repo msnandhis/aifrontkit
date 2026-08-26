@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { createRuntime } from "@aifrontkit/core";
-import { AIFrontKitProvider, ComposerPrimitive, ConversationPrimitive, MessagePrimitive, ThemeProvider } from "../src/index.js";
+import { AIFrontKitProvider, ComposerPrimitive, ConversationPrimitive, MessagePrimitive, ThemeProvider, ToolPrimitive } from "../src/index.js";
 
 describe("React primitives", () => {
   it("renders normalized runtime state without owning visual styling", () => {
@@ -47,6 +47,29 @@ describe("React primitives", () => {
     expect(html).toBe("");
   });
 
+  it("renders retained content and interruption meaning without an error alert", () => {
+    const runtime = createRuntime("thread-interrupted", [
+      { schemaVersion: 1, id: "1", threadId: "thread-interrupted", timestamp: 1, type: "message.started", messageId: "m3", role: "assistant" },
+      { schemaVersion: 1, id: "2", threadId: "thread-interrupted", timestamp: 2, type: "message.delta", messageId: "m3", delta: "Retained partial response" },
+      { schemaVersion: 1, id: "3", threadId: "thread-interrupted", timestamp: 3, type: "message.interrupted", messageId: "m3", reason: "Stopped by the user" }
+    ]);
+    const html = renderToStaticMarkup(
+      <AIFrontKitProvider runtime={runtime}>
+        <MessagePrimitive.Root messageId="m3">
+          <MessagePrimitive.Content />
+          <MessagePrimitive.Interruption />
+          <MessagePrimitive.Error />
+          <MessagePrimitive.Status />
+        </MessagePrimitive.Root>
+      </AIFrontKitProvider>
+    );
+    expect(html).toContain('data-status="interrupted"');
+    expect(html).toContain("Retained partial response");
+    expect(html).toContain("Stopped by the user");
+    expect(html).toContain("Response interrupted");
+    expect(html).not.toContain('role="alert"');
+  });
+
   it("renders an ordered, non-live conversation transcript from runtime state", () => {
     const runtime = createRuntime("thread-conversation", [
       { schemaVersion: 1, id: "1", threadId: "thread-conversation", timestamp: 1, type: "message.started", messageId: "m1", role: "user" },
@@ -88,10 +111,62 @@ describe("React primitives", () => {
     expect(html).not.toContain("Never rendered");
   });
 
+  it("announces an interrupted latest response once at conversation level", () => {
+    const runtime = createRuntime("thread-interrupted", [
+      { schemaVersion: 1, id: "1", threadId: "thread-interrupted", timestamp: 1, type: "message.started", messageId: "m1", role: "assistant" },
+      { schemaVersion: 1, id: "2", threadId: "thread-interrupted", timestamp: 2, type: "message.delta", messageId: "m1", delta: "Partial response" },
+      { schemaVersion: 1, id: "3", threadId: "thread-interrupted", timestamp: 3, type: "message.interrupted", messageId: "m1", reason: "Stopped by the user" }
+    ]);
+    const html = renderToStaticMarkup(
+      <AIFrontKitProvider runtime={runtime}>
+        <ConversationPrimitive.Root>
+          <ConversationPrimitive.Status />
+        </ConversationPrimitive.Root>
+      </AIFrontKitProvider>
+    );
+    expect(html).toContain('data-aifk-conversation-status="interrupted"');
+    expect(html).toContain("Response interrupted. Partial response preserved.");
+    expect(html.match(/role="status"/g)).toHaveLength(1);
+  });
+
+  it("keeps streaming activity authoritative when a later user message is complete", () => {
+    const runtime = createRuntime("thread-overlap", [
+      { schemaVersion: 1, id: "1", threadId: "thread-overlap", timestamp: 1, type: "message.started", messageId: "assistant-1", role: "assistant" },
+      { schemaVersion: 1, id: "2", threadId: "thread-overlap", timestamp: 2, type: "message.delta", messageId: "assistant-1", delta: "Still generating" },
+      { schemaVersion: 1, id: "3", threadId: "thread-overlap", timestamp: 3, type: "message.started", messageId: "user-2", role: "user" },
+      { schemaVersion: 1, id: "4", threadId: "thread-overlap", timestamp: 4, type: "message.delta", messageId: "user-2", delta: "One more detail" },
+      { schemaVersion: 1, id: "5", threadId: "thread-overlap", timestamp: 5, type: "message.completed", messageId: "user-2" }
+    ]);
+    const html = renderToStaticMarkup(
+      <AIFrontKitProvider runtime={runtime}>
+        <ConversationPrimitive.Root><ConversationPrimitive.Status /></ConversationPrimitive.Root>
+      </AIFrontKitProvider>
+    );
+    expect(html).toContain('data-aifk-conversation-status="streaming"');
+    expect(html).toContain("Generating response");
+  });
+
   it("server-renders an accessible composer", () => {
     const html = renderToStaticMarkup(<ComposerPrimitive.Root onSubmit={() => undefined}><ComposerPrimitive.Input /><ComposerPrimitive.Submit /></ComposerPrimitive.Root>);
     expect(html).toContain('aria-label="Message"');
     expect(html).toContain('type="submit"');
+  });
+
+  it("labels tool regions and renders actionable failures", () => {
+    const runtime = createRuntime("thread-tool", [
+      { schemaVersion: 1, id: "1", threadId: "thread-tool", timestamp: 1, type: "tool.updated", toolCallId: "tool-1", name: "search", status: "failed", error: "Search index unavailable" }
+    ]);
+    const html = renderToStaticMarkup(
+      <AIFrontKitProvider runtime={runtime}>
+        <ToolPrimitive.Root toolCallId="tool-1">
+          <ToolPrimitive.Name />
+          <ToolPrimitive.Error />
+        </ToolPrimitive.Root>
+      </AIFrontKitProvider>
+    );
+    expect(html).toContain('aria-label="Tool: search"');
+    expect(html).toContain('role="alert"');
+    expect(html).toContain("Search index unavailable");
   });
 
   it("projects a configurable theme onto a scoped root", () => {

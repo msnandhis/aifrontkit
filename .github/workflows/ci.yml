@@ -14,3 +14,24 @@ jobs:
         with: { node-version: 22, cache: pnpm }
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
+  component-quality-browser:
+    # Keep the visual environment aligned with the checked-in Chromium/Linux baselines.
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 11.19.0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm quality:browser
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: component-quality-evidence
+          path: |
+            apps/lab/test-results
+            apps/lab/playwright-report
+          if-no-files-found: ignore
+          retention-days: 14
