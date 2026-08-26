@@ -15,6 +15,15 @@ export function createInitialState(threadId: string): RuntimeState {
   return { threadId, messageOrder: [], messages: {}, tools: {}, approvals: {}, artifacts: {}, processedEventIds: new Set() };
 }
 
+export function createStateFromMessages(threadId: string, messages: readonly Message[]): RuntimeState {
+  const normalized = messages.map((message) => message.threadId === threadId ? message : { ...message, threadId });
+  return {
+    ...createInitialState(threadId),
+    messageOrder: normalized.map((message) => message.id),
+    messages: Object.fromEntries(normalized.map((message) => [message.id, message]))
+  };
+}
+
 export function reduceEvent(state: RuntimeState, event: AIFrontEvent): RuntimeState {
   assertEvent(event);
   if (event.threadId !== state.threadId) throw new Error(`Event thread ${event.threadId} does not match runtime thread ${state.threadId}.`);
@@ -81,6 +90,25 @@ export interface Runtime {
 
 export function createRuntime(threadId: string, initialEvents: readonly AIFrontEvent[] = []): Runtime {
   let state = initialEvents.reduce(reduceEvent, createInitialState(threadId));
+  const listeners = new Set<() => void>();
+  return {
+    getState: () => state,
+    dispatch(event) {
+      const next = reduceEvent(state, event);
+      if (next !== state) {
+        state = next;
+        for (const listener of listeners) listener();
+      }
+    },
+    subscribe(listener) {
+      listeners.add(listener);
+      return () => listeners.delete(listener);
+    }
+  };
+}
+
+export function createRuntimeFromMessages(threadId: string, messages: readonly Message[]): Runtime {
+  let state = createStateFromMessages(threadId, messages);
   const listeners = new Set<() => void>();
   return {
     getState: () => state,

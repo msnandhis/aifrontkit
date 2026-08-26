@@ -97,8 +97,8 @@ High-contrast mode strengthens border, focus, and foreground separation without 
 
 - `@aifrontkit/react` owns headless, runtime-bound compound primitives.
 - `registry/ui` owns editable native-first visual building blocks.
-- `registry/components` owns complete AI capability presentation.
-- `registry/patterns` owns multi-component interaction flows.
+- `registry/react/css/components` owns the default React/CSS capability presentation.
+- `registry/react/css/patterns` owns React/CSS multi-component interaction flows.
 - `registry/blocks` owns complete product sections.
 - `registry/workspaces` owns responsive application shells.
 

@@ -7,6 +7,7 @@
     "baseUrl": "..",
     "paths": {
       "@aifrontkit/core": ["packages/core/src/index.ts"],
+      "@aifrontkit/core/*": ["packages/core/src/*/index.ts"],
       "@aifrontkit/react": ["packages/react/src/index.ts"],
       "@aifrontkit/react/*": ["packages/react/src/*/index.tsx"],
       "@aifrontkit/testing": ["packages/testing/src/index.ts"],
@@ -14,5 +15,5 @@
     },
     "types": ["react", "react-dom"]
   },
-  "include": ["components/**/*.ts", "components/**/*.tsx", "patterns/**/*.ts", "patterns/**/*.tsx"]
+  "include": ["react/css/**/*.d.ts", "react/css/components/**/*.ts", "react/css/components/**/*.tsx", "react/css/patterns/**/*.ts", "react/css/patterns/**/*.tsx"]
 }

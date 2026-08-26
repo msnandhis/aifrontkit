@@ -27,6 +27,7 @@ test("loads every declared scenario through the real registry fixture harness", 
     Message: { component: "message", scenarios: ["Default", "Streaming", "Interrupted", "Failed", "Long content", "User role", "System role", "Without slots", "RTL"] },
     "Prompt input": { component: "prompt-input", scenarios: ["Default", "Ready", "Multiline", "Submitting", "Submit rejected", "With leading context", "With toolbar controls", "RTL"] },
     "Tool call": { component: "tool-call", scenarios: ["Default", "Pending", "Running", "Complete", "Failed", "Cancelled"] },
+    File: { component: "file", scenarios: ["Default", "Loading", "Ready", "Failed", "Download unavailable"] },
   } as const;
 
   for (const [title, contract] of Object.entries(contracts)) {
@@ -42,6 +43,7 @@ test("loads every declared scenario through the real registry fixture harness", 
       if (contract.component === "message") await expect(frame.locator("[data-aifk-message]")).toBeVisible();
       if (contract.component === "prompt-input") await expect(frame.getByRole("textbox", { name: "Message" })).toBeVisible();
       if (contract.component === "tool-call") await expect(frame.locator("[data-aifk-tool]")).toBeVisible();
+      if (contract.component === "file") await expect(frame.locator("[data-slot=file]")).toBeVisible();
     }
   }
 });
@@ -156,6 +158,10 @@ test("captures and scans representative registry components", async ({ page }) =
   await expect(frame.getByRole("alert")).toBeVisible();
   expect((await new AxeBuilder({ page }).include(".viewport-frame").analyze()).violations).toEqual([]);
   await expect(frame).toHaveScreenshot("tool-call-failed-light.webp");
+
+  await componentSwitcher.getByRole("button", { name: /^File/ }).click();
+  await expect(frame.locator("[data-slot=file]")).toBeVisible();
+  expect((await new AxeBuilder({ page }).include(".viewport-frame").analyze()).violations).toEqual([]);
 });
 
 test("keeps touch actions at least 44px in a coarse-pointer browser", async ({ browser }) => {

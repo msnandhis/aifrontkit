@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 
 const toolingDirectory = dirname(fileURLToPath(import.meta.url));
 const defaultRepositoryRoot = resolve(toolingDirectory, "../..");
-const defaultRegistryRoot = join(defaultRepositoryRoot, "registry/components");
+const defaultRegistryRoot = join(defaultRepositoryRoot, "registry/react/css/components");
 
 const maturityLevels = new Set(["experimental", "preview", "stable", "deprecated"]);
 const requiredThemes = ["light", "dark", "high-contrast"];
@@ -338,7 +338,7 @@ export async function validateComponent(componentDirectory, options = {}) {
 
 export async function validateRegistry(options = {}) {
   const repositoryRoot = resolve(options.repositoryRoot ?? defaultRepositoryRoot);
-  const registryRoot = resolve(options.registryRoot ?? join(repositoryRoot, "registry/components"));
+  const registryRoot = resolve(options.registryRoot ?? join(repositoryRoot, "registry/react/css/components"));
   const minimumScore = options.minimumScore ?? 90;
   const entries = await readdir(registryRoot, { withFileTypes: true });
   const directories = entries

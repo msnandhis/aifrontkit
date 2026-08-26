@@ -4,9 +4,9 @@ import { createRuntime, type AIFrontEvent } from "@aifrontkit/core";
 import { AIFrontKitProvider } from "@aifrontkit/react";
 import type { Density, MotionLevel, Radius, ThemeMode } from "@aifrontkit/tokens";
 import "@aifrontkit/tokens/css";
-import { Conversation, type ConversationPresentation } from "../../../registry/components/conversation/conversation.js";
-import { Message, type MessageVariant } from "../../../registry/components/message/message.js";
-import { PromptInput } from "../../../registry/components/prompt-input/prompt-input.js";
+import { Conversation, type ConversationPresentation } from "../../../registry/react/css/components/conversation/conversation.js";
+import { Message, type MessageVariant } from "../../../registry/react/css/components/message/message.js";
+import { PromptInput } from "../../../registry/react/css/components/prompt-input/prompt-input.js";
 import "./playground.css";
 
 const initialEvents: AIFrontEvent[] = [

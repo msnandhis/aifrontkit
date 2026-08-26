@@ -12,9 +12,33 @@ A conversation has three independent layers:
 2. `@aifrontkit/core` reduces normalized events into deterministic state.
 3. React primitives and registry source render that state accessibly.
 
-Create the runtime at an application boundary, provide it once, then compose the
-Conversation, Message, and Prompt Input capabilities. Components never call a
-model provider directly and do not contain authoritative business logic.
+Start in controlled mode when application state already owns normalized messages:
+
+```tsx
+<Conversation messages={messages} onSubmit={sendMessage} />
+```
+
+Use runtime mode when streamed provider or protocol events should drive the same UI:
+
+```tsx
+<AIFrontKitProvider runtime={runtime}>
+  <Conversation onSubmit={sendMessage} />
+</AIFrontKitProvider>
+```
+
+Both modes use the same `Message` model. Components never call a model provider
+directly and do not contain authoritative billing, entitlement, or business logic.
+
+Customize individual messages without replacing Conversation behavior:
+
+```tsx
+<Conversation
+  messages={messages}
+  renderMessage={(_id, _index, message) => (
+    <Message message={message} variant="conversation" actions={<MessageActions />} />
+  )}
+/>
+```
 
 During streaming, follow output only while the reader remains near the bottom.
 If the reader scrolls upward, preserve their position and offer a “scroll to

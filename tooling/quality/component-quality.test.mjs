@@ -18,7 +18,7 @@ afterEach(async () => {
 
 function manifest(overrides = {}) {
   return {
-    $schema: "../../../tooling/quality/component.schema.json",
+    $schema: "../../../../../tooling/quality/component.schema.json",
     schemaVersion: 1,
     name: "example",
     title: "Example",
@@ -47,9 +47,9 @@ function manifest(overrides = {}) {
       interaction: true,
       documentation: true,
       evidence: {
-        visualRegression: "../../../apps/lab/tests/component-quality.spec.ts",
-        a11y: "../../../apps/lab/tests/component-quality.spec.ts",
-        interaction: "../../../apps/lab/tests/component-quality.spec.ts",
+        visualRegression: "../../../../../apps/lab/tests/component-quality.spec.ts",
+        a11y: "../../../../../apps/lab/tests/component-quality.spec.ts",
+        interaction: "../../../../../apps/lab/tests/component-quality.spec.ts",
         documentation: "README.md",
       },
     },
@@ -68,14 +68,14 @@ function manifest(overrides = {}) {
 async function makeComponent({ contract = manifest(), css, fixtures = "export const ids = ['default', 'loading']; export function ExampleFixture() { return <div />; }" } = {}) {
   const repositoryRoot = await mkdtemp(join(tmpdir(), "aifrontkit-quality-"));
   temporaryDirectories.push(repositoryRoot);
-  const componentDirectory = join(repositoryRoot, "registry/components/example");
+  const componentDirectory = join(repositoryRoot, "registry/react/css/components/example");
   const browserDirectory = join(repositoryRoot, "apps/lab/tests");
   await mkdir(componentDirectory, { recursive: true });
   await mkdir(browserDirectory, { recursive: true });
   await writeFile(join(componentDirectory, "component.json"), `${JSON.stringify(contract, null, 2)}\n`);
   await writeFile(join(componentDirectory, "registry.json"), `${JSON.stringify({
     name: "example",
-    files: [{ path: "registry/components/example/example.css", type: "registry:style" }],
+    files: [{ path: "registry/react/css/components/example/example.css", type: "registry:style" }],
     meta: { version: "1.2.3", schemaMajor: 1, aifrontkit: ">=0.1.0 <1" },
   }, null, 2)}\n`);
   await writeFile(join(componentDirectory, "example.fixture.tsx"), fixtures);
@@ -137,7 +137,7 @@ test("contract, fixture, CSS, and release defects are actionable failures", asyn
   assert.match(formatQualityReport({
     schemaVersion: 1,
     minimumScore: 90,
-    registry: "registry/components",
+    registry: "registry/react/css/components",
     summary: { components: 1, passed: 0, failed: 1, averageScore: result.score },
     components: [result],
   }), /platformRuntimeRequired must be false/);
@@ -146,7 +146,7 @@ test("contract, fixture, CSS, and release defects are actionable failures", asyn
 test("a missing component contract fails closed", async () => {
   const repositoryRoot = await mkdtemp(join(tmpdir(), "aifrontkit-quality-"));
   temporaryDirectories.push(repositoryRoot);
-  const componentDirectory = join(repositoryRoot, "registry/components/example");
+  const componentDirectory = join(repositoryRoot, "registry/react/css/components/example");
   await mkdir(componentDirectory, { recursive: true });
 
   const result = await validateComponent(componentDirectory, { repositoryRoot });

@@ -1,5 +1,5 @@
 import { createRuntime, type AIFrontEvent, type Runtime } from "@aifrontkit/core";
-import { conversationQualityScenarios } from "../../../registry/components/conversation/conversation.quality.fixture.js";
+import { conversationQualityScenarios } from "../../../registry/react/css/components/conversation/conversation.quality.fixture.js";
 
 export type FixtureId = (typeof conversationQualityScenarios)[number]["id"];
 

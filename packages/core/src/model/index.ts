@@ -1,10 +1,12 @@
+import type { FileContentPart } from "../content/index.js";
+
 export type MessageRole = "user" | "assistant" | "system";
 export type MessageStatus = "streaming" | "complete" | "interrupted" | "failed";
 
 export type ContentPart =
   | { type: "text"; text: string }
   | { type: "image"; url: string; alt?: string }
-  | { type: "file"; url: string; name: string; mediaType?: string };
+  | FileContentPart;
 
 export interface Message {
   id: string;

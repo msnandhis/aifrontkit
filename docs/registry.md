@@ -2,7 +2,14 @@
 
 ## Purpose
 
-The registry is the catalog and distribution contract for packages, source components, patterns, blocks, experiences, themes, adapters, and examples. The public registry is OSS; the private platform can serve Pro entries using the same public manifest schema.
+The registry is the catalog and distribution contract for source components,
+patterns, blocks, experiences, and themes. Framework-neutral behavior remains in
+npm packages. The public registry is OSS; the private platform can serve Pro
+entries using the same public manifest schema.
+
+The canonical implementation path is `registry/react/css`. Framework-neutral UI
+contracts live under `contracts/ui`; future React styling flavors, Web Components,
+and Angular implementations must declare which contract version they satisfy.
 
 ## Item manifest
 
@@ -34,4 +41,3 @@ Validate schema → resolve dependencies → build previews → run tests/securi
 ## Ecosystem safety
 
 Community namespaces prevent impersonation. Registry UI clearly separates official, verified, and community content. Content policy, reporting, deprecation, and security-advisory processes are required before broad third-party publishing.
-

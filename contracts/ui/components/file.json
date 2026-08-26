@@ -1,0 +1,12 @@
+{
+  "$schema": "../component.schema.json",
+  "name": "file",
+  "version": "0.1.0",
+  "status": "preview",
+  "purpose": "Present a file attachment with safe download behavior, MIME-aware identity, metadata, and composable parts.",
+  "anatomy": ["root", "icon", "details", "name", "size", "status", "download"],
+  "states": ["ready", "loading", "failed", "download-unavailable"],
+  "variants": { "variant": ["outline", "ghost", "muted"], "size": ["sm", "default", "lg"] },
+  "accessibility": ["Provides an accessible file name.", "Does not expose unresolved identifiers as download links.", "Keeps decorative MIME icons hidden from assistive technology."],
+  "implementations": [{ "framework": "react", "style": "css-modules", "path": "registry/react/css/components/file" }]
+}

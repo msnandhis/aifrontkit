@@ -1,0 +1,31 @@
+{
+  "$schema": "../../../../../tooling/quality/component.schema.json",
+  "schemaVersion": 1,
+  "name": "tool-call",
+  "title": "Tool call",
+  "version": "0.3.0",
+  "maturity": "experimental",
+  "purpose": "Present normalized tool lifecycle and bounded output without executing the tool.",
+  "anatomy": [{ "name": "root" }, { "name": "header" }, { "name": "identity" }, { "name": "status" }, { "name": "content" }],
+  "slots": [{ "name": "icon" }, { "name": "actions" }, { "name": "content" }],
+  "states": [{ "name": "pending" }, { "name": "running" }, { "name": "complete" }, { "name": "failed" }, { "name": "cancelled" }],
+  "variants": [{ "name": "default" }],
+  "themes": [{ "name": "light" }, { "name": "dark" }, { "name": "high-contrast" }],
+  "responsive": { "viewports": [{ "name": "narrow", "width": 375 }, { "name": "embedded", "width": 768 }, { "name": "workspace", "width": 1440 }] },
+  "accessibility": { "semantics": "A labelled section exposes tool name, live status, busy state, and readable output.", "keyboard": ["Actions remain reachable in source order.", "Overflowing output can be inspected without trapping focus."], "focus": ["Every installed action retains a visible focus indicator."] },
+  "motion": { "usesMotion": true, "reducedMotion": true },
+  "fixtures": { "file": "tool-call.fixture.tsx", "scenarios": [{ "name": "default" }, { "name": "pending" }, { "name": "running" }, { "name": "complete" }, { "name": "failed" }, { "name": "cancelled" }] },
+  "quality": {
+    "visualRegression": true,
+    "a11y": true,
+    "interaction": true,
+    "documentation": true,
+    "evidence": {
+      "visualRegression": "../../../../../apps/lab/tests/component-quality.spec.ts",
+      "a11y": "../../../../../apps/lab/tests/component-quality.spec.ts",
+      "interaction": "../../../../../apps/lab/tests/component-quality.spec.ts",
+      "documentation": "README.md"
+    }
+  },
+  "compatibility": { "aifrontkit": ">=0.1.0 <1", "react": ">=18.2.0 <20", "schemaMajor": 1, "registryDependencies": [], "runtimeDependencies": ["@aifrontkit/react"], "platformRuntimeRequired": false }
+}

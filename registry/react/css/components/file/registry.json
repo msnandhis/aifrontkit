@@ -1,0 +1,13 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "file",
+  "type": "registry:component",
+  "title": "File",
+  "description": "Composable file attachment with safe downloads, MIME identity, variants and sizes.",
+  "files": [
+    { "path": "registry/react/css/components/file/file.tsx", "type": "registry:component" },
+    { "path": "registry/react/css/components/file/file.module.css", "type": "registry:style" }
+  ],
+  "dependencies": ["@aifrontkit/core@^0.1.0"],
+  "meta": { "version": "0.1.0", "schemaMajor": 1, "aifrontkit": ">=0.1.0 <1" }
+}

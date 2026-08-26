@@ -1,9 +1,10 @@
-import { ConversationFixture, conversationQualityScenarios, type ConversationFixtureId } from "../../../registry/components/conversation/conversation.fixture.js";
-import { MessageFixture, messageQualityScenarios, type MessageFixtureId } from "../../../registry/components/message/message.fixture.js";
-import { PromptInputFixture, promptInputQualityScenarios, type PromptInputFixtureId } from "../../../registry/components/prompt-input/prompt-input.fixture.js";
-import { ToolCallFixture, toolCallQualityScenarios, type ToolCallFixtureId } from "../../../registry/components/tool-call/tool-call.fixture.js";
+import { ConversationFixture, conversationQualityScenarios, type ConversationFixtureId } from "../../../registry/react/css/components/conversation/conversation.fixture.js";
+import { MessageFixture, messageQualityScenarios, type MessageFixtureId } from "../../../registry/react/css/components/message/message.fixture.js";
+import { PromptInputFixture, promptInputQualityScenarios, type PromptInputFixtureId } from "../../../registry/react/css/components/prompt-input/prompt-input.fixture.js";
+import { ToolCallFixture, toolCallQualityScenarios, type ToolCallFixtureId } from "../../../registry/react/css/components/tool-call/tool-call.fixture.js";
+import { FileFixture, type FileFixtureId } from "../../../registry/react/css/components/file/file.fixture.js";
 
-export type LabComponentId = "conversation" | "message" | "prompt-input" | "tool-call";
+export type LabComponentId = "conversation" | "message" | "prompt-input" | "tool-call" | "file";
 export type LabComponentMaturity = "preview" | "experimental";
 
 export interface LabScenario {
@@ -35,6 +36,13 @@ export const componentFixtureContracts: readonly LabComponentContract[] = [
     scenarios: conversationQualityScenarios.map((scenario) => ({ id: scenario.id, title: scenarioTitle(scenario.id), expectation: scenario.expectation })),
   },
   {
+    id: "file",
+    title: "File",
+    maturity: "preview",
+    description: "Safe downloads, MIME identity, size and source-owned compound composition.",
+    scenarios: ["default", "loading", "ready", "failed", "download-unavailable"].map((id) => ({ id, title: scenarioTitle(id), expectation: "The file remains readable, bounded, and explicit about action availability." })),
+  },
+  {
     id: "message",
     title: "Message",
     maturity: "preview",
@@ -63,6 +71,8 @@ export const componentFixtureIds = componentFixtureContracts.map((contract) => c
 
 export function renderRegistryFixture(component: LabComponentId, scenario: string) {
   switch (component) {
+    case "file":
+      return <FileFixture id={scenario as FileFixtureId} />;
     case "message":
       return <MessageFixture scenario={scenario as MessageFixtureId} />;
     case "prompt-input":

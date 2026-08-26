@@ -18,10 +18,11 @@ packages/
   ag-ui/              optional AG-UI event translator
   tokens/             semantic design-token contract and CSS variables
   testing/            deterministic fixtures and compatibility helpers
+  cli/                source installer, aliases, provenance, and diffs
 registry/
-  components/         community source-owned UI
-  patterns/           multi-component interaction flows
+  react/css/          default React implementation with CSS Modules
   themes/             installable theme source
+contracts/ui/         framework-neutral component contracts
 compatibility/        cross-version fixtures
 apps/playground/       public examples and integration exploration
 apps/lab/              internal component quality and stress-test workbench
@@ -74,6 +75,13 @@ The provider projects framework-neutral semantic tokens onto one scoped root. Re
 ## Distribution
 
 Behavior packages are published under `@aifrontkit/*`. Visual UI is installed from the public registry as polished, neutral source with configurable tokens, variants, composition, and motion. Packages and registry items version independently and declare compatibility ranges.
+
+```bash
+npx aifrontkit init
+npx aifrontkit add conversation
+```
+
+The first-party installer is independent of shadcn. It resolves registry dependencies, respects the project's alias, protects locally edited files, and records provenance for reviewable upgrades.
 
 ## License
 

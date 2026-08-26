@@ -1,0 +1,71 @@
+{
+  "$schema": "../../../../../tooling/quality/component.schema.json",
+  "schemaVersion": 1,
+  "name": "file",
+  "title": "File",
+  "version": "0.1.0",
+  "maturity": "preview",
+  "purpose": "Present a file attachment with a safe browser download target, MIME-aware identity, useful metadata, source-owned styling, and compound parts that remain independent of platform and transport services.",
+  "anatomy": [
+    { "name": "root", "description": "Semantic file attachment container." },
+    { "name": "icon", "description": "Decorative MIME-aware identity." },
+    { "name": "details", "description": "Bounded metadata group." },
+    { "name": "name", "description": "Truncated accessible file name." },
+    { "name": "size", "description": "Optional human-readable byte size." },
+    { "name": "status", "description": "Explicit loading or failure meaning." },
+    { "name": "download", "description": "Safe browser-resolvable download action." }
+  ],
+  "slots": [
+    { "name": "icon", "description": "Custom file-type artwork." },
+    { "name": "actions", "description": "Host-owned preview, resolve, or download actions." },
+    { "name": "children", "description": "Complete compound composition." }
+  ],
+  "states": [
+    { "name": "default", "description": "Ready file with common metadata." },
+    { "name": "loading", "description": "File is still becoming available." },
+    { "name": "ready", "description": "File has a safe download target." },
+    { "name": "failed", "description": "File could not be prepared." },
+    { "name": "download-unavailable", "description": "Opaque source needs host resolution." }
+  ],
+  "variants": [
+    { "name": "outline", "description": "Default bounded surface." },
+    { "name": "ghost", "description": "No border or background." },
+    { "name": "muted", "description": "Quiet filled surface." }
+  ],
+  "themes": [
+    { "name": "light", "description": "Neutral light presentation." },
+    { "name": "dark", "description": "Neutral dark presentation." },
+    { "name": "high-contrast", "description": "Strengthened focus and boundaries." }
+  ],
+  "responsive": { "viewports": [
+    { "name": "mobile", "width": 375, "expectation": "Long names truncate without overflow." },
+    { "name": "tablet", "width": 768, "expectation": "Metadata remains grouped." },
+    { "name": "desktop", "width": 1024, "expectation": "The component keeps a readable maximum width." }
+  ] },
+  "accessibility": {
+    "semantics": "Uses a named article, decorative icon, readable metadata, and an explicitly labelled download action only when a safe target exists.",
+    "keyboard": ["Tab reaches the download or supplied host action.", "Enter activates a native download link."],
+    "focus": ["The download action has a visible focus indicator.", "Status changes do not move focus."]
+  },
+  "motion": { "usesMotion": true, "reducedMotion": true, "levels": ["none", "subtle"], "contract": "Only action color and surface transitions animate; reduced motion removes their duration." },
+  "fixtures": { "file": "file.fixture.tsx", "scenarios": [
+    { "name": "default", "description": "Ready PDF with name and size." },
+    { "name": "loading", "description": "Pending file." },
+    { "name": "ready", "description": "Muted downloadable file." },
+    { "name": "failed", "description": "Failed archive." },
+    { "name": "download-unavailable", "description": "Provider ID with explicit unavailable state." }
+  ] },
+  "quality": {
+    "visualRegression": true, "a11y": true, "interaction": true, "documentation": true,
+    "evidence": {
+      "visualRegression": "../../../../../apps/lab/tests/component-quality.spec.ts",
+      "a11y": "../../../../../apps/lab/tests/component-quality.spec.ts",
+      "interaction": "../../../../../apps/lab/tests/component-quality.spec.ts",
+      "documentation": "README.md"
+    }
+  },
+  "compatibility": {
+    "aifrontkit": ">=0.1.0 <1", "react": ">=18.3 <20", "schemaMajor": 1,
+    "registryDependencies": [], "runtimeDependencies": ["@aifrontkit/core"], "platformRuntimeRequired": false
+  }
+}

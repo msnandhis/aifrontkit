@@ -1,0 +1,12 @@
+{
+  "$schema": "../component.schema.json",
+  "name": "tool-call",
+  "version": "0.3.0",
+  "status": "experimental",
+  "purpose": "Present tool execution status, input, output, and recovery details without coupling presentation to a transport.",
+  "anatomy": ["root", "header", "name", "status", "input", "output", "error", "actions"],
+  "states": ["pending", "running", "complete", "failed", "cancelled"],
+  "variants": { "variant": ["default", "compact", "workspace"] },
+  "accessibility": ["Announces meaningful status changes.", "Keeps expanded details keyboard reachable.", "Does not rely on color alone."],
+  "implementations": [{ "framework": "react", "style": "css-modules", "path": "registry/react/css/components/tool-call" }]
+}

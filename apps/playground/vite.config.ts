@@ -3,10 +3,13 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
   resolve: {
-    alias: {
-      "@aifrontkit/react/conversation": fileURLToPath(new URL("../../packages/react/dist/conversation/index.js", import.meta.url)),
-      "@aifrontkit/react/composer": fileURLToPath(new URL("../../packages/react/dist/composer/index.js", import.meta.url)),
-      "@aifrontkit/react/message": fileURLToPath(new URL("../../packages/react/dist/message/index.js", import.meta.url))
-    }
+    alias: [
+      { find: "@aifrontkit/core/content", replacement: fileURLToPath(new URL("../../packages/core/dist/content/index.js", import.meta.url)) },
+      { find: "@aifrontkit/react/conversation", replacement: fileURLToPath(new URL("../../packages/react/dist/conversation/index.js", import.meta.url)) },
+      { find: "@aifrontkit/react/composer", replacement: fileURLToPath(new URL("../../packages/react/dist/composer/index.js", import.meta.url)) },
+      { find: "@aifrontkit/react/message", replacement: fileURLToPath(new URL("../../packages/react/dist/message/index.js", import.meta.url)) },
+      { find: /^@aifrontkit\/react$/, replacement: fileURLToPath(new URL("../../packages/react/dist/index.js", import.meta.url)) },
+      { find: /^@aifrontkit\/core$/, replacement: fileURLToPath(new URL("../../packages/core/dist/index.js", import.meta.url)) }
+    ]
   }
 });

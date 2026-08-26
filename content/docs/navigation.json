@@ -8,6 +8,7 @@
       "pages": [
         "index.md",
         "start/installation.md",
+        "start/frameworks-and-imports.md",
         "start/first-conversation.md",
         "start/choose-an-integration.md",
         "start/customize-the-theme.md"
@@ -20,6 +21,7 @@
         "concepts/architecture.md",
         "concepts/runtime.md",
         "concepts/source-ownership.md",
+        "concepts/component-model.md",
         "concepts/versioning.md"
       ]
     },
@@ -37,7 +39,8 @@
       "title": "Primitives",
       "pages": [
         "primitives/conversation.md",
-        "primitives/message.md"
+        "primitives/message.md",
+        "primitives/file.md"
       ]
     },
     {
@@ -54,6 +57,7 @@
       "title": "Reference",
       "pages": [
         "reference/packages.md",
+        "reference/cli.md",
         "reference/registry-manifest.md",
         "reference/compatibility.md"
       ]

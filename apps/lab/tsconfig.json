@@ -6,6 +6,7 @@
     "baseUrl": "../..",
     "paths": {
       "@aifrontkit/core": ["packages/core/src/index.ts"],
+      "@aifrontkit/core/*": ["packages/core/src/*/index.ts"],
       "@aifrontkit/react": ["packages/react/src/index.ts"],
       "@aifrontkit/react/conversation": ["packages/react/src/conversation/index.tsx"],
       "@aifrontkit/react/composer": ["packages/react/src/composer/index.tsx"],

@@ -9,6 +9,7 @@
   "exports": {
     ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
     "./model": { "types": "./dist/model/index.d.ts", "import": "./dist/model/index.js" },
+    "./content": { "types": "./dist/content/index.d.ts", "import": "./dist/content/index.js" },
     "./events": { "types": "./dist/events/index.d.ts", "import": "./dist/events/index.js" },
     "./runtime": { "types": "./dist/runtime/index.d.ts", "import": "./dist/runtime/index.js" },
     "./schema/v1": { "types": "./dist/schema/v1/index.d.ts", "import": "./dist/schema/v1/index.js" },

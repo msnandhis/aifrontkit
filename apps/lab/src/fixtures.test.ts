@@ -19,7 +19,7 @@ describe("Component Lab fixtures", () => {
   });
 
   it("keeps every declared registry component renderable in the lab", () => {
-    expect(componentFixtureIds).toEqual(["conversation", "message", "prompt-input", "tool-call"]);
+    expect(componentFixtureIds).toEqual(["conversation", "file", "message", "prompt-input", "tool-call"]);
     expect(componentFixtureContracts.every((contract) => contract.scenarios.some((scenario) => scenario.id === "default"))).toBe(true);
   });
 });

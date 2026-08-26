@@ -9,7 +9,8 @@ const allowed = {
   "ai-sdk": new Set(["@aifrontkit/core"]),
   "ag-ui": new Set(["@aifrontkit/core"]),
   tokens: new Set(),
-  testing: new Set(["@aifrontkit/core"])
+  testing: new Set(["@aifrontkit/core"]),
+  cli: new Set()
 };
 const failures = [];
 

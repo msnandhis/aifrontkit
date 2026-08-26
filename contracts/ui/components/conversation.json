@@ -1,0 +1,12 @@
+{
+  "$schema": "../component.schema.json",
+  "name": "conversation",
+  "version": "0.3.0",
+  "status": "preview",
+  "purpose": "Present an accessible transcript with respectful scroll following in controlled and runtime-backed modes.",
+  "anatomy": ["root", "header", "viewport", "list", "item", "empty", "scroll-to-latest", "status", "footer"],
+  "states": ["empty", "idle", "streaming", "interrupted", "failed", "reader-away-from-end"],
+  "variants": { "presentation": ["embedded", "full-height", "workspace"] },
+  "accessibility": ["Names the transcript region.", "Preserves reader position during streaming.", "Announces aggregate activity without announcing each token."],
+  "implementations": [{ "framework": "react", "style": "css-modules", "path": "registry/react/css/components/conversation" }]
+}

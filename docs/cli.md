@@ -4,12 +4,20 @@
 
 The CLI initializes AIFrontKit integration, discovers registry content, installs source and dependencies, validates configuration, previews changes, and assists upgrades. Public workflows require no account; protected downloads authenticate with the platform.
 
-## Planned command families
+## Implemented commands
 
 - `init`: detect project conventions and create a minimal local config.
-- `search` / `info`: inspect catalog metadata, compatibility, source, and license.
 - `add`: resolve and install an item and its registry dependencies.
-- `diff` / `upgrade`: compare local source against a newer registry version.
+- `diff`: compare local source against the configured registry source.
+- `doctor`: report the selected framework, style, alias target, and installed provenance.
+
+`add` supports `--dry-run` and refuses to overwrite changed source without
+`--force`. `--registry=path-or-url` supports local registry work and mirrors.
+
+## Planned command families
+
+- `search` / `info`: inspect catalog metadata, compatibility, source, and license.
+- `upgrade`: apply a reviewed diff with migration metadata.
 - `remove`: remove only safely attributable files/dependencies, with preview.
 - `validate` / `doctor`: check schemas, package ranges, paths, aliases, and environment.
 - `theme`: validate/compile theme documents.
@@ -24,7 +32,9 @@ All mutations support dry-run and print an operation plan. Existing changed file
 
 ## Configuration
 
-A versioned project config records registry sources, aliases/target directories, styling strategy, framework adapter, package manager preference, schema version, and installed provenance. Secrets never live in this file.
+`aifrontkit.json` records the registry source, React/CSS flavor, and component alias.
+`.aifrontkit/installed.json` separately records item versions, source paths, target
+paths, timestamps, and content hashes. Secrets never live in either file.
 
 ## Extensibility
 
@@ -33,4 +43,3 @@ Additional registries are configured by URL and trust policy. Command plugins ar
 ## Testing
 
 Use fixture projects for supported package managers and layouts, snapshot operation plans, simulate network/auth failures, and verify idempotent installs, conflicts, path traversal rejection, partial failure recovery, and non-interactive CI behavior.
-

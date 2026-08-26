@@ -10,8 +10,8 @@ AIFrontKit uses one behavioral primitive layer and one source-owned presentation
 
 - `@aifrontkit/react` contains headless runtime-bound compound primitives;
 - `registry/ui` contains editable native-first visual building blocks;
-- `registry/components` composes complete AI capabilities;
-- `registry/patterns`, `registry/blocks`, and `registry/workspaces` compose progressively larger product structures.
+- `registry/react/css/components` composes complete AI capabilities for the default React/CSS implementation;
+- implementation-specific patterns compose multi-component flows, while contracts remain framework-neutral.
 
 Generic overlay and focus-management behavior is not reimplemented casually. Native platform behavior is preferred. A third-party accessible foundation may be used by a registry item after an accessibility, bundle, maintenance, and source-ownership review.
 

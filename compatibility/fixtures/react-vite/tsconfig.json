@@ -1,0 +1,5 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": { "noEmit": true, "types": ["vite/client"], "module": "ESNext", "moduleResolution": "Bundler", "allowImportingTsExtensions": true, "baseUrl": "../../..", "paths": { "@aifrontkit/core/*": ["packages/core/src/*/index.ts"] } },
+  "include": ["src", "../../../registry/react/css/css-modules.d.ts"]
+}

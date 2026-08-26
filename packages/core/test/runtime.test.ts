@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
-import { createRuntime, reduceEvent, createInitialState, type AIFrontEvent } from "../src/index.js";
+import { createRuntime, createRuntimeFromMessages, reduceEvent, createInitialState, type AIFrontEvent } from "../src/index.js";
 
 const base = { schemaVersion: 1, threadId: "thread-1", timestamp: 1 } as const;
 
@@ -24,6 +24,15 @@ describe("framework-neutral runtime", () => {
     runtime.dispatch(event);
     runtime.dispatch(event);
     expect(listener).toHaveBeenCalledTimes(1);
+  });
+
+  it("creates provider-compatible state from controlled messages", () => {
+    const runtime = createRuntimeFromMessages("controlled", [{
+      id: "m1", threadId: "external", role: "user", status: "complete",
+      parts: [{ type: "text", text: "Controlled message" }], createdAt: 1
+    }]);
+    expect(runtime.getState().messageOrder).toEqual(["m1"]);
+    expect(runtime.getState().messages.m1).toMatchObject({ threadId: "controlled", role: "user" });
   });
 
   it("preserves partial content when a response is interrupted", () => {

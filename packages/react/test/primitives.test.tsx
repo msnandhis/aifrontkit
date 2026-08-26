@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { createRuntime } from "@aifrontkit/core";
+import { createRuntime, type Message } from "@aifrontkit/core";
 import { AIFrontKitProvider, ComposerPrimitive, ConversationPrimitive, MessagePrimitive, ThemeProvider, ToolPrimitive } from "../src/index.js";
 
 describe("React primitives", () => {
@@ -45,6 +45,25 @@ describe("React primitives", () => {
     const runtime = createRuntime("thread-1");
     const html = renderToStaticMarkup(<AIFrontKitProvider runtime={runtime}><MessagePrimitive.Root messageId="missing" /></AIFrontKitProvider>);
     expect(html).toBe("");
+  });
+
+  it("renders controlled messages and injects typed content-part renderers", () => {
+    const message: Message = {
+      id: "controlled", threadId: "controlled", role: "assistant", status: "complete",
+      parts: [{ type: "text" as const, text: "Replace me" }, { type: "file" as const, name: "report.pdf", source: { kind: "id" as const, id: "file_1" } }], createdAt: 1
+    };
+    const html = renderToStaticMarkup(
+      <MessagePrimitive.Root message={message}>
+        <MessagePrimitive.Content>
+          <MessagePrimitive.Parts components={{
+            text: ({ part }) => <strong>{part.text}</strong>,
+            file: ({ part }) => <em>{part.name}</em>
+          }} />
+        </MessagePrimitive.Content>
+      </MessagePrimitive.Root>
+    );
+    expect(html).toContain("<strong>Replace me</strong>");
+    expect(html).toContain("<em>report.pdf</em>");
   });
 
   it("renders retained content and interruption meaning without an error alert", () => {

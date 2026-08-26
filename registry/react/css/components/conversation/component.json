@@ -1,0 +1,105 @@
+{
+  "$schema": "../../../../../tooling/quality/component.schema.json",
+  "schemaVersion": 1,
+  "name": "conversation",
+  "title": "Conversation",
+  "version": "0.3.0",
+  "maturity": "preview",
+  "purpose": "Present an ordered AI transcript with readable message composition, respectful scroll following, an accessible shared status, and optional header, empty, message-renderer, and footer composition without owning transport or model execution.",
+  "anatomy": [
+    { "name": "root", "description": "Presentation and runtime boundary for the transcript." },
+    { "name": "header", "description": "Optional contextual heading outside the scrolling region." },
+    { "name": "viewport", "description": "Scrollable transcript viewport with near-end tracking." },
+    { "name": "empty", "description": "First-use state shown when the runtime has no messages." },
+    { "name": "list", "description": "Ordered collection of normalized runtime messages." },
+    { "name": "scroll-to-latest", "description": "Affordance exposed after the reader moves away from the end." },
+    { "name": "status", "description": "Single shared status announcement for transcript activity." },
+    { "name": "footer", "description": "Optional non-scrolling composition area, commonly a prompt input." }
+  ],
+  "slots": [
+    { "name": "header", "description": "Conversation identity, context, or local actions." },
+    { "name": "empty", "description": "Product-specific first-use guidance." },
+    { "name": "renderMessage", "description": "Message renderer receiving stable message identity and order." },
+    { "name": "footer", "description": "Composer or other conversation-level action surface." }
+  ],
+  "states": [
+    { "name": "default", "description": "Completed user and assistant exchange." },
+    { "name": "empty", "description": "No messages and a clear first action." },
+    { "name": "streaming", "description": "Partial assistant content with event-level status." },
+    { "name": "interrupted", "description": "Partial output is retained and interruption is understandable." },
+    { "name": "failed", "description": "Partial output, error meaning, and recovery remain associated." },
+    { "name": "long-content", "description": "Long prose, code, URLs, and multiple turns remain bounded and readable." },
+    { "name": "mixed-roles", "description": "System, user, and assistant roles preserve a quiet hierarchy." }
+  ],
+  "variants": [
+    { "name": "embedded", "description": "Transcript composed inside an existing page flow; the default presentation." },
+    { "name": "full-height", "description": "Dedicated assistant surface with a bounded scrolling transcript." },
+    { "name": "workspace", "description": "Transcript beside artifacts, sources, or another workspace pane." }
+  ],
+  "themes": [
+    { "name": "light", "description": "Graphite-neutral light presentation." },
+    { "name": "dark", "description": "Near-black presentation with preserved hierarchy." },
+    { "name": "high-contrast", "description": "Strengthened foreground, border, control, and focus separation." }
+  ],
+  "responsive": {
+    "viewports": [
+      { "name": "mobile", "width": 375, "expectation": "Edge-aware transcript, touch-safe controls, and no page overflow." },
+      { "name": "tablet", "width": 768, "expectation": "Readable measure with stable floating or attached footer composition." },
+      { "name": "desktop", "width": 1024, "expectation": "Centered transcript measure and clear surrounding hierarchy." },
+      { "name": "wide", "width": 1440, "expectation": "Content does not stretch beyond the conversation reading measure." }
+    ]
+  },
+  "accessibility": {
+    "semantics": "Uses an ordered message collection inside a named transcript region, one shared polite status, semantic message articles, and a labeled scroll-to-latest control without announcing streamed tokens individually.",
+    "keyboard": [
+      "Tab reaches transcript actions, scroll-to-latest, and footer controls in visual order.",
+      "Scroll-to-latest activates with Enter and Space through native button behavior.",
+      "Streaming and new messages never move keyboard focus."
+    ],
+    "focus": [
+      "Every interactive descendant retains a visible focus indicator in all declared themes.",
+      "Reading upward keeps the reader's scroll position and does not force the viewport to the latest message.",
+      "Revealing or hiding scroll-to-latest does not steal or strand focus."
+    ]
+  },
+  "motion": {
+    "usesMotion": true,
+    "reducedMotion": true,
+    "levels": ["none", "subtle", "expressive"],
+    "contract": "Message entry and scroll affordance motion use bounded transform or opacity; streamed tokens are never animated and operating-system reduced motion is authoritative."
+  },
+  "fixtures": {
+    "file": "conversation.fixture.tsx",
+    "scenarios": [
+      { "name": "default", "description": "Concise completed exchange." },
+      { "name": "empty", "description": "First-run state without transcript items." },
+      { "name": "streaming", "description": "Partial assistant output and active status." },
+      { "name": "interrupted", "description": "Retained partial output after interruption." },
+      { "name": "failed", "description": "Retained partial output with retry composition." },
+      { "name": "long-content", "description": "Long prose, code, URL, and unbroken identifier stress." },
+      { "name": "mixed-roles", "description": "System, user, and assistant hierarchy." },
+      { "name": "rtl", "description": "Bidirectional transcript and controls." },
+      { "name": "localization", "description": "Long translated labels and status content." }
+    ]
+  },
+  "quality": {
+    "visualRegression": true,
+    "a11y": true,
+    "interaction": true,
+    "documentation": true,
+    "evidence": {
+      "visualRegression": "../../../../../apps/lab/tests/component-quality.spec.ts",
+      "a11y": "../../../../../apps/lab/tests/component-quality.spec.ts",
+      "interaction": "../../../../../apps/lab/tests/component-quality.spec.ts",
+      "documentation": "README.md"
+    }
+  },
+  "compatibility": {
+    "aifrontkit": ">=0.1.0 <1",
+    "react": ">=18.3 <20",
+    "schemaMajor": 1,
+    "registryDependencies": ["message", "prompt-input"],
+    "runtimeDependencies": ["@aifrontkit/react"],
+    "platformRuntimeRequired": false
+  }
+}

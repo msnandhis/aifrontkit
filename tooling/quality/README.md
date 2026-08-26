@@ -1,7 +1,7 @@
 # Component quality gate
 
 The gate turns the AIFrontKit component definition of done into deterministic,
-dependency-free checks. It validates every `registry/components/*/component.json`
+dependency-free checks. It validates every `registry/react/css/components/*/component.json`
 contract, its parity with the installable `registry.json`, renderable fixture
 modules, review-evidence paths, and component CSS.
 

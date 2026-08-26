@@ -1,0 +1,12 @@
+{
+  "$schema": "../component.schema.json",
+  "name": "message",
+  "version": "0.4.0",
+  "status": "preview",
+  "purpose": "Render normalized message content through replaceable typed part renderers while preserving status semantics.",
+  "anatomy": ["root", "avatar", "header", "role", "metadata", "content", "parts", "state", "actions", "status"],
+  "states": ["streaming", "complete", "interrupted", "failed"],
+  "variants": { "variant": ["minimal", "conversation", "dense", "workspace"], "motion": ["none", "subtle", "expressive"] },
+  "accessibility": ["Exposes role and status semantics.", "Provides text alternatives for images.", "Allows one aggregate status announcer per conversation."],
+  "implementations": [{ "framework": "react", "style": "css-modules", "path": "registry/react/css/components/message" }]
+}

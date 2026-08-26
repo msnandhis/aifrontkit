@@ -21,4 +21,4 @@ The default address is `http://127.0.0.1:5174`.
 4. Check compact and comfortable density, zero and subtle motion, RTL, 200% zoom, and long-content stress.
 5. Complete the visible quality checklist before approving a visual baseline.
 
-The preview imports registry source directly from `registry/components`. It must never recreate a documentation-only version of a component.
+The preview imports registry source directly from `registry/react/css/components`. It must never recreate a documentation-only version of a component.

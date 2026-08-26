@@ -1,0 +1,12 @@
+{
+  "$schema": "../component.schema.json",
+  "name": "prompt-input",
+  "version": "0.3.0",
+  "status": "preview",
+  "purpose": "Collect and submit a user prompt with explicit disabled, busy, multiline, and validation behavior.",
+  "anatomy": ["root", "field", "actions", "submit", "hint", "error"],
+  "states": ["empty", "ready", "focused", "disabled", "submitting", "invalid"],
+  "variants": { "variant": ["default", "quiet", "workspace"], "size": ["sm", "default", "lg"] },
+  "accessibility": ["Provides a programmatic field label.", "Supports keyboard submission without blocking multiline input.", "Exposes validation and busy state."],
+  "implementations": [{ "framework": "react", "style": "css-modules", "path": "registry/react/css/components/prompt-input" }]
+}

@@ -6,7 +6,20 @@ status: experimental
 
 # Installation
 
-Install runtime behavior as npm packages:
+Initialize the source installer:
+
+```bash
+npx aifrontkit init
+npx aifrontkit add conversation
+```
+
+`init` creates `aifrontkit.json`. The default alias installs editable source to
+`@/components/aifrontkit`. `add conversation` also installs declared registry
+dependencies such as Message, File, and Prompt Input and records exact file
+hashes in `.aifrontkit/installed.json`.
+
+Install runtime behavior as npm packages when your application uses provider-backed
+streaming state:
 
 ```bash
 pnpm add @aifrontkit/core @aifrontkit/react
@@ -21,10 +34,18 @@ pnpm add @aifrontkit/ai-sdk
 pnpm add @aifrontkit/ag-ui
 ```
 
-Visual components are installed as editable registry source rather than opaque
-npm packages. Public installation must work without an AIFrontKit account,
-license key, platform API, or billing connection.
+Visual components are editable registry source rather than opaque npm components.
+The AIFrontKit CLI is the canonical installer; it does not require shadcn. Public
+installation works without an AIFrontKit account, license key, platform API, or
+billing connection.
 
-AIFrontKit currently targets modern ESM projects, React 19, and Node.js 22 or
-newer for development tooling. Refer to [compatibility](../reference/compatibility.md)
+Review local changes before updating copied source:
+
+```bash
+npx aifrontkit diff conversation
+npx aifrontkit add conversation --force
+```
+
+AIFrontKit currently targets modern ESM projects, React 18.3–19, and Node.js 22
+or newer for development tooling. Refer to [compatibility](../reference/compatibility.md)
 before adopting a prerelease package.

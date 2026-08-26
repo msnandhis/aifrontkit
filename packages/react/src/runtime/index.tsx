@@ -21,6 +21,10 @@ export function useAIFrontKitRuntime(): Runtime {
   return runtime;
 }
 
+export function useOptionalAIFrontKitRuntime(): Runtime | null {
+  return useContext(RuntimeContext);
+}
+
 export function useRuntimeState<T>(selector: (state: RuntimeState) => T): T {
   const runtime = useAIFrontKitRuntime();
   const getSnapshot = () => selector(runtime.getState());

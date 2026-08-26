@@ -1,0 +1,58 @@
+.aifk-file {
+  display: flex;
+  min-width: 0;
+  max-width: 28rem;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  color: var(--aifk-text, CanvasText);
+  border: 1px solid var(--aifk-border, ButtonBorder);
+  border-radius: var(--aifk-radius-large, 0.875rem);
+  background: var(--aifk-surface, Canvas);
+  font: inherit;
+}
+
+.aifk-file[data-variant="ghost"] { border-color: transparent; background: transparent; }
+.aifk-file[data-variant="muted"] { border-color: transparent; background: var(--aifk-surface-subtle, Canvas); }
+.aifk-file[data-size="sm"] { gap: 0.5rem; padding: 0.5rem; font-size: var(--aifk-type-font-size-sm, 0.875rem); }
+.aifk-file[data-size="lg"] { gap: 1rem; padding: 1rem; }
+.aifk-file[data-status="failed"] { border-color: var(--aifk-destructive, currentColor); }
+
+.aifk-file__icon {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: 0 0 auto;
+  place-items: center;
+  color: var(--aifk-text-muted, GrayText);
+  border-radius: var(--aifk-radius-medium, 0.625rem);
+  background: var(--aifk-surface-subtle, Canvas);
+}
+
+.aifk-file[data-size="sm"] .aifk-file__icon { width: 2rem; height: 2rem; }
+.aifk-file[data-size="lg"] .aifk-file__icon { width: 2.75rem; height: 2.75rem; }
+.aifk-file__icon svg { width: 1.125rem; height: 1.125rem; }
+
+.aifk-file__details { display: grid; min-width: 0; flex: 1; gap: 0.125rem; }
+.aifk-file__name { overflow: hidden; color: var(--aifk-text, CanvasText); font-weight: 540; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
+.aifk-file__size, .aifk-file__status, .aifk-file__unavailable { color: var(--aifk-text-muted, GrayText); font-size: var(--aifk-type-font-size-xs, 0.75rem); line-height: 1.35; }
+.aifk-file[data-status="failed"] .aifk-file__status { color: var(--aifk-destructive, CanvasText); }
+
+.aifk-file__download {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: 0 0 auto;
+  place-items: center;
+  color: var(--aifk-text-muted, GrayText);
+  border-radius: var(--aifk-radius-medium, 0.625rem);
+  text-decoration: none;
+  transition: color var(--aifk-motion-duration-fast, 120ms) var(--aifk-motion-easing-standard, ease-out), background-color var(--aifk-motion-duration-fast, 120ms) var(--aifk-motion-easing-standard, ease-out);
+}
+.aifk-file__download:hover { color: var(--aifk-text, CanvasText); background: var(--aifk-surface-subtle, Canvas); }
+.aifk-file__download:focus-visible { outline: 2px solid var(--aifk-focus, Highlight); outline-offset: 2px; }
+.aifk-file__download svg { width: 1rem; height: 1rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .aifk-file__download { transition-duration: 0ms; }
+}

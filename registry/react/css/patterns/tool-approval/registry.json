@@ -1,0 +1,9 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "tool-approval",
+  "type": "registry:block",
+  "title": "Tool approval",
+  "description": "An explicit approve/reject boundary for consequential customer actions.",
+  "files": [{ "path": "registry/react/css/patterns/tool-approval/tool-approval.tsx", "type": "registry:component" }],
+  "meta": { "version": "0.1.0", "schemaMajor": 1, "aifrontkit": ">=0.1.0 <1" }
+}
