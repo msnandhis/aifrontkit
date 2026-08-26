@@ -6,6 +6,9 @@ status: experimental
 
 # Installation
 
+AIFrontKit uses two distribution lanes: versioned npm packages for behavior and
+editable registry source for visual components. Most React applications use both.
+
 Initialize the source installer:
 
 ```bash
@@ -39,10 +42,19 @@ The AIFrontKit CLI is the canonical installer; it does not require shadcn. Publi
 installation works without an AIFrontKit account, license key, platform API, or
 billing connection.
 
+Continue with [CLI installation](cli.md), or use the supported
+[manual source flow](manual-installation.md). Then choose the framework guide:
+
+- [React](react.md)
+- [React with Vite](vite.md)
+- [Next.js App Router](next-app-router.md)
+- [Next.js Pages Router](next-pages-router.md)
+
 Review local changes before updating copied source:
 
 ```bash
 npx aifrontkit diff conversation
+npx aifrontkit add conversation --dry-run
 npx aifrontkit add conversation --force
 ```
 

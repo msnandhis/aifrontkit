@@ -27,5 +27,5 @@
       "documentation": "README.md"
     }
   },
-  "compatibility": { "aifrontkit": ">=0.1.0 <1", "react": ">=18.2.0 <20", "schemaMajor": 1, "registryDependencies": [], "runtimeDependencies": ["@aifrontkit/react"], "platformRuntimeRequired": false }
+  "compatibility": { "aifrontkit": ">=0.1.0 <1", "react": ">=18.3.0 <20", "schemaMajor": 1, "registryDependencies": [], "runtimeDependencies": ["@aifrontkit/react"], "platformRuntimeRequired": false }
 }

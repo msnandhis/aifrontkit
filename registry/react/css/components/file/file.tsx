@@ -93,9 +93,10 @@ export interface FileDownloadProps extends ComponentPropsWithoutRef<"a"> {
 
 export function FileDownload({ children, unavailable, className, ...props }: FileDownloadProps) {
   const { file, target } = useFile();
-  if (!target) return unavailable ? <span className={slot("aifk-file__unavailable")} data-slot="file-download-unavailable">{unavailable}</span> : null;
+  const readyTarget = (file.status ?? "ready") === "ready" ? target : undefined;
+  if (!readyTarget) return unavailable ? <span className={slot("aifk-file__unavailable")} data-slot="file-download-unavailable">{unavailable}</span> : null;
   return (
-    <a {...props} className={slot("aifk-file__download", className)} data-slot="file-download" href={target} download={file.name} aria-label={`Download ${file.name}`}>
+    <a {...props} className={slot("aifk-file__download", className)} data-slot="file-download" href={readyTarget} download={file.name} aria-label={`Download ${file.name}`}>
       {children ?? <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M8 2.5v7m0 0 2.5-2.5M8 9.5 5.5 7M3 12.5h10" /></svg>}
     </a>
   );

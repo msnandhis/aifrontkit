@@ -2,7 +2,7 @@ import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { addItem, aliasToDirectory, diffItem, initProject } from "../src/index.js";
+import { addItem, aliasToDirectory, diffItem, initProject, planAdd } from "../src/index.js";
 
 const repositoryRoot = resolve(import.meta.dirname, "../../..");
 
@@ -21,5 +21,12 @@ describe("AIFrontKit CLI", () => {
     expect((await diffItem(root, "file"))).toEqual(expect.arrayContaining([expect.objectContaining({ status: "current" })]));
     await writeFile(join(root, "components/aifrontkit/file.tsx"), "local change\n");
     expect((await diffItem(root, "file"))).toEqual(expect.arrayContaining([expect.objectContaining({ status: "modified" })]));
+  });
+
+  it("reports package dependencies from the complete registry dependency tree", async () => {
+    const root = await mkdtemp(join(tmpdir(), "aifrontkit-cli-dependencies-"));
+    await initProject(root, { registry: repositoryRoot });
+    const plan = await planAdd(root, "conversation");
+    expect(plan.dependencies).toEqual(expect.arrayContaining(["@aifrontkit/core@^0.1.0", "@aifrontkit/react@^0.1.0"]));
   });
 });

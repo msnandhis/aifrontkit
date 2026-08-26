@@ -6,19 +6,23 @@ status: template
 
 # Component name
 
-State whether this page documents a headless primitive, source-installed visual
-component, pattern, block, or workspace.
+Identify the capability as a headless primitive, source-installed visual
+component, pattern, block, or workspace. Explain what it owns and what remains
+the host application's responsibility.
 
 ## Preview
 
-Reference a deterministic fixture that renders real source. Do not use a product
-screenshot as the only preview.
+Embed the typed component playground. Every public option must be represented by
+a labelled control or documented as intentionally excluded. Preview and
+generated code must use the same state and exact content values. Include
+recommended presets for meaningful lifecycle, responsive, localization, and
+failure states. A screenshot must never be the only preview.
 
 ## Installation
 
 Include exact package or registry installation commands and peer requirements.
 
-## Basic usage
+## Usage
 
 Provide the smallest complete example.
 
@@ -26,22 +30,24 @@ Provide the smallest complete example.
 
 Document compound parts, slots, and their relationships.
 
-## States
+## Variants and states
 
 Cover empty, loading, streaming, complete, interrupted, failed, and disabled
 states where relevant.
 
-## Variants and composition
-
 Explain meaningful structural variants, supported composition, and when to avoid
-the component. Do not list arbitrary style strings as variants.
+the component. Cover empty, loading, streaming, complete, interrupted, failed,
+cancelled, and disabled states only where the actual API supports them.
 
-## API and actions
+## API reference
 
 Document public props, hooks, emitted actions, runtime requirements, and stable
 selectors. Generated API reference may be embedded here.
 
-## Design tokens and motion
+Use a table for public props and compound parts. Separate source-component props
+from primitive props. Document stable `data-slot` or `data-aifk-*` selectors.
+
+## Styling and motion
 
 List semantic tokens and motion recipes. Include reduced-motion behavior.
 
@@ -63,7 +69,7 @@ Show partial-content preservation, retry/cancel behavior, and actionable errors.
 List deterministic fixtures, interaction coverage, accessibility checks, and
 consumer compatibility tests.
 
-## Compatibility and changelog
+## Compatibility
 
 State package, schema, React, registry, and browser compatibility. Link breaking
 changes and migrations.

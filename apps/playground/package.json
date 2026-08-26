@@ -6,19 +6,27 @@
   "scripts": {
     "build": "vite build",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run --passWithNoTests",
+    "test": "vitest run src --passWithNoTests",
     "dev": "vite"
   },
   "dependencies": {
     "@aifrontkit/core": "workspace:^",
     "@aifrontkit/react": "workspace:^",
+    "@aifrontkit/testing": "workspace:^",
     "@aifrontkit/tokens": "workspace:^",
+    "@mdx-js/react": "^3.1.1",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "react-router-dom": "^7.18.2"
   },
   "devDependencies": {
+    "@mdx-js/rollup": "^3.1.1",
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^5.0.2",
+    "remark-frontmatter": "^5.0.0",
+    "remark-gfm": "^4.0.1",
+    "remark-mdx-frontmatter": "^5.2.0",
     "typescript": "^5.9.2",
     "vite": "^7.3.6",
     "vitest": "^3.2.4"

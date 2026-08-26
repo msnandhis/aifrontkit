@@ -8,7 +8,13 @@
       "pages": [
         "index.md",
         "start/installation.md",
+        "start/cli.md",
+        "start/manual-installation.md",
         "start/frameworks-and-imports.md",
+        "start/react.md",
+        "start/vite.md",
+        "start/next-app-router.md",
+        "start/next-pages-router.md",
         "start/first-conversation.md",
         "start/choose-an-integration.md",
         "start/customize-the-theme.md"
@@ -22,6 +28,7 @@
         "concepts/runtime.md",
         "concepts/source-ownership.md",
         "concepts/component-model.md",
+        "concepts/component-playgrounds.md",
         "concepts/versioning.md"
       ]
     },
@@ -40,7 +47,9 @@
       "pages": [
         "primitives/conversation.md",
         "primitives/message.md",
-        "primitives/file.md"
+        "primitives/prompt-input.md",
+        "primitives/file.md",
+        "primitives/tool-call.md"
       ]
     },
     {

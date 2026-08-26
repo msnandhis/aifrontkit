@@ -146,7 +146,8 @@ export async function planAdd(root: string, name: string, registryOverride?: str
     const path = join(targetDirectory, basename(file.path));
     return { itemName: owner, path, source: file.path, content, hash: hash(content) };
   }));
-  return { config, registry, item, items, files };
+  const dependencies = [...new Set([...items.values()].flatMap((owner) => owner.dependencies ?? []))].sort();
+  return { config, registry, item, items, files, dependencies };
 }
 
 export async function addItem(root: string, name: string, options: { registry?: string; force?: boolean; dryRun?: boolean } = {}) {

@@ -12,6 +12,12 @@ AIFrontKit uses progressive disclosure:
 2. Named props control bounded choices such as variant, size, presentation, and motion.
 3. Compound parts and typed renderer injection provide full composition.
 
+Each component page applies the same model through a typed playground. Controls,
+the real registry component, and generated source share one state object. This
+keeps displayed messages, labels, statuses, slot content, and code identical.
+See [Component playgrounds](./component-playgrounds.md) for the authoring and
+quality contract.
+
 Framework-neutral contracts under `contracts/ui` define purpose, anatomy, states,
 variants, and accessibility. `registry/react/css` is one implementation of those
 contracts. React markup and CSS class names are therefore not the cross-framework
@@ -20,4 +26,3 @@ product API.
 Stable `data-slot`, `data-state`, `data-role`, and `data-variant` attributes make
 source customization deliberate. Semantic tokens carry theme decisions. Consumers
 can replace renderers or rearrange compound parts without duplicating runtime logic.
-

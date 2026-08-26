@@ -21,6 +21,7 @@
     "quality:validate": "node tooling/quality/component-quality.mjs",
     "quality:test": "node --test tooling/quality/component-quality.test.mjs",
     "quality:browser": "pnpm --filter @aifrontkit/core build && pnpm --filter @aifrontkit/tokens build && pnpm --filter @aifrontkit/react build && pnpm --filter @aifrontkit/testing build && playwright test --config apps/lab/playwright.config.ts",
+    "docs:browser": "playwright test --config apps/playground/playwright.config.ts",
     "lab:dev": "pnpm --filter @aifrontkit/lab dev",
     "check": "pnpm lint && pnpm contracts:validate && pnpm registry:validate && pnpm quality:validate && pnpm quality:test && pnpm docs:validate && pnpm docs:test && pnpm build && pnpm registry:typecheck && pnpm typecheck && pnpm test",
     "changeset": "changeset",

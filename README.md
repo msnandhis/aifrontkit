@@ -8,6 +8,10 @@ AIFrontKit separates stable behavior from source-owned design:
 - the community registry provides editable UI source, patterns, and themes;
 - no account, license key, hosted service, or AIFrontKit platform call is required at application runtime.
 
+Component documentation includes typed playgrounds where labelled controls,
+the real registry preview, shareable state, and complete generated code stay
+synchronized.
+
 ## Repository map
 
 ```text
@@ -24,7 +28,7 @@ registry/
   themes/             installable theme source
 contracts/ui/         framework-neutral component contracts
 compatibility/        cross-version fixtures
-apps/playground/       public examples and integration exploration
+apps/playground/       routed docs, MDX, search, and typed component playgrounds
 apps/lab/              internal component quality and stress-test workbench
 docs/                 architecture and product documentation
 ```
@@ -47,11 +51,12 @@ Requires Node.js 22+ and pnpm 10+.
 pnpm install
 pnpm check
 pnpm quality:browser
+pnpm docs:browser
 pnpm lab:dev
 pnpm --filter @aifrontkit/playground dev
 ```
 
-`check` runs package and installable-registry type checks, package-boundary validation, unit tests, component-contract validation, and builds. `quality:browser` runs the reviewed browser and visual gates separately. See [architecture](./docs/architecture.md), [component quality](./docs/quality/README.md), [versioning](./docs/versioning.md), and [contributing](./CONTRIBUTING.md).
+`check` runs package and installable-registry type checks, package-boundary validation, unit tests, component-contract validation, documentation validation, and builds. `quality:browser` runs the component browser and visual gates; `docs:browser` covers routes, MDX, search, themes, component previews, mobile navigation, and accessibility. See [architecture](./docs/architecture.md), [component quality](./docs/quality/README.md), [versioning](./docs/versioning.md), and [contributing](./CONTRIBUTING.md).
 
 ## Configurable visual foundation
 

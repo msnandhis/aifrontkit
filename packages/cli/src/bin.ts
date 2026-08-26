@@ -21,7 +21,7 @@ try {
     const plan = await addItem(root, name, { force, dryRun, ...(registry ? { registry } : {}) });
     console.log(`${dryRun ? "Would install" : "Installed"} ${name} (${plan.item.meta?.version ?? "unversioned"})`);
     for (const file of plan.files) console.log(`  ${file.path}`);
-    if (plan.item.dependencies?.length) console.log(`Packages: ${plan.item.dependencies.join(", ")}`);
+    if (plan.dependencies.length) console.log(`Packages: ${plan.dependencies.join(", ")}`);
   } else if (command === "diff" && name) {
     const result = await diffItem(root, name, registry);
     for (const file of result) console.log(`${file.status.padEnd(8)} ${file.path}`);

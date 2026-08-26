@@ -6,6 +6,13 @@ status: experimental
 
 # First conversation
 
+Install the component and its behavior first:
+
+```bash
+pnpm add @aifrontkit/core @aifrontkit/react
+npx aifrontkit add conversation
+```
+
 A conversation has three independent layers:
 
 1. A transport receives backend events and sends user commands.
@@ -15,12 +22,26 @@ A conversation has three independent layers:
 Start in controlled mode when application state already owns normalized messages:
 
 ```tsx
-<Conversation messages={messages} onSubmit={sendMessage} />
+import type { Message as MessageModel } from "@aifrontkit/core";
+import { Conversation } from "@/components/aifrontkit/conversation";
+
+const messages: MessageModel[] = [{
+  id: "welcome",
+  threadId: "demo",
+  role: "assistant",
+  status: "complete",
+  parts: [{ type: "text", text: "How can I help?" }],
+  createdAt: Date.now()
+}];
+
+<Conversation messages={messages} onSubmit={sendMessage} />;
 ```
 
 Use runtime mode when streamed provider or protocol events should drive the same UI:
 
 ```tsx
+import { AIFrontKitProvider } from "@aifrontkit/react";
+
 <AIFrontKitProvider runtime={runtime}>
   <Conversation onSubmit={sendMessage} />
 </AIFrontKitProvider>
