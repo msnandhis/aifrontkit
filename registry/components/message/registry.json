@@ -9,5 +9,5 @@
     { "path": "registry/components/message/message.css", "type": "registry:style" }
   ],
   "dependencies": ["@aifrontkit/react@^0.1.0"],
-  "meta": { "version": "0.2.0", "schemaMajor": 1, "aifrontkit": ">=0.1.0 <1" }
+  "meta": { "version": "0.3.0", "schemaMajor": 1, "aifrontkit": ">=0.1.0 <1" }
 }

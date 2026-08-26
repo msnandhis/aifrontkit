@@ -10,5 +10,5 @@
   ],
   "dependencies": ["@aifrontkit/react@^0.1.0"],
   "registryDependencies": ["message"],
-  "meta": { "version": "0.1.0", "schemaMajor": 1, "aifrontkit": ">=0.1.0 <1" }
+  "meta": { "version": "0.2.0", "schemaMajor": 1, "aifrontkit": ">=0.1.0 <1" }
 }

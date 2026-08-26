@@ -1,12 +1,13 @@
 .aifk-conversation { position: relative; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; min-inline-size: 0; color: var(--aifk-text, CanvasText); background: var(--aifk-canvas, Canvas); font: inherit; }
 .aifk-conversation *, .aifk-conversation *::before, .aifk-conversation *::after { box-sizing: border-box; }
-.aifk-conversation[data-presentation="full-height"] { min-block-size: min(46rem, 78dvh); border: 1px solid var(--aifk-border, ButtonBorder); border-radius: var(--aifk-radius-panel, 0.875rem); overflow: clip; }
+.aifk-conversation[data-presentation="full-height"] { min-block-size: min(42rem, 76dvh); border: 1px solid var(--aifk-border, ButtonBorder); border-radius: 1rem; overflow: clip; }
 .aifk-conversation[data-presentation="workspace"] { min-block-size: 100%; border-inline-start: 1px solid var(--aifk-border, ButtonBorder); }
 .aifk-conversation__header, .aifk-conversation__footer { position: relative; z-index: var(--aifk-z-sticky, 10); padding: 0.875rem 1rem; background: var(--aifk-canvas, Canvas); }
 .aifk-conversation__header { border-block-end: 1px solid var(--aifk-border, ButtonBorder); }
-.aifk-conversation__footer { border-block-start: 1px solid var(--aifk-border, ButtonBorder); }
+.aifk-conversation__footer { inline-size: 100%; padding: 1rem clamp(0.875rem, 3vw, 1.5rem) 1.25rem; border: 0; background: linear-gradient(to bottom, transparent, var(--aifk-canvas, Canvas) 22%); }
+.aifk-conversation__footer > * { max-inline-size: 42rem; margin-inline: auto; }
 .aifk-conversation__viewport { min-block-size: 0; overflow: auto; overscroll-behavior: contain; scrollbar-gutter: stable; }
-.aifk-conversation__list { display: grid; gap: clamp(0.875rem, 2vw, 1.5rem); inline-size: min(100% - 2rem, 48rem); margin: 0 auto; padding: clamp(1rem, 3vw, 2rem) 0; list-style: none; }
+.aifk-conversation__list { display: grid; gap: clamp(1.25rem, 3vw, 2rem); inline-size: min(100% - 2rem, 42rem); margin: 0 auto; padding: clamp(1.5rem, 4vw, 2.75rem) 0 1.5rem; list-style: none; }
 .aifk-conversation__list > [data-aifk-conversation-item] { display: grid; min-inline-size: 0; }
 .aifk-conversation__empty { display: grid; place-content: center; gap: 0.375rem; min-block-size: 18rem; padding: 2rem; color: var(--aifk-text-muted, GrayText); text-align: center; }
 .aifk-conversation__empty strong { color: var(--aifk-text, CanvasText); font-size: 0.9375rem; font-weight: 600; }

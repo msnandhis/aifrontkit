@@ -8,7 +8,7 @@ An installable, source-owned message presentation for `@aifrontkit/react`. It re
 <Message messageId="assistant-42" variant="conversation" motion="subtle" />
 ```
 
-`variant` accepts `minimal`, `conversation`, `dense`, and `workspace`. `motion` accepts `none`, `subtle`, and `expressive`. These change presentation only: role, streaming, completion, and failure semantics continue to come from the runtime.
+`variant` accepts `minimal`, `conversation`, `dense`, and `workspace`. `motion` accepts `none`, `subtle`, and `expressive`. Pass `avatar`, `metadata`, `actions`, or `recovery` to fill the optional visual slots. These change presentation only: role, streaming, completion, and failure semantics continue to come from the runtime.
 
 For Markdown or custom content, pass children. The primitive keeps the message article and a single polite status announcement; streamed text itself is not a live region, avoiding token-by-token screen-reader noise.
 
