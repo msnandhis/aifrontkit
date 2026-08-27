@@ -1,6 +1,7 @@
 import { readFile, readdir, stat } from "node:fs/promises";
 import { basename, dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import ts from "typescript";
 
 const toolingDirectory = dirname(fileURLToPath(import.meta.url));
 const defaultRepositoryRoot = resolve(toolingDirectory, "../..");
@@ -52,6 +53,37 @@ function quoted(source, value) {
   return new RegExp(`[\\\"'\\\`]${escaped}[\\\"'\\\`]`).test(source);
 }
 
+function canonicalExampleScenarioIds(source, path) {
+  const sourceFile = ts.createSourceFile(path, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  let result = null;
+
+  function visit(node) {
+    if (
+      result === null
+      && ts.isPropertyAssignment(node)
+      && ((ts.isIdentifier(node.name) && node.name.text === "scenarios") || (ts.isStringLiteral(node.name) && node.name.text === "scenarios"))
+      && ts.isArrayLiteralExpression(node.initializer)
+    ) {
+      result = node.initializer.elements.flatMap((element) => {
+        if (!ts.isObjectLiteralExpression(element)) return [];
+        const identifier = element.properties.find((property) => (
+          ts.isPropertyAssignment(property)
+          && ((ts.isIdentifier(property.name) && property.name.text === "id") || (ts.isStringLiteral(property.name) && property.name.text === "id"))
+          && ts.isStringLiteralLike(property.initializer)
+        ));
+        return identifier && ts.isPropertyAssignment(identifier) && ts.isStringLiteralLike(identifier.initializer)
+          ? [identifier.initializer.text]
+          : [];
+      });
+      return;
+    }
+    ts.forEachChild(node, visit);
+  }
+
+  visit(sourceFile);
+  return result;
+}
+
 function stripCssComments(source) {
   return source.replace(/\/\*[\s\S]*?\*\//g, "");
 }
@@ -98,6 +130,21 @@ async function json(path) {
       error: error instanceof SyntaxError ? error.message : "file could not be read",
     };
   }
+}
+
+async function hasComponentSnapshot(repositoryRoot, componentName) {
+  const snapshotRoot = join(repositoryRoot, "apps/lab/tests/__screenshots__");
+  try {
+    const platforms = await readdir(snapshotRoot, { withFileTypes: true });
+    for (const platform of platforms) {
+      if (!platform.isDirectory()) continue;
+      const snapshots = await readdir(join(snapshotRoot, platform.name));
+      if (snapshots.some((file) => file.startsWith(`${componentName}-`) && /\.(?:png|webp)$/.test(file))) return true;
+    }
+  } catch {
+    return false;
+  }
+  return false;
 }
 
 function createRecorder() {
@@ -255,8 +302,24 @@ export async function validateComponent(componentDirectory, options = {}) {
 
   const sourceProblems = [];
   if (fixtureSource) {
-    for (const scenario of scenarioNames) {
-      if (!quoted(fixtureSource, scenario)) sourceProblems.push(`fixture source does not contain scenario id '${scenario}'.`);
+    if (manifest.fixtures.file.endsWith(".example.tsx")) {
+      const canonicalIds = canonicalExampleScenarioIds(fixtureSource, fixturePath);
+      if (!canonicalIds) {
+        sourceProblems.push("canonical example must declare a literal scenarios array.");
+      } else {
+        const declared = [...new Set(scenarioNames)].sort();
+        const canonical = [...new Set(canonicalIds)].sort();
+        if (JSON.stringify(declared) !== JSON.stringify(canonical)) {
+          const missing = canonical.filter((id) => !declared.includes(id));
+          const stale = declared.filter((id) => !canonical.includes(id));
+          if (missing.length) sourceProblems.push(`fixtures.scenarios is missing canonical scenario${missing.length === 1 ? "" : "s"}: ${missing.join(", ")}.`);
+          if (stale.length) sourceProblems.push(`fixtures.scenarios contains stale scenario${stale.length === 1 ? "" : "s"}: ${stale.join(", ")}.`);
+        }
+      }
+    } else {
+      for (const scenario of scenarioNames) {
+        if (!quoted(fixtureSource, scenario)) sourceProblems.push(`fixture source does not contain scenario id '${scenario}'.`);
+      }
     }
   } else {
     sourceProblems.push("fixture source could not be inspected.");
@@ -319,6 +382,9 @@ export async function validateComponent(componentDirectory, options = {}) {
     const evidenceSource = await readFile(evidencePath, "utf8");
     if (gate !== "documentation" && !quoted(evidenceSource, manifest.name)) {
       gateProblems.push(`quality.evidence.${gate} does not identify component '${manifest.name}'.`);
+    }
+    if (gate === "visualRegression" && !await hasComponentSnapshot(repositoryRoot, manifest.name)) {
+      gateProblems.push(`quality.visualRegression requires a committed '${manifest.name}-*.png' or '${manifest.name}-*.webp' snapshot artifact.`);
     }
   }
   recorder.set("quality-gates", gateProblems.length === 0, gateProblems);

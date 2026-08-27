@@ -1,8 +1,8 @@
-import { ConversationFixture, conversationQualityScenarios, type ConversationFixtureId } from "../../../registry/react/css/components/conversation/conversation.fixture.js";
-import { MessageFixture, messageQualityScenarios, type MessageFixtureId } from "../../../registry/react/css/components/message/message.fixture.js";
-import { PromptInputFixture, promptInputQualityScenarios, type PromptInputFixtureId } from "../../../registry/react/css/components/prompt-input/prompt-input.fixture.js";
+import { conversationExample, type ConversationExampleState } from "../../../registry/react/css/components/conversation/conversation.example.js";
+import { messageExample, type MessageExampleState } from "../../../registry/react/css/components/message/message.example.js";
+import { promptInputExample, type PromptInputExampleState } from "../../../registry/react/css/components/prompt-input/prompt-input.example.js";
 import { ToolCallFixture, toolCallQualityScenarios, type ToolCallFixtureId } from "../../../registry/react/css/components/tool-call/tool-call.fixture.js";
-import { FileFixture, type FileFixtureId } from "../../../registry/react/css/components/file/file.fixture.js";
+import { fileExample, type FileExampleState } from "../../../registry/react/css/components/file/file.example.js";
 
 export type LabComponentId = "conversation" | "message" | "prompt-input" | "tool-call" | "file";
 export type LabComponentMaturity = "preview" | "experimental";
@@ -19,6 +19,7 @@ export interface LabComponentContract {
   maturity: LabComponentMaturity;
   description: string;
   scenarios: readonly LabScenario[];
+  source?(scenarioId: string): string;
 }
 
 const scenarioTitle = (id: string) => {
@@ -27,34 +28,86 @@ const scenarioTitle = (id: string) => {
   return label.charAt(0).toUpperCase() + label.slice(1);
 };
 
+function fileStateFor(scenarioId: string): FileExampleState {
+  const scenario = fileExample.scenarios.find((candidate) => candidate.id === scenarioId);
+  if (!scenario) throw new Error(`Unknown File scenario '${scenarioId}'.`);
+
+  return {
+    props: { ...fileExample.defaults.props, ...scenario.values.props },
+    environment: { ...fileExample.defaults.environment, ...scenario.values.environment },
+  };
+}
+
+function conversationStateFor(scenarioId: string): ConversationExampleState {
+  const scenario = conversationExample.scenarios.find((candidate) => candidate.id === scenarioId);
+  if (!scenario) throw new Error(`Unknown Conversation scenario '${scenarioId}'.`);
+
+  return {
+    props: { ...conversationExample.defaults.props, ...scenario.values.props },
+    environment: { ...conversationExample.defaults.environment, ...scenario.values.environment },
+  };
+}
+
+function messageStateFor(scenarioId: string): MessageExampleState {
+  const scenario = messageExample.scenarios.find((candidate) => candidate.id === scenarioId);
+  if (!scenario) throw new Error(`Unknown Message scenario '${scenarioId}'.`);
+
+  return {
+    props: { ...messageExample.defaults.props, ...scenario.values.props },
+    environment: { ...messageExample.defaults.environment, ...scenario.values.environment },
+  };
+}
+
+function promptInputStateFor(scenarioId: string): PromptInputExampleState {
+  const scenario = promptInputExample.scenarios.find((candidate) => candidate.id === scenarioId);
+  if (!scenario) throw new Error(`Unknown Prompt Input scenario '${scenarioId}'.`);
+
+  return {
+    props: { ...promptInputExample.defaults.props, ...scenario.values.props },
+    environment: { ...promptInputExample.defaults.environment, ...scenario.values.environment },
+  };
+}
+
 export const componentFixtureContracts: readonly LabComponentContract[] = [
   {
     id: "conversation",
     title: "Conversation",
     maturity: "preview",
     description: "Transcript layout, message states, scroll following, and prompt composition.",
-    scenarios: conversationQualityScenarios.map((scenario) => ({ id: scenario.id, title: scenarioTitle(scenario.id), expectation: scenario.expectation })),
+    scenarios: conversationExample.scenarios.map((scenario) => ({
+      id: scenario.id,
+      title: scenario.label,
+      expectation: scenario.description,
+    })),
+    source: (scenarioId) => conversationExample.generateCode(conversationStateFor(scenarioId)),
   },
   {
     id: "file",
     title: "File",
     maturity: "preview",
     description: "Safe downloads, MIME identity, size and source-owned compound composition.",
-    scenarios: ["default", "loading", "ready", "failed", "download-unavailable"].map((id) => ({ id, title: scenarioTitle(id), expectation: "The file remains readable, bounded, and explicit about action availability." })),
+    scenarios: fileExample.scenarios.map((scenario) => ({
+      id: scenario.id,
+      title: scenario.label,
+      expectation: scenario.description,
+    })),
+    source: (scenarioId) => fileExample.generateCode(fileStateFor(scenarioId)),
   },
   {
     id: "message",
     title: "Message",
     maturity: "preview",
     description: "Role hierarchy, rich content boundaries, actions, and recovery states.",
-    scenarios: messageQualityScenarios.map((scenario) => ({ id: scenario.id, title: scenarioTitle(scenario.id), expectation: scenario.expectation })),
+    scenarios: messageExample.scenarios.map((scenario) => ({ id: scenario.id, title: scenario.label, expectation: scenario.description })),
+    source: (scenarioId) => messageExample.generateCode(messageStateFor(scenarioId)),
   },
   {
     id: "prompt-input",
     title: "Prompt input",
     maturity: "preview",
     description: "Labeled multiline input, toolbar composition, and async submission semantics.",
-    scenarios: promptInputQualityScenarios.map((scenario) => ({ id: scenario.id, title: scenarioTitle(scenario.id), expectation: scenario.expectation })),
+    scenarios: promptInputExample.scenarios.map((scenario) => ({ id: scenario.id, title: scenario.label, expectation: scenario.description })),
+    source: (scenarioId) => promptInputExample.generateCode(promptInputStateFor(scenarioId)),
   },
   {
     id: "tool-call",
@@ -69,18 +122,23 @@ export const componentFixtureMap = Object.fromEntries(componentFixtureContracts.
 
 export const componentFixtureIds = componentFixtureContracts.map((contract) => contract.id);
 
-export function renderRegistryFixture(component: LabComponentId, scenario: string) {
+export function renderRegistryFixture(
+  component: LabComponentId,
+  scenario: string,
+  context: { emit?(message: string): void } = {},
+) {
+  const emit = context.emit ?? (() => undefined);
   switch (component) {
     case "file":
-      return <FileFixture id={scenario as FileFixtureId} />;
+      return fileExample.render(fileStateFor(scenario), { emit });
     case "message":
-      return <MessageFixture scenario={scenario as MessageFixtureId} />;
+      return messageExample.render(messageStateFor(scenario), { emit });
     case "prompt-input":
-      return <PromptInputFixture scenario={scenario as PromptInputFixtureId} />;
+      return promptInputExample.render(promptInputStateFor(scenario), { emit, setProp: () => undefined });
     case "tool-call":
       return <ToolCallFixture scenario={scenario as ToolCallFixtureId} />;
     case "conversation":
     default:
-      return <ConversationFixture scenario={scenario as ConversationFixtureId} />;
+      return conversationExample.render(conversationStateFor(scenario), { emit });
   }
 }

@@ -16,7 +16,8 @@ npx aifrontkit init
 npx aifrontkit add conversation
 ```
 
-`init` creates `aifrontkit.json`. The default alias installs editable source to
+`init` creates `aifrontkit.json`. By default, editable source is written to
+`src/components/aifrontkit` and generated examples import it through
 `@/components/aifrontkit`. `add conversation` also installs declared registry
 dependencies such as Message, File, and Prompt Input and records exact file
 hashes in `.aifrontkit/installed.json`.

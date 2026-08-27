@@ -6,6 +6,10 @@ export type FileSource =
   | { kind: "id"; id: string };
 
 export interface FileContentPart {
+  /** Stable identifier when this file is addressed by a transcript event. */
+  id?: string;
+  /** Message-part lifecycle, separate from the file transfer `status` below. */
+  partStatus?: "pending" | "streaming" | "complete" | "interrupted" | "failed";
   type: "file";
   name: string;
   mediaType?: string;

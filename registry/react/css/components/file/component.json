@@ -48,12 +48,14 @@
     "focus": ["The download action has a visible focus indicator.", "Status changes do not move focus."]
   },
   "motion": { "usesMotion": true, "reducedMotion": true, "levels": ["none", "subtle"], "contract": "Only action color and surface transitions animate; reduced motion removes their duration." },
-  "fixtures": { "file": "file.fixture.tsx", "scenarios": [
+  "fixtures": { "file": "file.example.tsx", "scenarios": [
     { "name": "default", "description": "Ready PDF with name and size." },
+    { "name": "image", "description": "MIME-aware image attachment." },
     { "name": "loading", "description": "Pending file." },
     { "name": "ready", "description": "Muted downloadable file." },
     { "name": "failed", "description": "Failed archive." },
-    { "name": "download-unavailable", "description": "Provider ID with explicit unavailable state." }
+    { "name": "download-unavailable", "description": "Provider ID with explicit unavailable state." },
+    { "name": "muted", "description": "Large quiet filled treatment." }
   ] },
   "quality": {
     "visualRegression": true, "a11y": true, "interaction": true, "documentation": true,

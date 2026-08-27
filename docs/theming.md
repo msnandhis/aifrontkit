@@ -26,6 +26,8 @@ React applications can scope a theme through either provider:
 
 Import `@aifrontkit/tokens/css` when using attribute-driven defaults without the React provider. The JavaScript API and CSS file expose the same semantic naming contract.
 
+The TypeScript contract is the only authored token source. Package builds generate `tokens.css` from `createTheme()` and `toCssVariables()`; a stale generated asset fails the token test. Do not edit the generated CSS by hand. This guarantees that provider styles and stylesheet-only usage resolve the same palette, spacing, radius, density, motion, and component-recipe values.
+
 ## Token groups
 
 - Color: canvas, surface, elevated surface, text, muted text, border, accent, status, selection, focus.
@@ -35,6 +37,7 @@ Import `@aifrontkit/tokens/css` when using attribute-driven defaults without the
 - Elevation: shadows and overlays.
 - Motion: level, duration, easing, distance, scale, opacity, stagger, and named recipes with reduced-motion alternatives.
 - AI semantics: user/assistant/tool surfaces, reasoning, citation, approval, artifact, composer, streaming indicator.
+- Component recipes: stable `--aifk-<component>-*` mappings for File, Message, Prompt Input, and Conversation. Recipes fall back to semantic tokens and remain overrideable in installed source.
 
 ## Scope and precedence
 
@@ -59,3 +62,13 @@ Theme documents declare schema version, supported component contract range, requ
 Token customization must not remove focus visibility, make status distinguishable only by color, or violate declared contrast targets. Components may enforce minimum hit targets and layout constraints even when density changes.
 
 Motion overrides must remain interruptible, preserve focus and reading order, avoid per-token animation during streams, and honor user reduced-motion preferences even when a product selects an expressive theme.
+
+## Styling flavors
+
+CSS Modules and Tailwind are two source representations of the same component
+contract, not separate design systems. They consume the same semantic tokens and
+must preserve public props, compound anatomy, DOM semantics, interaction states,
+accessibility behavior, and reviewed visual output. A flavor is advertised only
+after its compiled output passes those parity gates. File is the first internal
+Tailwind candidate; the public catalog stays CSS Modules-only until each
+component meets the same bar.

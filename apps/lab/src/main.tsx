@@ -1,13 +1,10 @@
 import { StrictMode, useMemo, useState, type ReactNode } from "react";
 import { createRoot } from "react-dom/client";
-import type { AIFrontEvent } from "@aifrontkit/core";
-import { AIFrontKitProvider, ThemeProvider } from "@aifrontkit/react";
+import { ThemeProvider } from "@aifrontkit/react";
 import type { Density, MotionLevel, Radius, ThemeMode } from "@aifrontkit/tokens";
 import "@aifrontkit/tokens/css";
-import { Conversation } from "../../../registry/react/css/components/conversation/conversation.js";
-import { Message } from "../../../registry/react/css/components/message/message.js";
-import { PromptInput } from "../../../registry/react/css/components/prompt-input/prompt-input.js";
-import { fixtureList, fixtureMap, type FixtureId } from "./fixtures.js";
+import { File as CssFile } from "../../../registry/react/css/components/file/file.js";
+import { File as TailwindFile } from "../../../registry/react/tailwind/components/file/file.js";
 import { componentFixtureContracts, componentFixtureMap, renderRegistryFixture, type LabComponentId } from "./component-fixtures.js";
 import "./styles.css";
 
@@ -50,10 +47,6 @@ function Icon({ name, size = 16 }: { name: keyof typeof paths; size?: number }) 
   return <svg viewBox="0 0 16 16" width={size} height={size} aria-hidden="true"><path d={paths[name]} /></svg>;
 }
 
-function IconButton({ label, icon, onClick, pressed }: { label: string; icon: keyof typeof paths; onClick?: () => void; pressed?: boolean }) {
-  return <button className="icon-control" type="button" aria-label={label} title={label} aria-pressed={pressed} onClick={onClick}><Icon name={icon} /></button>;
-}
-
 function Segmented<T extends string | number>({ label, value, options, onChange }: { label: string; value: T; options: readonly { value: T; label: string }[]; onChange: (value: T) => void }) {
   return (
     <div className="setting">
@@ -84,10 +77,6 @@ function Toggle({ label, description, checked, onChange }: { label: string; desc
   );
 }
 
-function Action({ label, icon }: { label: string; icon: keyof typeof paths }) {
-  return <button className="message-action" type="button" aria-label={label} title={label}><Icon name={icon} /></button>;
-}
-
 function PanelSection({ title, children, open = true }: { title: string; children: ReactNode; open?: boolean }) {
   return <details className="inspector-section" open={open}><summary>{title}<Icon name="chevron" /></summary><div className="inspector-section__body">{children}</div></details>;
 }
@@ -101,9 +90,27 @@ const checklist = [
   "Reduced motion keeps every action clear"
 ];
 
+function FileFlavorParity() {
+  const file = {
+    type: "file" as const,
+    name: "product-brief.pdf",
+    mediaType: "application/pdf",
+    size: 248000,
+    status: "ready" as const,
+    source: { kind: "url" as const, url: "https://example.com/product-brief.pdf" },
+  };
+  return (
+    <ThemeProvider theme={{ mode: "light", density: "comfortable", radius: "medium", motion: { level: "none" } }}>
+      <main className="flavor-parity" data-flavor-parity="file">
+        <section data-flavor="css-modules"><h1>CSS Modules</h1><CssFile file={file} /></section>
+        <section data-flavor="tailwind"><h1>Tailwind</h1><TailwindFile file={file} /></section>
+      </main>
+    </ThemeProvider>
+  );
+}
+
 function Lab() {
   const [componentId, setComponentId] = useState<LabComponentId>("conversation");
-  const [fixtureId, setFixtureId] = useState<FixtureId>("default");
   const [scenarioId, setScenarioId] = useState<string>("default");
   const [mode, setMode] = useState<ThemeMode>("light");
   const [density, setDensity] = useState<Density>("comfortable");
@@ -114,46 +121,34 @@ function Lab() {
   const [zoomed, setZoomed] = useState(false);
   const [previewMode, setPreviewMode] = useState<PreviewMode>("preview");
   const [copied, setCopied] = useState(false);
+  const [fixtureEvent, setFixtureEvent] = useState("No component event yet.");
   const [completedChecks, setCompletedChecks] = useState<Set<number>>(() => new Set());
-  const fixture = fixtureMap[fixtureId];
   const component = componentFixtureMap[componentId];
   const activeScenario = component.scenarios.find((scenario) => scenario.id === scenarioId) ?? component.scenarios[0];
-  const isConversation = componentId === "conversation";
+  const activeSource = component.source?.(scenarioId) ?? sourceExample;
   const previewTitle = useMemo(() => `${component.title} · ${activeScenario?.title ?? "Default"} · ${viewport}px`, [activeScenario?.title, component.title, viewport]);
 
   function selectComponent(nextComponent: LabComponentId) {
     setComponentId(nextComponent);
     setScenarioId("default");
     setDirection("ltr");
-    if (nextComponent === "conversation") setFixtureId("default");
+    setFixtureEvent("No component event yet.");
   }
 
-  function selectFixture(nextFixture: FixtureId) {
-    setFixtureId(nextFixture);
-    setScenarioId(nextFixture);
-    setDirection(nextFixture === "rtl" ? "rtl" : "ltr");
+  function selectScenario(nextScenario: string) {
+    setScenarioId(nextScenario);
+    setDirection(nextScenario === "rtl" ? "rtl" : "ltr");
+    setFixtureEvent("No component event yet.");
   }
 
   function reset() {
-    setComponentId("conversation"); setFixtureId("default"); setScenarioId("default"); setMode("light"); setDensity("comfortable"); setMotion("subtle"); setRadius("medium"); setViewport(768); setDirection("ltr"); setZoomed(false); setPreviewMode("preview"); setCopied(false); setCompletedChecks(new Set());
+    setComponentId("conversation"); setScenarioId("default"); setMode("light"); setDensity("comfortable"); setMotion("subtle"); setRadius("medium"); setViewport(768); setDirection("ltr"); setZoomed(false); setPreviewMode("preview"); setCopied(false); setCompletedChecks(new Set());
   }
 
   async function copySource() {
-    await navigator.clipboard.writeText(sourceExample);
+    await navigator.clipboard.writeText(activeSource);
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1600);
-  }
-
-  async function submit(value: string) {
-    const sequence = fixture.runtime.getState().messageOrder.length + 20;
-    const messageId = `lab-user-${sequence}`;
-    const base = { schemaVersion: 1 as const, threadId: fixture.runtime.getState().threadId, timestamp: sequence };
-    const events: AIFrontEvent[] = [
-      { ...base, id: `${messageId}-start`, type: "message.started", messageId, role: "user" },
-      { ...base, id: `${messageId}-delta`, timestamp: sequence + 1, type: "message.delta", messageId, delta: value },
-      { ...base, id: `${messageId}-complete`, timestamp: sequence + 2, type: "message.completed", messageId }
-    ];
-    events.forEach((event) => fixture.runtime.dispatch(event));
   }
 
   return (
@@ -163,7 +158,7 @@ function Lab() {
         <div className="lab-brand"><span className="lab-brand__mark"><Icon name="spark" size={14} /></span><span><strong>AIFrontKit</strong><small>Component Lab</small></span></div>
         <div className="header-context"><span className="status-dot" />Internal quality review <span className="header-divider" /> {component.title} <code>{component.maturity}</code></div>
         <nav className="component-switcher" aria-label="Component" role="group">
-          {componentFixtureContracts.map((candidate) => <button key={candidate.id} type="button" aria-pressed={componentId === candidate.id} onClick={() => selectComponent(candidate.id)}>{candidate.title}{candidate.maturity === "experimental" ? <small>Experimental</small> : null}</button>)}
+          {componentFixtureContracts.map((candidate) => <button key={candidate.id} type="button" data-component-option={candidate.id} aria-pressed={componentId === candidate.id} onClick={() => selectComponent(candidate.id)}>{candidate.title}{candidate.maturity === "experimental" ? <small>Experimental</small> : null}</button>)}
         </nav>
         <button className="reset-button" type="button" onClick={reset}><Icon name="reset" />Reset</button>
       </header>
@@ -171,13 +166,13 @@ function Lab() {
       <aside className="fixture-panel" aria-label="Component fixtures">
         <div className="panel-heading"><span>{component.title} fixtures</span><span>{component.scenarios.length}</span></div>
         <nav className="fixture-list">
-          {(isConversation ? fixtureList : component.scenarios).map((item) => {
+          {component.scenarios.map((item) => {
             const id = item.id;
-            const title = "name" in item ? item.name : item.title;
-            const description = "description" in item ? item.description : item.expectation;
+            const title = item.title;
+            const description = item.expectation;
             const active = scenarioId === id;
             const status = id === "streaming" || id === "submitting" || id === "running" ? "active" : id === "failed" || id === "submit-rejected" ? "error" : id === "interrupted" || id === "cancelled" ? "stopped" : id.includes("long") || id.includes("role") || id === "rtl" || id === "localization" || id.includes("toolbar") || id.includes("context") ? "stress" : "ready";
-            return <button key={id} type="button" className={active ? "active" : ""} aria-current={active ? "true" : undefined} onClick={() => { if (isConversation) selectFixture(id as FixtureId); else { setScenarioId(id); setDirection(id === "rtl" ? "rtl" : "ltr"); } }}>
+            return <button key={id} type="button" data-fixture-scenario-option={id} className={active ? "active" : ""} aria-current={active ? "true" : undefined} onClick={() => selectScenario(id)}>
               <span className={`fixture-status fixture-status--${status}`} />
               <span><strong>{title}</strong><small>{description}</small></span>
               <Icon name="arrow" />
@@ -198,7 +193,7 @@ function Lab() {
 
         <section className="viewport-workbench" aria-label={previewTitle}>
           <div className="viewport-toolbar">
-            <div className="viewport-meta"><span className="status-dot" />{activeScenario?.title ?? fixture.name}<span>{viewport} × auto</span>{zoomed ? <em>200%</em> : null}</div>
+            <div className="viewport-meta"><span className="status-dot" />{activeScenario?.title ?? "Default"}<span>{viewport} × auto</span>{zoomed ? <em>200%</em> : null}</div>
             <div className="viewport-presets" role="group" aria-label="Preview viewport">
               {([375, 768, 1024, 1440] as const).map((width) => <button type="button" key={width} aria-pressed={viewport === width} onClick={() => setViewport(width)}>{width}</button>)}
             </div>
@@ -206,36 +201,16 @@ function Lab() {
           <div className="viewport-scroll">
             <div className={`viewport-frame ${zoomed ? "is-zoomed" : ""}`} style={{ width: viewport }} dir={direction} data-preview-mode={mode} data-fixture-component={componentId} data-fixture-scenario={scenarioId}>
               {previewMode === "source" ? (
-                <div className="source-view" dir="ltr"><div className="source-view__header"><span>conversation.tsx</span><button type="button" onClick={copySource} aria-live="polite"><Icon name={copied ? "check" : "copy"} />{copied ? "Copied" : "Copy"}</button></div><pre><code>{sourceExample}</code></pre></div>
-              ) : isConversation ? (
-                <AIFrontKitProvider key={`${fixtureId}-${mode}-${density}-${radius}-${motion}`} runtime={fixture.runtime} theme={{ mode, density, radius, motion: { level: motion } }}>
-                  <div className="preview-application">
-                    <Conversation
-                      presentation="full-height"
-                      messageMotion={motion}
-                      header={<div className="conversation-title"><span><strong>Product review</strong><small>{fixture.runtime.getState().messageOrder.length} messages</small></span><IconButton label="Conversation options" icon="panel" /></div>}
-                      footer={<PromptInput onSubmit={submit} placeholder="Ask a follow-up…" hint="Enter to send" toolbarStart={<IconButton label="Add attachment" icon="plus" />} />}
-                      renderMessage={(messageId) => (
-                        <Message
-                          messageId={messageId}
-                          motion={motion}
-                          announceStatus={false}
-                          avatar={messageId.startsWith("assistant") ? <Icon name="spark" size={13} /> : undefined}
-                          recovery={messageId.includes("assistant") && (fixtureId === "failed" || fixtureId === "interrupted") ? <button className="recovery-button" type="button"><Icon name="retry" />{fixtureId === "interrupted" ? "Continue" : "Try again"}</button> : undefined}
-                          actions={messageId.startsWith("assistant") ? <><Action label="Copy response" icon="copy" /><Action label="Try again" icon="retry" /></> : undefined}
-                        />
-                      )}
-                    />
-                  </div>
-                </AIFrontKitProvider>
+                <div className="source-view" dir="ltr"><div className="source-view__header"><span>{componentId}.tsx</span><button type="button" onClick={copySource} aria-live="polite"><Icon name={copied ? "check" : "copy"} />{copied ? "Copied" : "Copy"}</button></div><pre><code>{activeSource}</code></pre></div>
               ) : (
                 <ThemeProvider key={`${componentId}-${scenarioId}-${mode}-${density}-${radius}-${motion}`} theme={{ mode, density, radius, motion: { level: motion } }}>
-                  <div className="preview-application registry-fixture-preview">{renderRegistryFixture(componentId, scenarioId)}</div>
+                  <div className="preview-application registry-fixture-preview">{renderRegistryFixture(componentId, scenarioId, { emit: setFixtureEvent })}</div>
                 </ThemeProvider>
               )}
             </div>
           </div>
           <footer className="viewport-caption"><Icon name="monitor" /><span>Viewport preset controls component width, not browser zoom.</span><code>{direction.toUpperCase()}</code></footer>
+          <output className="sr-only" data-fixture-event aria-live="polite">{fixtureEvent}</output>
         </section>
       </main>
 
@@ -250,7 +225,7 @@ function Lab() {
         <PanelSection title="Stress testing">
           <Toggle label="Right-to-left" description="Mirror direction and alignment" checked={direction === "rtl"} onChange={(value) => setDirection(value ? "rtl" : "ltr")} />
           <Toggle label="200% zoom" description="Inspect reflow and clipping" checked={zoomed} onChange={setZoomed} />
-          <Toggle label="Long content" description="Use overflow stress fixture" checked={fixtureId === "long-content"} onChange={(value) => selectFixture(value ? "long-content" : "default")} />
+          <Toggle label="Long content" description="Use overflow stress fixture" checked={scenarioId === "long-content"} onChange={(value) => selectScenario(value ? "long-content" : "default")} />
           <Toggle label="Reduced motion" description="Disable configured movement" checked={motion === "none"} onChange={(value) => setMotion(value ? "none" : "subtle")} />
         </PanelSection>
         <PanelSection title="Release checklist">
@@ -265,4 +240,5 @@ function Lab() {
   );
 }
 
-createRoot(document.getElementById("root")!).render(<StrictMode><Lab /></StrictMode>);
+const parityTarget = new URLSearchParams(window.location.search).get("parity");
+createRoot(document.getElementById("root")!).render(<StrictMode>{parityTarget === "file" ? <FileFlavorParity /> : <Lab />}</StrictMode>);

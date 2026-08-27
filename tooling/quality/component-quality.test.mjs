@@ -70,17 +70,20 @@ async function makeComponent({ contract = manifest(), css, fixtures = "export co
   temporaryDirectories.push(repositoryRoot);
   const componentDirectory = join(repositoryRoot, "registry/react/css/components/example");
   const browserDirectory = join(repositoryRoot, "apps/lab/tests");
+  const snapshotDirectory = join(browserDirectory, "__screenshots__/chromium-test");
   await mkdir(componentDirectory, { recursive: true });
   await mkdir(browserDirectory, { recursive: true });
+  await mkdir(snapshotDirectory, { recursive: true });
   await writeFile(join(componentDirectory, "component.json"), `${JSON.stringify(contract, null, 2)}\n`);
   await writeFile(join(componentDirectory, "registry.json"), `${JSON.stringify({
     name: "example",
     files: [{ path: "registry/react/css/components/example/example.css", type: "registry:style" }],
     meta: { version: "1.2.3", schemaMajor: 1, aifrontkit: ">=0.1.0 <1" },
   }, null, 2)}\n`);
-  await writeFile(join(componentDirectory, "example.fixture.tsx"), fixtures);
+  await writeFile(join(componentDirectory, contract.fixtures.file), fixtures);
   await writeFile(join(componentDirectory, "README.md"), "# Example\n");
   await writeFile(join(browserDirectory, "component-quality.spec.ts"), "const covered = ['example'];\n");
+  await writeFile(join(snapshotDirectory, "example-default.webp"), "deterministic-test-snapshot");
   await writeFile(join(componentDirectory, "example.css"), css ?? `
 .example { color: var(--aifk-color-text); transition: opacity 120ms ease; z-index: var(--aifk-z-sticky); }
 @media (prefers-reduced-motion: reduce) { .example { transition: none; } }
@@ -99,6 +102,34 @@ test("a complete component produces a deterministic 100-point report", async () 
   assert.deepEqual(report, repeated);
   assert.deepEqual(report.summary, { components: 1, passed: 1, failed: 0, averageScore: 100 });
   assert.equal(formatQualityReport(report), "Component quality: 1/1 passed (average 100/100)\nPASS example 100/100 [stable]");
+});
+
+test("canonical example scenarios must exactly match the component manifest", async () => {
+  const contract = manifest({
+    fixtures: {
+      file: "example.example.tsx",
+      scenarios: [{ name: "default" }, { name: "loading" }],
+    },
+  });
+  const { repositoryRoot, componentDirectory } = await makeComponent({
+    contract,
+    fixtures: `
+      export const example = definePlaygroundDefinition({
+        id: "example",
+        scenarios: [
+          { id: "default", values: {} },
+          { id: "loading", values: {} },
+          { id: "failed", values: {} }
+        ],
+        render() { return <div />; }
+      });
+    `,
+  });
+
+  const result = await validateComponent(componentDirectory, { repositoryRoot });
+  const scenarioCheck = result.checks.find((check) => check.id === "fixtures-source-ids");
+  assert.equal(scenarioCheck?.passed, false);
+  assert.deepEqual(scenarioCheck?.details, ["fixtures.scenarios is missing canonical scenario: failed."]);
 });
 
 test("contract, fixture, CSS, and release defects are actionable failures", async () => {

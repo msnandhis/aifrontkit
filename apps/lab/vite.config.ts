@@ -1,7 +1,9 @@
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
+  plugins: [tailwindcss()],
   resolve: {
     alias: [
       { find: "@aifrontkit/core/content", replacement: fileURLToPath(new URL("../../packages/core/dist/content/index.js", import.meta.url)) },

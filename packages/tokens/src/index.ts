@@ -121,6 +121,33 @@ export interface ZIndexTokens {
   toast: number;
 }
 
+export interface ComponentRecipeTokens {
+  file: {
+    gap: string;
+    paddingBlock: string;
+    paddingInline: string;
+    iconSize: string;
+  };
+  message: {
+    gap: string;
+    contentMeasure: string;
+    userMaxWidth: string;
+    userPaddingBlock: string;
+    userPaddingInline: string;
+  };
+  promptInput: {
+    gap: string;
+    padding: string;
+    minHeight: string;
+  };
+  conversation: {
+    contentMeasure: string;
+    gap: string;
+    paddingBlock: string;
+    paddingInline: string;
+  };
+}
+
 export interface MotionRecipe {
   duration: DurationName;
   easing: EasingName;
@@ -197,6 +224,7 @@ export interface ResolvedTheme {
   radii: RadiusTokens;
   shadows: ShadowTokens;
   zIndex: ZIndexTokens;
+  components: ComponentRecipeTokens;
   motion: MotionTokens;
 }
 
@@ -238,6 +266,13 @@ const baseShadows: ShadowTokens = {
 };
 
 const baseZIndex: ZIndexTokens = { base: 0, sticky: 10, dropdown: 20, overlay: 30, modal: 40, toast: 50 };
+
+const baseComponentRecipes: ComponentRecipeTokens = {
+  file: { gap: "var(--aifk-density-content-gap)", paddingBlock: "var(--aifk-space-2)", paddingInline: "var(--aifk-space-3)", iconSize: "1.25rem" },
+  message: { gap: "var(--aifk-density-content-gap)", contentMeasure: "44rem", userMaxWidth: "min(34rem, 88%)", userPaddingBlock: "var(--aifk-space-3)", userPaddingInline: "var(--aifk-space-4)" },
+  promptInput: { gap: "var(--aifk-space-2)", padding: "var(--aifk-space-2)", minHeight: "7rem" },
+  conversation: { contentMeasure: "44rem", gap: "var(--aifk-density-section-gap)", paddingBlock: "var(--aifk-space-5)", paddingInline: "clamp(1rem, 3vw, 2rem)" }
+};
 
 const defaultDurations: Record<DurationName, string> = { instant: "0ms", fast: "120ms", normal: "180ms", slow: "280ms" };
 const defaultEasings: Record<EasingName, string> = {
@@ -387,7 +422,7 @@ export function createTheme(options: ThemeOptions = {}): ResolvedTheme {
     schemaVersion: themeSchemaVersion, mode, temperature, density, radius, accent, tokens,
     typography: { ...baseTypography, ...(options.typography ?? {}) }, spacing: resolveSpacing(density, options.spacing),
     radii: { ...baseRadii[radius] }, shadows: { ...baseShadows, ...(options.shadows ?? {}) },
-    zIndex: { ...baseZIndex, ...(options.zIndex ?? {}) }, motion: resolveMotion(options.motion)
+    zIndex: { ...baseZIndex, ...(options.zIndex ?? {}) }, components: baseComponentRecipes, motion: resolveMotion(options.motion)
   };
 }
 
@@ -399,15 +434,27 @@ export function getThemeAttributes(theme: ResolvedTheme): ThemeAttributeMap {
   return { "data-aifk-theme": theme.mode, "data-aifk-temperature": theme.temperature, "data-aifk-density": theme.density, "data-aifk-radius": theme.radius, "data-aifk-motion": theme.motion.level };
 }
 
-function kebabCase(value: string): string { return value.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`); }
+function kebabCase(value: string): string {
+  return value
+    .replace(/([a-zA-Z])(\d+)/g, "$1-$2")
+    .replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
+}
+
+/** Return the stable public custom-property name for a token projection. */
+export function cssVariableName(prefix: string, token: string): `--aifk-${string}` {
+  const name = kebabCase(token);
+  const scopedName = prefix && (name === prefix || name.startsWith(`${prefix}-`)) ? name : `${prefix ? `${prefix}-` : ""}${name}`;
+  return `--aifk-${scopedName}`;
+}
 
 /** Project a theme to CSS custom properties usable by any renderer. */
 export function toCssVariables(theme: ResolvedTheme): Record<string, string> {
   const variables: Record<string, string> = {};
   const add = (prefix: string, values: object) => {
-    for (const [name, value] of Object.entries(values)) variables[`--aifk-${prefix ? `${prefix}-` : ""}${kebabCase(name)}`] = String(value);
+    for (const [name, value] of Object.entries(values)) variables[cssVariableName(prefix, name)] = String(value);
   };
   add("", theme.tokens); add("type", theme.typography); add("space", theme.spacing); add("radius", theme.radii); add("shadow", theme.shadows); add("z", theme.zIndex);
+  for (const [component, values] of Object.entries(theme.components)) add(component === "promptInput" ? "prompt-input" : component, values);
   add("motion-duration", theme.motion.durations); add("motion-easing", theme.motion.easings);
   for (const name of motionRecipeNames) {
     const recipe = theme.motion.recipes[name]; const prefix = `motion-${kebabCase(name)}`;

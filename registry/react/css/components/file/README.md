@@ -17,3 +17,5 @@
 ```
 
 Opaque provider IDs are not turned into broken or unsafe links. Resolve them in the host application and pass a URL or custom action.
+
+`file.example.tsx` is the canonical design and quality definition. The documentation playground and internal component lab both read its defaults, controls, scenarios, preview renderer, and generated code; it is not part of the installed registry payload.

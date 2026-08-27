@@ -9,7 +9,8 @@ The CLI initializes AIFrontKit integration, discovers registry content, installs
 - `init`: detect project conventions and create a minimal local config.
 - `add`: resolve and install an item and its registry dependencies.
 - `diff`: compare local source against the configured registry source.
-- `doctor`: report the selected framework, style, alias target, and installed provenance.
+- `doctor`: report the selected target, filesystem output, import alias, and installed provenance.
+- `migrate`: explicitly rewrite legacy configuration and provenance to the current schema.
 
 `add` supports `--dry-run` and refuses to overwrite changed source without
 `--force`. `--registry=path-or-url` supports local registry work and mirrors.
@@ -32,9 +33,42 @@ All mutations support dry-run and print an operation plan. Existing changed file
 
 ## Configuration
 
-`aifrontkit.json` records the registry source, React/CSS flavor, and component alias.
-`.aifrontkit/installed.json` separately records item versions, source paths, target
-paths, timestamps, and content hashes. Secrets never live in either file.
+`aifrontkit.json` keeps filesystem destinations separate from generated import
+specifiers. A TypeScript alias is never treated as a directory:
+
+```json
+{
+  "$schema": "https://aifrontkit.dev/schemas/config.json",
+  "schemaVersion": 2,
+  "target": {
+    "framework": "react",
+    "flavor": "css-modules"
+  },
+  "output": {
+    "components": "src/components/aifrontkit"
+  },
+  "imports": {
+    "components": "@/components/aifrontkit"
+  }
+}
+```
+
+`output.components` is a validated project-relative path. `imports.components`
+is the specifier used in generated examples and dependency imports.
+
+`target.framework`, `target.flavor`, and the requested item name select one exact
+catalog target. The catalog—not a hard-coded folder convention—provides its
+manifest. File is currently an internal Tailwind candidate, not an advertised
+target; Tailwind installs therefore fail with a clear availability message until
+its complete parity matrix passes. Dependencies never cross
+from one styling flavor into another.
+
+`.aifrontkit/installed.json` separately records immutable registry and source
+digests, item and schema versions, compatibility ranges, resolved target paths,
+timestamps, and migration history. Secrets never live in either file. Legacy
+configuration remains readable, but is only rewritten by `aifrontkit migrate`.
+Changing `target.flavor` does not overwrite source installed for the previous
+flavor. Use a separate output until an explicit style-migration command ships.
 
 ## Extensibility
 

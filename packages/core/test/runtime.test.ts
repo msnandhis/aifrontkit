@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
-import { createRuntime, createRuntimeFromMessages, reduceEvent, createInitialState, type AIFrontEvent } from "../src/index.js";
+import { createRuntime, createRuntimeFromMessages, createStateFromMessages, getConversationStatus, migrateEventToV2, reduceEvent, createInitialState, type AIFrontEvent } from "../src/index.js";
 
 const base = { schemaVersion: 1, threadId: "thread-1", timestamp: 1 } as const;
 
@@ -70,5 +70,33 @@ describe("framework-neutral runtime", () => {
       status: "complete",
       parts: [{ type: "text", text: "Hello" }]
     });
+  });
+
+  it("addresses ordered v2 parts without losing their transcript position", () => {
+    const events: AIFrontEvent[] = [
+      { schemaVersion: 2, id: "v2-1", threadId: "thread-1", timestamp: 1, type: "message.started", messageId: "m-v2", role: "assistant" },
+      { schemaVersion: 2, id: "v2-2", threadId: "thread-1", timestamp: 2, type: "message.part.added", messageId: "m-v2", partId: "intro", part: { type: "text", text: "Hello" } },
+      { schemaVersion: 2, id: "v2-3", threadId: "thread-1", timestamp: 3, type: "message.part.added", messageId: "m-v2", partId: "search", part: { type: "tool", toolCallId: "tool-1", name: "search", toolStatus: "pending" } },
+      { schemaVersion: 2, id: "v2-4", threadId: "thread-1", timestamp: 4, type: "message.part.delta", messageId: "m-v2", partId: "intro", delta: " world" },
+      { schemaVersion: 2, id: "v2-5", threadId: "thread-1", timestamp: 5, type: "tool.updated", messageId: "m-v2", partId: "search", toolCallId: "tool-1", name: "search", status: "complete", output: { count: 1 } }
+    ];
+    const state = events.reduce(reduceEvent, createInitialState("thread-1"));
+    expect(state.messages["m-v2"]?.parts).toEqual([
+      { id: "intro", type: "text", text: "Hello world", partStatus: "streaming" },
+      { id: "search", type: "tool", toolCallId: "tool-1", name: "search", toolStatus: "complete", output: { count: 1 } }
+    ]);
+    expect(state.tools["tool-1"]).toMatchObject({ messageId: "m-v2", partId: "search", status: "complete" });
+  });
+
+  it("migrates v1 deltas to v2 addresses while retaining v1 reducer compatibility", () => {
+    const v2 = migrateEventToV2({ ...base, id: "legacy-delta", type: "message.delta", messageId: "m1", delta: "Hello" });
+    expect(v2).toMatchObject({ schemaVersion: 2, type: "message.part.delta", partId: "text:0" });
+  });
+
+  it("derives conversation lifecycle separately from message lifecycle", () => {
+    const state = createStateFromMessages("thread-1", [{
+      id: "m1", threadId: "thread-1", role: "assistant", status: "streaming", parts: [], createdAt: 1
+    }]);
+    expect(getConversationStatus(state)).toBe("streaming");
   });
 });

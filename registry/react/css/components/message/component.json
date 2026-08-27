@@ -69,7 +69,7 @@
     "contract": "Entry and streaming indicators use bounded transform or opacity; content deltas do not animate and reduced motion disables nonessential movement."
   },
   "fixtures": {
-    "file": "message.fixture.tsx",
+    "file": "message.example.tsx",
     "scenarios": [
       { "name": "default", "description": "Completed assistant message with actions." },
       { "name": "streaming", "description": "Partial response and event-level status." },
@@ -79,7 +79,8 @@
       { "name": "user-role", "description": "Quiet, right-aligned user presentation." },
       { "name": "system-role", "description": "Low-emphasis system context with explicit labeling." },
       { "name": "without-slots", "description": "No avatar, metadata, action, or recovery residue." },
-      { "name": "rtl", "description": "Bidirectional content and action order." }
+      { "name": "rtl", "description": "Bidirectional content and action order." },
+      { "name": "runtime", "description": "Optional runtime lookup using the same message presentation." }
     ]
   },
   "quality": {

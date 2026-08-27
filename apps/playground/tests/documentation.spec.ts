@@ -34,7 +34,7 @@ test("renders every current component through a typed interactive playground", a
     await page.goto(`/docs/components/${component}`);
     await expect(page.locator(".component-playground")).toBeVisible();
     await expect(page.getByRole("complementary", { name: "Component controls" })).toBeVisible();
-    await expect(page.getByRole("combobox", { name: "Preset" })).toBeVisible();
+    await expect(page.getByRole("combobox", { name: "Scenario" })).toBeVisible();
   }
 });
 
@@ -42,12 +42,16 @@ test("supports dark mode, source view, and component state changes", async ({ pa
   await page.goto("/docs/components/file");
   await page.getByRole("button", { name: "Switch to dark theme" }).click();
   await expect(page.locator(".docs-root")).toHaveAttribute("data-aifk-theme", "dark");
-  await page.getByRole("combobox", { name: "Preset" }).selectOption("loading");
+  await page.getByRole("combobox", { name: "Scenario" }).selectOption("loading");
   await expect(page.getByText("Preparing file", { exact: true }).first()).toBeVisible();
   await page.getByRole("textbox", { name: "File name" }).fill("release-notes.md");
+  await page.locator(".playground-control-groups summary").filter({ hasText: "Advanced" }).click();
+  await page.locator('[data-playground-control="environment.language"] label').filter({ hasText: "JSX" }).click();
+  await expect(page.getByRole("radio", { name: "JSX" })).toBeChecked();
   await page.getByRole("tab", { name: "Code" }).click();
   await expect(page.locator(".playground-code")).toContainText("<File.Root");
   await expect(page.locator(".playground-code")).toContainText('name: "release-notes.md"');
+  await expect(page.locator(".playground-code")).not.toContainText(" as const");
   await expect(page.locator(".syntax-tag").filter({ hasText: "File.Root" }).first()).toBeVisible();
 });
 
@@ -55,9 +59,9 @@ test("keeps edited conversation content synchronized across preview, code, and U
   await page.goto("/docs/components/conversation");
   const userMessage = page.getByRole("textbox", { name: "User message" });
   await userMessage.fill("Show this exact value in preview and code.");
-  await expect(page.getByRole("combobox", { name: "Preset" })).toHaveValue("custom");
+  await expect(page.getByRole("combobox", { name: "Scenario" })).toHaveValue("custom");
   await expect(page.locator('[data-aifk-message-part="text"]').filter({ hasText: "Show this exact value in preview and code." })).toBeVisible();
-  await expect(page).toHaveURL(/pg\.userMessage=/);
+  await expect(page).toHaveURL(/pg\.props\.userMessage=/);
   const behaviorSummary = page.locator(".playground-control-groups summary").filter({ hasText: "Behavior" });
   const behaviorGroup = behaviorSummary.locator("..");
   await behaviorSummary.click();
@@ -70,15 +74,20 @@ test("keeps edited conversation content synchronized across preview, code, and U
   await expect(page.locator(".playground-code")).toContainText('"Show this exact value in preview and code."');
 });
 
-test("updates code when a preset changes and exposes working callback feedback", async ({ page }) => {
+test("updates code when a scenario changes and exposes working callback feedback", async ({ page }) => {
   await page.goto("/docs/components/tool-call");
-  await page.getByRole("combobox", { name: "Preset" }).selectOption("failed");
+  await page.getByRole("combobox", { name: "Scenario" }).selectOption("failed");
   await page.getByRole("tab", { name: "Code" }).click();
   await expect(page.locator(".playground-code")).toContainText('status: "failed"');
   await expect(page.locator(".playground-code")).toContainText("The documentation index is unavailable");
 
   await page.goto("/docs/components/prompt-input");
   await page.getByRole("textbox", { name: "Message" }).fill("Inspect this callback");
+  await expect(page).toHaveURL(/pg\.props\.value=/);
+  await page.getByRole("tab", { name: "Code" }).click();
+  await expect(page.locator(".playground-code")).toContainText('useState<string>("Inspect this callback")');
+  await page.getByRole("tab", { name: "Preview" }).click();
+  await expect(page.getByRole("textbox", { name: "Message" })).toHaveValue("Inspect this callback");
   await page.getByRole("textbox", { name: "Message" }).press("Enter");
   await expect(page.getByRole("status").filter({ hasText: 'onSubmit("Inspect this callback")' })).toBeVisible();
 });

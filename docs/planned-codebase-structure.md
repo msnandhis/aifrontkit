@@ -12,8 +12,8 @@ aifrontkit/
 │   ├── tokens/
 │   ├── testing/
 │   └── cli/
-├── contracts/ui/{component.schema.json,components}
-├── registry/react/css/{components,patterns}
+├── contracts/{ui,registry}
+├── registry/react/{css,tailwind}
 ├── registry/themes/
 ├── compatibility/fixtures/{react-vite,next-app-router,next-pages-router}
 ├── scripts/

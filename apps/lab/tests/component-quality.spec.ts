@@ -1,14 +1,37 @@
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import pixelmatch from "pixelmatch";
+import { PNG } from "pngjs";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Conversation" })).toBeVisible();
 });
 
+test("keeps CSS Modules and Tailwind File visually equivalent", async ({ page }) => {
+  await page.goto("/?parity=file");
+  const css = page.locator('[data-flavor="css-modules"] [data-slot="file"]');
+  const tailwind = page.locator('[data-flavor="tailwind"] [data-slot="file"]');
+  await expect(css).toBeVisible();
+  await expect(tailwind).toBeVisible();
+
+  const measuredProperties = ["display", "width", "height", "gap", "padding", "color", "backgroundColor", "borderColor", "borderRadius", "fontSize", "lineHeight"] as const;
+  const styles = async (locator: typeof css) => locator.evaluate((element, properties) => {
+    const computed = getComputedStyle(element);
+    return Object.fromEntries(properties.map((property) => [property, computed[property]]));
+  }, measuredProperties);
+  expect(await styles(tailwind)).toEqual(await styles(css));
+  const cssImage = PNG.sync.read(await css.screenshot());
+  const tailwindImage = PNG.sync.read(await tailwind.screenshot());
+  expect({ width: tailwindImage.width, height: tailwindImage.height }).toEqual({ width: cssImage.width, height: cssImage.height });
+  const mismatchedPixels = pixelmatch(cssImage.data, tailwindImage.data, undefined, cssImage.width, cssImage.height, { threshold: 0.1 });
+  expect(mismatchedPixels / (cssImage.width * cssImage.height)).toBeLessThanOrEqual(0.01);
+});
+
 test("renders the contract fixture matrix and accessible component anatomy", async ({ page }) => {
   const fixtureNavigation = page.getByRole("complementary", { name: "Component fixtures" });
-  await expect(fixtureNavigation.getByRole("button")).toHaveCount(9);
+  const declaredCount = Number(await fixtureNavigation.locator(".panel-heading span").last().textContent());
+  await expect(fixtureNavigation.locator("[data-fixture-scenario-option]")).toHaveCount(declaredCount);
 
   const conversation = page.locator("[data-aifk-conversation]");
   await expect(conversation).toBeVisible();
@@ -20,30 +43,24 @@ test("renders the contract fixture matrix and accessible component anatomy", asy
 
 test("loads every declared scenario through the real registry fixture harness", async ({ page }) => {
   test.setTimeout(60_000);
-  const componentSwitcher = page.getByRole("group", { name: "Component" });
   const fixtureNavigation = page.getByRole("complementary", { name: "Component fixtures" });
-  const contracts = {
-    Conversation: { component: "conversation", scenarios: ["Default", "Empty", "Streaming", "Interrupted", "Failed", "Long content", "Mixed roles", "Right to left", "Localization"] },
-    Message: { component: "message", scenarios: ["Default", "Streaming", "Interrupted", "Failed", "Long content", "User role", "System role", "Without slots", "RTL"] },
-    "Prompt input": { component: "prompt-input", scenarios: ["Default", "Ready", "Multiline", "Submitting", "Submit rejected", "With leading context", "With toolbar controls", "RTL"] },
-    "Tool call": { component: "tool-call", scenarios: ["Default", "Pending", "Running", "Complete", "Failed", "Cancelled"] },
-    File: { component: "file", scenarios: ["Default", "Loading", "Ready", "Failed", "Download unavailable"] },
-  } as const;
+  const componentOptions = page.locator("[data-component-option]");
+  const componentIds = await componentOptions.evaluateAll((elements) => elements.map((element) => element.getAttribute("data-component-option")).filter(Boolean));
 
-  for (const [title, contract] of Object.entries(contracts)) {
-    await componentSwitcher.getByRole("button", { name: new RegExp(`^${title}`) }).click();
-    await expect(page.getByRole("heading", { name: title })).toBeVisible();
-    for (const scenario of contract.scenarios) {
-      await fixtureNavigation.getByRole("button", { name: new RegExp(`^${scenario}`) }).click();
+  for (const component of componentIds) {
+    await page.locator(`[data-component-option="${component}"]`).click();
+    const scenarioOptions = fixtureNavigation.locator("[data-fixture-scenario-option]");
+    const scenarioIds = await scenarioOptions.evaluateAll((elements) => elements.map((element) => element.getAttribute("data-fixture-scenario-option")).filter(Boolean));
+    for (const scenario of scenarioIds) {
+      await fixtureNavigation.locator(`[data-fixture-scenario-option="${scenario}"]`).click();
       const frame = page.locator(".viewport-frame");
-      await expect(frame).toHaveAttribute("data-fixture-component", contract.component);
-      const scenarioId = scenario === "Right to left" ? "rtl" : scenario.toLowerCase().replaceAll(" ", "-");
-      await expect(frame).toHaveAttribute("data-fixture-scenario", scenarioId);
-      if (contract.component === "conversation") await expect(frame.locator("[data-aifk-conversation]")).toBeVisible();
-      if (contract.component === "message") await expect(frame.locator("[data-aifk-message]")).toBeVisible();
-      if (contract.component === "prompt-input") await expect(frame.getByRole("textbox", { name: "Message" })).toBeVisible();
-      if (contract.component === "tool-call") await expect(frame.locator("[data-aifk-tool]")).toBeVisible();
-      if (contract.component === "file") await expect(frame.locator("[data-slot=file]")).toBeVisible();
+      await expect(frame).toHaveAttribute("data-fixture-component", component!);
+      await expect(frame).toHaveAttribute("data-fixture-scenario", scenario!);
+      if (component === "conversation") await expect(frame.locator("[data-aifk-conversation]")).toBeVisible();
+      if (component === "message") await expect(frame.locator("[data-aifk-message]")).toBeVisible();
+      if (component === "prompt-input") await expect(frame.getByRole("textbox", { name: "Message" })).toBeVisible();
+      if (component === "tool-call") await expect(frame.locator("[data-aifk-tool]")).toBeVisible();
+      if (component === "file") await expect(frame.locator("[data-slot=file]")).toBeVisible();
     }
   }
 });
@@ -60,7 +77,7 @@ test("exercises prompt input keyboard, pending, and rejection semantics", async 
   await input.type("Second line");
   await expect(input).toHaveValue("First line\nSecond line");
   await input.press("Enter");
-  await expect(page.locator("[data-fixture-submit-count]")).toContainText("Submitted 1");
+  await expect(page.locator("[data-fixture-event]")).toContainText('onSubmit("First line\\nSecond line")');
 
   await fixtureNavigation.getByRole("button", { name: /^Submitting/ }).click();
   await input.fill("Keep this pending");
@@ -70,7 +87,7 @@ test("exercises prompt input keyboard, pending, and rejection semantics", async 
   await fixtureNavigation.getByRole("button", { name: /^Submit rejected/ }).click();
   await input.fill("Keep this draft");
   await input.press("Enter");
-  await expect(page.getByRole("alert")).toContainText("still here");
+  await expect(page.getByRole("alert")).toContainText("Message could not be sent. Try again.");
   await expect(input).toHaveValue("Keep this draft");
 });
 
@@ -97,9 +114,9 @@ test("keeps hierarchy and content bounded at the 375px component viewport", asyn
 test("preserves semantic state across interruption, RTL, themes, and reduced motion", async ({ page }) => {
   await page.getByRole("button", { name: /Interrupted/ }).click();
   await expect(page.locator('.aifk-message[data-status="interrupted"]')).toContainText("Stopped by the user");
-  await expect(page.getByRole("button", { name: "Continue" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Continue", exact: true })).toBeVisible();
 
-  await page.getByRole("button", { name: /Right to left/ }).click();
+  await page.getByRole("button", { name: /^RTL/ }).click();
   await expect(page.locator(".viewport-frame")).toHaveAttribute("dir", "rtl");
 
   await page.getByRole("group", { name: "Theme" }).getByRole("button", { name: "Dark" }).click();
@@ -162,6 +179,46 @@ test("captures and scans representative registry components", async ({ page }) =
   await componentSwitcher.getByRole("button", { name: /^File/ }).click();
   await expect(frame.locator("[data-slot=file]")).toBeVisible();
   expect((await new AxeBuilder({ page }).include(".viewport-frame").analyze()).violations).toEqual([]);
+  await expect(frame).toHaveScreenshot("file-default-light.webp");
+});
+
+test("enforces File lifecycle, safe download, keyboard, and unavailable-source semantics", async ({ page }) => {
+  const componentSwitcher = page.getByRole("group", { name: "Component" });
+  const fixtureNavigation = page.getByRole("complementary", { name: "Component fixtures" });
+  const frame = page.locator(".viewport-frame");
+  await componentSwitcher.getByRole("button", { name: /^File/ }).click();
+
+  const download = frame.getByRole("link", { name: "Download product-brief.pdf" });
+  await expect(download).toHaveAttribute("href", "https://example.com/product-brief.pdf");
+  await expect(download).toHaveAttribute("download", "product-brief.pdf");
+  await download.focus();
+  await expect(download).toBeFocused();
+  await download.evaluate((element) => {
+    element.addEventListener("click", (event) => {
+      event.preventDefault();
+      element.setAttribute("data-keyboard-activated", "true");
+    }, { once: true });
+  });
+  await download.press("Enter");
+  await expect(download).toHaveAttribute("data-keyboard-activated", "true");
+
+  await fixtureNavigation.getByRole("button", { name: /^Loading/ }).click();
+  await expect(frame.locator("[data-slot=file]")).toHaveAttribute("aria-busy", "true");
+  await expect(frame.getByText("Preparing file", { exact: true })).toHaveCount(1);
+  await expect(frame.locator("[data-slot=file-download-unavailable]")).toHaveCount(0);
+  await expect(frame.getByRole("link", { name: /Download/ })).toHaveCount(0);
+
+  await fixtureNavigation.getByRole("button", { name: /^Failed/ }).click();
+  await expect(frame.getByRole("alert")).toHaveText("File unavailable");
+  await expect(frame.locator("[data-slot=file-download-unavailable]")).toHaveCount(0);
+  await page.getByRole("group", { name: "Theme" }).getByRole("button", { name: "Dark" }).click();
+  await page.getByRole("group", { name: "Preview viewport" }).getByRole("button", { name: "375" }).click();
+  expect((await new AxeBuilder({ page }).include(".viewport-frame").analyze()).violations).toEqual([]);
+  await expect(frame).toHaveScreenshot("file-failed-dark-375.webp");
+
+  await fixtureNavigation.getByRole("button", { name: /^Provider ID/ }).click();
+  await expect(frame.getByText("Download unavailable", { exact: true })).toHaveCount(1);
+  await expect(frame.getByRole("link", { name: /Download/ })).toHaveCount(0);
 });
 
 test("keeps touch actions at least 44px in a coarse-pointer browser", async ({ browser }) => {

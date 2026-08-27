@@ -9,4 +9,4 @@
 7. OSS never imports Pro or platform code, packages, URLs, credentials, or entitlement policy.
 8. Deep imports into another package's `src` or `internal` folders are prohibited.
 
-The root boundary check validates package manifests, source import specifiers, and forbidden sibling-repository names. Package `exports` define the supported compatibility surface.
+The root boundary check validates package manifests, source import specifiers, forbidden sibling-repository names, package-to-registry/app reach-through, registry-to-app imports, and app-to-app imports. Documentation and lab apps may consume registry-owned examples; registry and publishable packages may never consume app-owned source. Package `exports` define the supported compatibility surface.

@@ -1,4 +1,5 @@
 import { createRuntimeFromMessages, type Message, type MessageRole, type MessageStatus } from "@aifrontkit/core";
+import { environmentDefaults, type PlaygroundEnvironment } from "../types.js";
 
 export function messageModel(id: string, role: MessageRole, status: MessageStatus, text: string, reason?: string): Message {
   return {
@@ -16,6 +17,10 @@ export function messageModel(id: string, role: MessageRole, status: MessageStatu
 
 export function runtimeFrom(messages: readonly Message[]) {
   return createRuntimeFromMessages("playground-thread", messages);
+}
+
+export function playgroundEnvironment(overrides: Partial<PlaygroundEnvironment> = {}): PlaygroundEnvironment {
+  return { ...environmentDefaults, ...overrides };
 }
 
 export function q(value: string) {

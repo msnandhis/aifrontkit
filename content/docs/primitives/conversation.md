@@ -55,9 +55,10 @@ Choose one state mode for each instance.
 </AIFrontKitProvider>
 ```
 
-Passing `messages` creates an internal runtime. `threadId` defaults to the first
-message's thread or `controlled-conversation`. Without `messages`, Conversation
-must be inside `AIFrontKitProvider`.
+Passing `messages` is genuinely controlled: those exact normalized values are
+provided to the message primitives without creating a runtime. `threadId` is
+retained as a compatibility prop but does not determine controlled state.
+Without `messages`, Conversation reads the nearest `AIFrontKitProvider` runtime.
 
 ## Anatomy
 
@@ -78,9 +79,9 @@ must be inside `AIFrontKitProvider`.
 `messageVariant` accepts Message's `minimal`, `conversation`, `dense`, and
 `workspace` variants. `messageMotion` accepts `none`, `subtle`, or `expressive`.
 
-Empty, streaming, interrupted, and failed meaning comes from normalized runtime
-state. Interrupted and failed messages preserve partial content; compose retry or
-continue controls through `renderMessage`.
+Idle, submitted, streaming, awaiting-approval, completed, interrupted, and failed
+meaning is derived from normalized state. Interrupted and failed messages preserve
+partial content; compose retry or continue controls through `renderMessage`.
 
 ```tsx
 <Conversation
@@ -101,7 +102,7 @@ continue controls through `renderMessage`.
 | --- | --- | --- | --- |
 | `presentation` | `"embedded" \| "full-height" \| "workspace"` | `"embedded"` | Structural layout. |
 | `messages` | `readonly Message[]` | — | Enables controlled mode. |
-| `threadId` | `string` | First message thread | Controlled runtime identity. |
+| `threadId` | `string` | — | Compatibility metadata; it does not create or select controlled state. |
 | `header` | `ReactNode` | — | Non-scrolling heading or context. |
 | `footer` | `ReactNode` | — | Replaces the generated prompt input. |
 | `empty` | `ReactNode` | Built-in empty state | First-use content. |

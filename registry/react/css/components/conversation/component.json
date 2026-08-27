@@ -25,7 +25,10 @@
   "states": [
     { "name": "default", "description": "Completed user and assistant exchange." },
     { "name": "empty", "description": "No messages and a clear first action." },
+    { "name": "submitted", "description": "A user message is accepted and the assistant has not started output." },
     { "name": "streaming", "description": "Partial assistant content with event-level status." },
+    { "name": "awaiting-approval", "description": "A tool action pauses for a clear, associated user decision." },
+    { "name": "completed", "description": "The current exchange is complete and no activity is pending." },
     { "name": "interrupted", "description": "Partial output is retained and interruption is understandable." },
     { "name": "failed", "description": "Partial output, error meaning, and recovery remain associated." },
     { "name": "long-content", "description": "Long prose, code, URLs, and multiple turns remain bounded and readable." },
@@ -69,17 +72,21 @@
     "contract": "Message entry and scroll affordance motion use bounded transform or opacity; streamed tokens are never animated and operating-system reduced motion is authoritative."
   },
   "fixtures": {
-    "file": "conversation.fixture.tsx",
+    "file": "conversation.example.tsx",
     "scenarios": [
       { "name": "default", "description": "Concise completed exchange." },
       { "name": "empty", "description": "First-run state without transcript items." },
+      { "name": "submitted", "description": "Accepted prompt before assistant output begins." },
       { "name": "streaming", "description": "Partial assistant output and active status." },
+      { "name": "awaiting-approval", "description": "Associated tool approval interrupts progress without losing context." },
+      { "name": "completed", "description": "Finished exchange in its quiet ready state." },
       { "name": "interrupted", "description": "Retained partial output after interruption." },
       { "name": "failed", "description": "Retained partial output with retry composition." },
       { "name": "long-content", "description": "Long prose, code, URL, and unbroken identifier stress." },
       { "name": "mixed-roles", "description": "System, user, and assistant hierarchy." },
       { "name": "rtl", "description": "Bidirectional transcript and controls." },
-      { "name": "localization", "description": "Long translated labels and status content." }
+      { "name": "localization", "description": "Long translated labels and status content." },
+      { "name": "runtime", "description": "Optional event-driven runtime lookup with the same composition." }
     ]
   },
   "quality": {

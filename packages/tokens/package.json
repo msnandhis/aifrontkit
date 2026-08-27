@@ -10,6 +10,6 @@
     ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
     "./css": "./dist/tokens.css"
   },
-  "scripts": { "build": "tsc -p tsconfig.build.json && cp src/tokens.css dist/tokens.css", "typecheck": "tsc -p tsconfig.json --noEmit", "test": "vitest run --passWithNoTests" },
+  "scripts": { "build": "tsc -p tsconfig.build.json && node scripts/generate-css.mjs", "tokens:check": "node scripts/generate-css.mjs --check", "typecheck": "tsc -p tsconfig.json --noEmit", "test": "node scripts/generate-css.mjs --check && vitest run --passWithNoTests" },
   "devDependencies": { "typescript": "^5.9.2", "vitest": "^3.2.4" }
 }

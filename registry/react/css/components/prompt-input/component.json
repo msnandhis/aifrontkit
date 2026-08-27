@@ -9,6 +9,7 @@
   "anatomy": [
     { "name": "root", "description": "Semantic form and async submission boundary." },
     { "name": "leading", "description": "Optional context, selection, attachment, or mode summary." },
+    { "name": "label", "description": "Persistent programmatic label, visually hidden by default or visibly rendered when the product needs stronger field context." },
     { "name": "field", "description": "Visible input affordance and persistent accessible label relationship." },
     { "name": "input", "description": "Growing multiline message text area." },
     { "name": "toolbar", "description": "Secondary controls, guidance, and primary submit alignment." },
@@ -67,7 +68,7 @@
     "contract": "Focus, submit, and async feedback use short color, opacity, or transform transitions; reduced motion removes nonessential movement without delaying feedback."
   },
   "fixtures": {
-    "file": "prompt-input.fixture.tsx",
+    "file": "prompt-input.example.tsx",
     "scenarios": [
       { "name": "default", "description": "Empty composer and disabled submit action." },
       { "name": "ready", "description": "Short valid prompt and enabled submit action." },

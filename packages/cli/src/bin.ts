@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { addItem, diffItem, doctor, initProject } from "./index.js";
+import { addItem, diffItem, doctor, initProject, migrateProject } from "./index.js";
 
 const [command, name, ...flags] = process.argv.slice(2);
 const rootFlag = flags.find((flag) => flag.startsWith("--cwd="));
@@ -10,13 +10,16 @@ const force = flags.includes("--force");
 const dryRun = flags.includes("--dry-run");
 
 function usage() {
-  return "Usage: aifrontkit <init|add|diff|doctor> [component] [--cwd=path] [--registry=path-or-url] [--dry-run] [--force]";
+  return "Usage: aifrontkit <init|migrate|add|diff|doctor> [component] [--cwd=path] [--registry=path-or-url] [--dry-run] [--force]";
 }
 
 try {
   if (command === "init") {
     const path = await initProject(root, { force, ...(registry ? { registry } : {}) });
     console.log(`Created ${path}`);
+  } else if (command === "migrate") {
+    const result = await migrateProject(root);
+    console.log(`${result.changed ? "Migrated" : "Already current"} ${root}/aifrontkit.json (schema ${result.config.schemaVersion})`);
   } else if (command === "add" && name) {
     const plan = await addItem(root, name, { force, dryRun, ...(registry ? { registry } : {}) });
     console.log(`${dryRun ? "Would install" : "Installed"} ${name} (${plan.item.meta?.version ?? "unversioned"})`);
@@ -28,9 +31,10 @@ try {
     if (result.some((file) => file.status !== "current")) process.exitCode = 1;
   } else if (command === "doctor") {
     const result = await doctor(root);
-    console.log(`Framework: ${result.config.framework}`);
-    console.log(`Style: ${result.config.style}`);
+    console.log(`Framework: ${result.config.target.framework}`);
+    console.log(`Flavor: ${result.config.target.flavor}`);
     console.log(`Target: ${result.targetDirectory}`);
+    console.log(`Import: ${result.importAlias}`);
     console.log(`Installed: ${Object.keys(result.provenance.items).join(", ") || "none"}`);
   } else {
     console.error(usage());

@@ -23,12 +23,21 @@ const ComposerContext = createContext<ComposerContextValue | null>(null);
 
 export interface ComposerRootProps extends Omit<ComponentPropsWithoutRef<"form">, "onSubmit"> {
   onSubmit(value: string): void | Promise<void>;
+  /** Controlled value. Pair with `onValueChange`; the default remains ergonomic. */
+  value?: string;
+  defaultValue?: string;
+  onValueChange?(value: string): void;
   /** Safe, user-facing feedback retained beside the composer when submission rejects. */
   submitErrorMessage?: string;
 }
 
-function Root({ onSubmit, submitErrorMessage = "Message could not be sent. Try again.", children, ...props }: ComposerRootProps) {
-  const [value, setValue] = useState("");
+function Root({ onSubmit, value: controlledValue, defaultValue = "", onValueChange, submitErrorMessage = "Message could not be sent. Try again.", children, ...props }: ComposerRootProps) {
+  const [uncontrolledValue, setUncontrolledValue] = useState(defaultValue);
+  const value = controlledValue ?? uncontrolledValue;
+  const setValue = (nextValue: string) => {
+    if (controlledValue === undefined) setUncontrolledValue(nextValue);
+    onValueChange?.(nextValue);
+  };
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {

@@ -7,13 +7,33 @@ pnpm install
 pnpm --filter @aifrontkit/playground dev
 ```
 
-The initial playground is fully local and deterministic. It exercises the Message component across complete, streaming, and failed states, with live controls for light/dark/high-contrast mode, neutral/warm/cool temperature, density, radius, motion, and presentation variant.
+The documentation playground is fully local and deterministic. It currently covers Conversation, Message, Prompt Input, File, and experimental Tool Call with scenario, content, slot, lifecycle, theme, viewport, direction, motion, framework, and language controls appropriate to each component.
 
 ## Three surfaces
 
 1. **Component playground:** isolated states, themes, variants, viewport, motion, and accessibility inspection.
 2. **Experience playground:** complete deterministic conversations and workspaces using fixtures.
 3. **Integration examples:** small applications showing customer transports/adapters without becoming production backends.
+
+## Canonical example specifications
+
+Each documented example is a versioned, serializable specification. The specification owns its initial values, controls, scenarios, expected events, viewport/theme matrix, and assertions. Framework adapters provide rendering and code generation without creating a second catalog.
+
+```text
+example specification
+├── documentation controls and preview
+├── copyable code
+├── component lab fixture
+├── interaction assertions
+├── accessibility scan
+└── visual baseline coordinates
+```
+
+Component props and environment settings are separate axes. Theme, styling flavor, framework, language, viewport, direction, and motion preferences describe the environment; they never masquerade as component props in generated code.
+
+Changing a value must update the rendered preview and generated code from the same normalized state. A normal control change must not remount the component or discard focus, draft input, scroll position, or local interaction state. Scenario identity changes may request an explicit reset when the scenario requires it.
+
+The framework-neutral contract lives in `@aifrontkit/testing`. React definitions live beside their registry components rather than inside an app. File is the first completed reference at `registry/react/css/components/file/file.example.tsx`: the documentation app and Component Lab import that definition directly, while the registry payload still installs only the component and its stylesheet.
 
 ## Fixture system
 
@@ -27,8 +47,8 @@ Playgrounds expose documented theme tokens, variant axes, component states, capa
 
 ## Relationship to docs and Studio
 
-Docs embed the same fixtures and renderers used in tests. Studio previews consume the same schemas but add authoring controls. Playground remains public and local-capable; it is not a reduced marketing demo for Studio.
+Docs, the component lab, and tests consume the same example specifications and renderer adapters. Studio previews consume the same schemas but add authoring controls. Playground remains public and local-capable; it is not a reduced marketing demo for Studio.
 
 ## Quality use
 
-Each significant registry item has at least one canonical scenario and failure scenario. Visual snapshots, accessibility checks, performance measurements, and manual review operate against these deterministic routes.
+Each stable registry item has a recommended scenario, failure scenario, long-content scenario, narrow viewport, light/dark/high-contrast coverage, keyboard path, and reduced-motion path. Evidence records the component, example-spec version, scenario, styling flavor, theme, viewport, and browser project. Release checks fail when required coordinates are missing.

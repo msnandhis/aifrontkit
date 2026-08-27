@@ -10,6 +10,14 @@ function slot(name: string, ...values: Array<string | undefined>) {
 
 export interface PromptInputProps {
   onSubmit(value: string): void | Promise<void>;
+  /** Controlled draft value. Pair with `onValueChange` when the host owns the field state. */
+  value?: string;
+  /** Initial draft for an uncontrolled composer. */
+  defaultValue?: string;
+  /** Receives every draft change when the host owns or observes the field state. */
+  onValueChange?(value: string): void;
+  label?: ReactNode;
+  labelDisplay?: "visible" | "sr-only";
   placeholder?: string;
   hint?: ReactNode;
   leading?: ReactNode;
@@ -20,12 +28,20 @@ export interface PromptInputProps {
   className?: string;
 }
 
-export function PromptInput({ onSubmit, placeholder = "Ask a question", hint = "Enter to send", leading, toolbarStart, submitLabel = "Send message", showSubmitLabel = false, submitErrorMessage = "Message could not be sent. Try again.", className }: PromptInputProps) {
+export function PromptInput({ onSubmit, value, defaultValue, onValueChange, label = "Message", labelDisplay = "sr-only", placeholder = "Ask a question", hint = "Enter to send", leading, toolbarStart, submitLabel = "Send message", showSubmitLabel = false, submitErrorMessage = "Message could not be sent. Try again.", className }: PromptInputProps) {
   return (
-    <ComposerPrimitive.Root onSubmit={onSubmit} submitErrorMessage={submitErrorMessage} className={slot("aifk-prompt-input", className)} data-slot="prompt-input">
+    <ComposerPrimitive.Root
+      onSubmit={onSubmit}
+      {...(value === undefined ? {} : { value })}
+      {...(defaultValue === undefined ? {} : { defaultValue })}
+      {...(onValueChange === undefined ? {} : { onValueChange })}
+      submitErrorMessage={submitErrorMessage}
+      className={slot("aifk-prompt-input", className)}
+      data-slot="prompt-input"
+    >
       {leading ? <div className={slot("aifk-prompt-input__leading")} data-slot="prompt-input-leading">{leading}</div> : null}
       <label className={slot("aifk-prompt-input__field")} data-slot="prompt-input-field">
-        <span className={slot("aifk-prompt-input__sr-only")}>Message</span>
+        <span className={slot(labelDisplay === "visible" ? "aifk-prompt-input__label" : "aifk-prompt-input__sr-only")}>{label}</span>
         <ComposerPrimitive.Input placeholder={placeholder} rows={1} autoGrow submitOnEnter />
       </label>
       <div className={slot("aifk-prompt-input__toolbar")} data-slot="prompt-input-toolbar">

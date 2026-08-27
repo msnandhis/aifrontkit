@@ -8,10 +8,20 @@ The repeatable component-review standard, scorecard, release evidence, and human
 
 ```bash
 pnpm check
-pnpm quality:browser
+pnpm check:browser
+pnpm release:check
 ```
 
-`check` includes component-contract validation and its validator tests. `quality:browser` builds and opens renderable fixtures using the real registry source in the Component Lab, then verifies semantic anatomy, declared states, automated WCAG scans, 375px containment, RTL, reduced motion, coarse-pointer targets, and reviewed light/dark/high-contrast screenshots. The browser gate is also required in CI and keeps its report and failure evidence as artifacts.
+`check` includes component-contract validation and its validator tests.
+`check:browser` runs the Component Lab and documentation browser suites.
+`release:check` requires both groups and is invoked by the publish command; local
+publishing cannot bypass interaction, accessibility, or visual evidence.
+
+`quality:browser` builds and opens renderable fixtures using the real registry source in the Component Lab, then verifies semantic anatomy, declared states, automated WCAG scans, 375px containment, RTL, reduced motion, coarse-pointer targets, and reviewed light/dark/high-contrast screenshots. The browser gate is also required in CI and keeps its report and failure evidence as artifacts.
+
+When a component uses a registry-owned `*.example.tsx` definition, quality validation requires its canonical scenario identifiers to match `component.json` exactly. Missing and stale scenarios fail the release gate; source-text presence alone is not accepted as parity evidence.
+
+A component cannot claim visual regression coverage from a test filename alone. At least one committed component-named PNG or WebP baseline must exist under the Component Lab snapshots, and every CI platform running screenshot assertions must have its real platform-specific baseline.
 
 ## Test pyramid
 

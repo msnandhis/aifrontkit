@@ -15,7 +15,8 @@ CSS Modules work in Vite, Next.js App Router, and Next.js Pages Router without i
 
 ## Consequences
 
-- Tailwind is an optional future registry flavor, not a prerequisite.
+- Tailwind is an optional registry flavor, not a prerequisite. It is exposed per
+  component only after the compiled implementation passes parity gates; File is
+  the first reference slice.
 - Applications customize through tokens, composition, props, and stable data hooks before resorting to selectors tied to internal markup.
 - Every registry flavor must satisfy the same framework-neutral component contract.
-

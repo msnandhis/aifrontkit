@@ -22,16 +22,23 @@ This creates `aifrontkit.json`:
 ```json
 {
   "$schema": "https://aifrontkit.dev/schemas/config.json",
-  "framework": "react",
-  "style": "css",
-  "aliases": {
-    "aifrontkit": "@/components/aifrontkit"
+  "schemaVersion": 2,
+  "target": {
+    "framework": "react",
+    "flavor": "css-modules"
+  },
+  "output": {
+    "components": "src/components/aifrontkit"
+  },
+  "imports": {
+    "components": "@/components/aifrontkit"
   }
 }
 ```
 
-The alias must resolve to a directory inside the project. Change it before adding
-components when your application uses a different source layout.
+`output.components` is a real project-relative directory. `imports.components`
+is a TypeScript or bundler import specifier. They are intentionally independent,
+so aliases are never interpreted as filesystem paths.
 
 ## Add components
 
@@ -43,8 +50,9 @@ npx aifrontkit add conversation
 `conversation` installs its registry dependencies—Message, File, and Prompt
 Input—in the same directory. Install the package dependencies printed by the CLI.
 
-Every installed file is recorded in `.aifrontkit/installed.json` with its source,
-component version, timestamp, and SHA-256 hash. Commit that file with your source.
+Every installed item is recorded in `.aifrontkit/installed.json` with its registry
+and source digests, item and schema versions, compatibility, target, files, and
+migration history. Commit that file with your source.
 
 ## Review and update
 
@@ -53,11 +61,13 @@ npx aifrontkit diff conversation
 npx aifrontkit add conversation --dry-run
 npx aifrontkit add conversation --force
 npx aifrontkit doctor
+npx aifrontkit migrate
 ```
 
 `diff` reports `current`, `modified`, or `missing`. `add` refuses to overwrite
 local changes unless `--force` is explicit. Review the diff in version control
-before forcing an update.
+before forcing an update. `migrate` explicitly rewrites readable legacy config
+and provenance; inspection commands do not mutate those files implicitly.
 
 Use `--cwd=path` for another project root and `--registry=path-or-url` for a local
 or private registry. See the full [CLI reference](../reference/cli.md).

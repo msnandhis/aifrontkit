@@ -66,6 +66,36 @@ describe("React primitives", () => {
     expect(html).toContain("<em>report.pdf</em>");
   });
 
+  it("uses controlled conversation messages directly, without a runtime provider", () => {
+    const messages: Message[] = [{
+      id: "controlled-conversation", threadId: "thread", role: "assistant", status: "complete", createdAt: 1,
+      parts: [{ type: "text", text: "Exact controlled value" }]
+    }];
+    const html = renderToStaticMarkup(
+      <ConversationPrimitive.Root messages={messages}>
+        <ConversationPrimitive.List>
+          <ConversationPrimitive.Items>{(messageId) => <MessagePrimitive.Root messageId={messageId}><MessagePrimitive.Content /></MessagePrimitive.Root>}</ConversationPrimitive.Items>
+        </ConversationPrimitive.List>
+      </ConversationPrimitive.Root>
+    );
+    expect(html).toContain("Exact controlled value");
+    expect(html).toContain('data-empty="false"');
+  });
+
+  it("lets a registry renderer intentionally suppress a part and otherwise falls back deterministically", () => {
+    const message: Message = {
+      id: "rendering", threadId: "thread", role: "assistant", status: "complete", createdAt: 1,
+      parts: [{ type: "text", text: "Hidden" }, { type: "data", data: { visible: true } }]
+    };
+    const html = renderToStaticMarkup(
+      <MessagePrimitive.RendererProvider registry={{ components: { text: () => null }, renderFallback: ({ part }) => <i>{part.type}</i> }}>
+        <MessagePrimitive.Root message={message}><MessagePrimitive.Content /></MessagePrimitive.Root>
+      </MessagePrimitive.RendererProvider>
+    );
+    expect(html).not.toContain("Hidden");
+    expect(html).toContain("<i>data</i>");
+  });
+
   it("renders retained content and interruption meaning without an error alert", () => {
     const runtime = createRuntime("thread-interrupted", [
       { schemaVersion: 1, id: "1", threadId: "thread-interrupted", timestamp: 1, type: "message.started", messageId: "m3", role: "assistant" },

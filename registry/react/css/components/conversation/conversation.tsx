@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useMemo, type ReactNode } from "react";
-import { createRuntimeFromMessages, type Message as MessageModel } from "@aifrontkit/core";
-import { AIFrontKitProvider, useRuntimeState } from "@aifrontkit/react";
+import React, { type ReactNode } from "react";
+import type { Message as MessageModel } from "@aifrontkit/core";
+import { useRuntimeState } from "@aifrontkit/react";
 import { ConversationPrimitive, type ConversationRootProps, type ConversationViewportProps } from "@aifrontkit/react/conversation";
 import { Message, type MessageMotion, type MessageVariant } from "../message/message.js";
 import { PromptInput } from "../prompt-input/prompt-input.js";
@@ -31,7 +31,10 @@ export interface ConversationProps extends Omit<ConversationRootProps, "children
   viewportProps?: Omit<ConversationViewportProps, "children">;
 }
 
-type ConversationBodyProps = Omit<ConversationProps, "messages" | "threadId">;
+type ConversationBodyProps = Omit<ConversationProps, "messages" | "threadId"> & {
+  controlledMessages?: readonly MessageModel[];
+  messagesById: Readonly<Record<string, MessageModel>>;
+};
 
 function ConversationBody({
   presentation = "embedded",
@@ -44,12 +47,13 @@ function ConversationBody({
   renderMessage,
   viewportProps,
   onSubmit,
+  controlledMessages,
+  messagesById,
   ...props
 }: ConversationBodyProps) {
-  const messagesById = useRuntimeState((state) => state.messages);
   const resolvedFooter = footer ?? (onSubmit ? <PromptInput onSubmit={onSubmit} /> : null);
   return (
-    <ConversationPrimitive.Root {...props} className={slot("aifk-conversation", className)} data-slot="conversation" data-presentation={presentation}>
+    <ConversationPrimitive.Root {...props} {...(controlledMessages ? { messages: controlledMessages } : {})} className={slot("aifk-conversation", className)} data-slot="conversation" data-presentation={presentation}>
       {header ? <header className={slot("aifk-conversation__header")} data-slot="conversation-header">{header}</header> : null}
       <ConversationPrimitive.Viewport {...viewportProps} className={slot("aifk-conversation__viewport", viewportProps?.className)} data-slot="conversation-viewport">
         <ConversationPrimitive.Empty className={slot("aifk-conversation__empty")} data-slot="conversation-empty">
@@ -71,16 +75,16 @@ function ConversationBody({
   );
 }
 
-function ControlledConversation({ messages, threadId, ...props }: ConversationProps & { messages: readonly MessageModel[] }) {
-  const resolvedThreadId = threadId ?? messages[0]?.threadId ?? "controlled-conversation";
-  const runtime = useMemo(() => createRuntimeFromMessages(resolvedThreadId, messages), [resolvedThreadId, messages]);
-  return <AIFrontKitProvider runtime={runtime}><ConversationBody {...props} /></AIFrontKitProvider>;
+function ControlledConversation({ messages, threadId: _threadId, ...props }: ConversationProps & { messages: readonly MessageModel[] }) {
+  const messagesById = Object.fromEntries(messages.map((message) => [message.id, message]));
+  return <ConversationBody {...props} controlledMessages={messages} messagesById={messagesById} />;
+}
+
+function RuntimeConversation({ messages: _messages, threadId: _threadId, ...props }: ConversationProps) {
+  const messagesById = useRuntimeState((state) => state.messages);
+  return <ConversationBody {...props} messagesById={messagesById} />;
 }
 
 export function Conversation(props: ConversationProps) {
-  if (props.messages) return <ControlledConversation {...props} messages={props.messages} />;
-  const { messages, threadId, ...runtimeProps } = props;
-  void messages;
-  void threadId;
-  return <ConversationBody {...runtimeProps} />;
+  return props.messages === undefined ? <RuntimeConversation {...props} /> : <ControlledConversation {...props} messages={props.messages} />;
 }

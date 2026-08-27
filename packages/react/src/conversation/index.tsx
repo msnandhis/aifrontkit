@@ -10,13 +10,14 @@ import {
   type ReactNode,
   type Ref
 } from "react";
-import { useRuntimeState } from "../runtime/index.js";
+import { getConversationStatus, type ConversationStatus, type Message } from "@aifrontkit/core";
+import { ControlledMessagesProvider, useAIFrontKitRuntime, useRuntimeState } from "../runtime/index.js";
 
 interface ConversationContextValue {
   messageIds: readonly string[];
   empty: boolean;
   streaming: boolean;
-  activity: "idle" | "streaming" | "interrupted" | "failed";
+  activity: ConversationStatus;
   atEnd: boolean;
   setAtEnd(value: boolean): void;
   viewport: HTMLDivElement | null;
@@ -39,18 +40,21 @@ function assignRef<T>(ref: Ref<T> | undefined, value: T | null) {
 export interface ConversationRootProps extends ComponentPropsWithoutRef<"section"> {
   /** Accessible label for the transcript region. */
   label?: string;
+  /**
+   * Controlled-first transcript data. Passing it never creates a runtime or
+   * provider; child MessagePrimitive roots resolve these exact values.
+   */
+  messages?: readonly Message[];
+  /** Override derived transcript lifecycle when the host owns that state. */
+  status?: ConversationStatus;
 }
 
-function Root({ label = "Conversation", children, "aria-label": ariaLabel, ...props }: ConversationRootProps) {
-  const messageIds = useRuntimeState((state) => state.messageOrder);
-  const activity = useRuntimeState((state) => {
-    const hasStreamingMessage = state.messageOrder.some((messageId) => state.messages[messageId]?.status === "streaming");
-    if (hasStreamingMessage) return "streaming";
-    const latestId = state.messageOrder.at(-1);
-    const latestStatus = latestId ? state.messages[latestId]?.status : undefined;
-    if (latestStatus === "interrupted" || latestStatus === "failed") return latestStatus;
-    return "idle";
-  });
+interface ConversationFrameProps extends Omit<ConversationRootProps, "messages" | "status"> {
+  messageIds: readonly string[];
+  activity: ConversationStatus;
+}
+
+function RootFrame({ label = "Conversation", children, "aria-label": ariaLabel, messageIds, activity, ...props }: ConversationFrameProps) {
   const streaming = activity === "streaming";
   const [atEnd, setAtEnd] = useState(true);
   const [viewport, setViewport] = useState<HTMLDivElement | null>(null);
@@ -69,6 +73,30 @@ function Root({ label = "Conversation", children, "aria-label": ariaLabel, ...pr
       </section>
     </ConversationContext.Provider>
   );
+}
+
+function RuntimeRoot({ messages: _messages, status, ...props }: ConversationRootProps) {
+  // Reading the runtime inside this branch preserves the provider-only API.
+  useAIFrontKitRuntime();
+  const messageIds = useRuntimeState((state) => state.messageOrder);
+  const activity = useRuntimeState((state) => getConversationStatus(state));
+  return <RootFrame {...props} messageIds={messageIds} activity={status ?? activity} />;
+}
+
+function ControlledRoot({ messages = [], status, ...props }: ConversationRootProps & { messages: readonly Message[] }) {
+  const activity = status ?? getConversationStatus({
+    messageOrder: messages.map((message) => message.id),
+    messages: Object.fromEntries(messages.map((message) => [message.id, message]))
+  });
+  return (
+    <ControlledMessagesProvider messages={messages}>
+      <RootFrame {...props} messageIds={messages.map((message) => message.id)} activity={activity} />
+    </ControlledMessagesProvider>
+  );
+}
+
+function Root(props: ConversationRootProps) {
+  return props.messages === undefined ? <RuntimeRoot {...props} /> : <ControlledRoot {...props} messages={props.messages} />;
 }
 
 export interface ConversationViewportProps extends ComponentPropsWithoutRef<"div"> {
@@ -151,6 +179,12 @@ function Status({ children, ...props }: ComponentPropsWithoutRef<"span">) {
   const { activity } = useConversation();
   const label = activity === "streaming"
     ? "Generating response"
+    : activity === "submitted"
+      ? "Message sent"
+      : activity === "awaiting-approval"
+        ? "Awaiting approval"
+      : activity === "completed"
+        ? "Conversation ready"
     : activity === "interrupted"
       ? "Response interrupted. Partial response preserved."
       : activity === "failed"

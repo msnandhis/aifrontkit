@@ -14,6 +14,7 @@
     "lint": "node scripts/check-boundaries.mjs",
     "boundaries": "pnpm lint",
     "registry:validate": "node scripts/validate-registry.mjs",
+    "registry:test": "node --test scripts/validate-registry.test.mjs",
     "registry:typecheck": "tsc -p registry/tsconfig.json",
     "contracts:validate": "node scripts/validate-ui-contracts.mjs",
     "docs:validate": "node tooling/docs/validate-docs.mjs",
@@ -22,11 +23,13 @@
     "quality:test": "node --test tooling/quality/component-quality.test.mjs",
     "quality:browser": "pnpm --filter @aifrontkit/core build && pnpm --filter @aifrontkit/tokens build && pnpm --filter @aifrontkit/react build && pnpm --filter @aifrontkit/testing build && playwright test --config apps/lab/playwright.config.ts",
     "docs:browser": "playwright test --config apps/playground/playwright.config.ts",
+    "check:browser": "pnpm quality:browser && pnpm docs:browser",
+    "release:check": "pnpm check && pnpm check:browser",
     "lab:dev": "pnpm --filter @aifrontkit/lab dev",
-    "check": "pnpm lint && pnpm contracts:validate && pnpm registry:validate && pnpm quality:validate && pnpm quality:test && pnpm docs:validate && pnpm docs:test && pnpm build && pnpm registry:typecheck && pnpm typecheck && pnpm test",
+    "check": "pnpm lint && pnpm contracts:validate && pnpm registry:validate && pnpm registry:test && pnpm quality:validate && pnpm quality:test && pnpm docs:validate && pnpm docs:test && pnpm build && pnpm registry:typecheck && pnpm typecheck && pnpm test",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "pnpm build && changeset publish"
+    "release": "pnpm release:check && changeset publish"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",

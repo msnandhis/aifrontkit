@@ -10,5 +10,5 @@
   ],
   "dependencies": ["@aifrontkit/react@^0.1.0"],
   "registryDependencies": ["file"],
-  "meta": { "version": "0.4.0", "schemaMajor": 1, "aifrontkit": ">=0.1.0 <1" }
+  "meta": { "version": "0.4.0", "schemaMajor": 1, "aifrontkit": ">=0.1.0 <1", "target": { "framework": "react", "flavor": "css-modules" } }
 }

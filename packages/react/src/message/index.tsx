@@ -7,9 +7,10 @@ import {
   type ReactNode
 } from "react";
 import { resolveFileDownloadTarget, type ContentPart, type Message, type MessageRole, type MessageStatus } from "@aifrontkit/core";
-import { useRuntimeState } from "../runtime/index.js";
+import { useMessageById } from "../runtime/index.js";
 
 const MessageContext = createContext<Message | null>(null);
+const RendererRegistryContext = createContext<MessageRendererRegistry | null>(null);
 
 /** A message whose state is read from the nearest AIFrontKit runtime. */
 export interface MessageRootProps extends ComponentPropsWithoutRef<"article"> {
@@ -71,7 +72,7 @@ function RootFrame({ message, children, "aria-label": ariaLabel, ...props }: Roo
 }
 
 function RuntimeRoot({ messageId, ...props }: Omit<MessageRootProps, "message"> & { messageId: string }) {
-  const message = useRuntimeState((state) => state.messages[messageId]);
+  const message = useMessageById(messageId);
   if (!message) return null;
   return <RootFrame {...props} message={message} />;
 }
@@ -88,28 +89,89 @@ export interface MessagePartRendererProps<TPart extends ContentPart = ContentPar
   index: number;
 }
 
-export type MessagePartRenderer<TPart extends ContentPart = ContentPart> = (props: MessagePartRendererProps<TPart>) => ReactNode;
+/** `null` intentionally suppresses a part; `undefined` delegates to the next renderer. */
+export type MessagePartRenderer<TPart extends ContentPart = ContentPart> = (props: MessagePartRendererProps<TPart>) => ReactNode | undefined;
 export type MessagePartComponents = Partial<{ [Type in ContentPart["type"]]: MessagePartRenderer<Extract<ContentPart, { type: Type }>> }>;
+export type MessagePartCategory = "text" | "media" | "attachment" | "source" | "reasoning" | "tool" | "data" | "custom";
 
 export interface MessagePartsProps {
+  /** Highest-precedence renderers for this Parts instance. */
   components?: MessagePartComponents;
+  /** Highest-priority catch-all renderer for this Parts instance. */
   renderPart?: MessagePartRenderer;
+  /** Per-tree renderer policy. Local props still take precedence. */
+  registry?: MessageRendererRegistry;
+}
+
+export interface MessageRendererRegistry {
+  /** Exact keys take precedence: `tool:weather`, `custom:chart`, then the raw type. */
+  exact?: Readonly<Record<string, MessagePartRenderer | undefined>>;
+  components?: MessagePartComponents;
+  /** Category renderers run after exact renderers: e.g. media, tool, or custom. */
+  categories?: Partial<Record<MessagePartCategory, MessagePartRenderer>>;
+  /** Runs after exact and category renderers, before `unknown` and built-ins. */
+  renderFallback?: MessagePartRenderer;
+  /** Last application-owned chance to render a part before the neutral built-in. */
+  unknown?: MessagePartRenderer;
+}
+
+export function MessageRendererProvider({ registry, children }: PropsWithChildren<{ registry: MessageRendererRegistry }>) {
+  return <RendererRegistryContext.Provider value={registry}>{children}</RendererRegistryContext.Provider>;
 }
 
 function defaultPart(part: ContentPart, index: number) {
   if (part.type === "text") return <span data-aifk-message-part="text" key={index}>{part.text}</span>;
   if (part.type === "image") return <img data-aifk-message-part="image" key={index} src={part.url} alt={part.alt ?? "Message attachment"} />;
-  const target = resolveFileDownloadTarget(part);
-  return target
-    ? <a data-aifk-message-part="file" key={index} href={target} download={part.name}>{part.name}</a>
-    : <span data-aifk-message-part="file" key={index}>{part.name}</span>;
+  if (part.type === "reasoning") return <span data-aifk-message-part="reasoning" key={index}>{part.visible === false ? part.summary ?? "Reasoning hidden" : part.text}</span>;
+  if (part.type === "source") return part.url
+    ? <a data-aifk-message-part="source" key={index} href={part.url}>{part.title ?? part.url}</a>
+    : <span data-aifk-message-part="source" key={index}>{part.title ?? part.excerpt ?? "Source"}</span>;
+  if (part.type === "tool") return <span data-aifk-message-part="tool" key={index}>{part.name}</span>;
+  if (part.type === "data") return <pre data-aifk-message-part="data" key={index}>{JSON.stringify(part.data, null, 2)}</pre>;
+  if (part.type === "file") {
+    const target = resolveFileDownloadTarget(part);
+    return target
+      ? <a data-aifk-message-part="file" key={index} href={target} download={part.name}>{part.name}</a>
+      : <span data-aifk-message-part="file" key={index}>{part.name}</span>;
+  }
+  return <span data-aifk-message-part={part.type} key={index}>{part.name ?? part.type}</span>;
 }
 
-function Parts({ components, renderPart }: MessagePartsProps) {
+function rendererKeys(part: ContentPart): readonly string[] {
+  if (part.type === "tool") return [`tool:${part.name}`, "tool"];
+  return [part.type];
+}
+
+function rendererCategory(part: ContentPart): MessagePartCategory {
+  if (part.type === "text") return "text";
+  if (part.type === "image") return "media";
+  if (part.type === "file") return "attachment";
+  if (part.type === "source") return "source";
+  if (part.type === "reasoning") return "reasoning";
+  if (part.type === "tool") return "tool";
+  if (part.type === "data") return "data";
+  return "custom";
+}
+
+function Parts({ components, renderPart, registry }: MessagePartsProps) {
   const message = useMessage();
+  const inheritedRegistry = useContext(RendererRegistryContext);
+  const activeRegistry = registry ?? inheritedRegistry;
   return <>{message.parts.map((part, index) => {
-    const renderer = components?.[part.type] as MessagePartRenderer | undefined;
-    const output = renderPart?.({ part, message, index }) ?? renderer?.({ part, message, index }) ?? defaultPart(part, index);
+    const props = { part, message, index };
+    const local = renderPart?.(props);
+    const exact = components?.[part.type] as MessagePartRenderer | undefined;
+    const localExact = local === undefined ? exact?.(props) : local;
+    const registeredExact = rendererKeys(part).map((key) => activeRegistry?.exact?.[key]).find((renderer): renderer is MessagePartRenderer => Boolean(renderer));
+    const registryByKey = localExact === undefined ? registeredExact?.(props) : localExact;
+    const registeredType = activeRegistry?.components?.[part.type] as MessagePartRenderer | undefined;
+    const registryByType = registryByKey === undefined ? registeredType?.(props) : registryByKey;
+    const category = activeRegistry?.categories?.[rendererCategory(part)];
+    const registryByCategory = registryByType === undefined ? category?.(props) : registryByType;
+    const fallback = registryByCategory === undefined ? activeRegistry?.renderFallback?.(props) : registryByCategory;
+    const unknown = fallback === undefined ? activeRegistry?.unknown?.(props) : fallback;
+    // Null is an explicit, useful decision: do not fall through to a default.
+    const output = unknown === undefined ? defaultPart(part, index) : unknown;
     return <Fragment key={`${part.type}-${index}`}>{output}</Fragment>;
   })}</>;
 }
@@ -151,4 +213,4 @@ function MessageInterruption({ children, ...props }: PropsWithChildren<Component
   return <p {...props} data-aifk-message-interruption="">{children ?? message.interruptionReason ?? "Generation stopped. Partial response preserved."}</p>;
 }
 
-export const MessagePrimitive = { Root, Content, Parts, Status, Role, Error: MessageError, Interruption: MessageInterruption, useMessage };
+export const MessagePrimitive = { Root, Content, Parts, Status, Role, Error: MessageError, Interruption: MessageInterruption, RendererProvider: MessageRendererProvider, useMessage };

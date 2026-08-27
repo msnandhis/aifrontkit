@@ -14,6 +14,11 @@ Packages provide behavior; registry items provide editable visual source. The
 installer validates paths and dependency compatibility before presenting an
 operation plan. Existing customer changes are never silently overwritten.
 
+The catalog resolves items by `(framework, flavor, name)` and stores the real
+manifest path for each available target. Dependencies resolve only inside that
+same target. A component that has CSS Modules source but no Tailwind source is
+reported as unavailable; the installer never falls back to a different flavor.
+
 Public registry operations work anonymously. Protected Pro artifacts are acquired
 through the platform, but downloaded source has no runtime license check or
 platform network dependency.

@@ -23,13 +23,25 @@ describe("component playground contract", () => {
 
   it("places exact edited values in generated code", () => {
     const conversation = playgroundDefinitions.conversation;
-    const state = { ...conversation.defaults, userMessage: "Exact preview value <with symbols>", presentation: "workspace" };
+    const state = { ...conversation.defaults, props: { ...conversation.defaults.props, userMessage: "Exact preview value <with symbols>", presentation: "workspace" } };
     const code = conversation.generateCode(state);
-    expect(code).toContain(JSON.stringify(state.userMessage));
+    expect(code).toContain(JSON.stringify(state.props.userMessage));
     expect(code).toContain('presentation="workspace"');
 
     const file = playgroundDefinitions.file;
-    expect(file.generateCode({ ...file.defaults, name: "release-notes.md" })).toContain('name: "release-notes.md"');
+    expect(file.generateCode({ ...file.defaults, props: { ...file.defaults.props, name: "release-notes.md" } })).toContain('name: "release-notes.md"');
+    expect(file.generateCode({ ...file.defaults, environment: { ...file.defaults.environment, language: "jsx" } })).not.toContain(" as const");
+    const loadingFileCode = file.generateCode({ ...file.defaults, props: { ...file.defaults.props, status: "loading", mediaType: "" } });
+    expect(loadingFileCode).not.toContain("<File.Download");
+    expect(loadingFileCode).not.toContain("mediaType:");
+
+    const message = playgroundDefinitions.message;
+    const messageJsx = message.generateCode({ ...message.defaults, environment: { ...message.defaults.environment, language: "jsx" } });
+    expect(messageJsx).not.toContain("import type");
+    expect(messageJsx).not.toContain(" as const");
+    expect(messageJsx).not.toContain(": MessageModel[]");
+    expect(messageJsx).toContain('onClick={() => onAction("copy")}');
+    expect(messageJsx).toContain('data-aifk-theme="light"');
   });
 
   it("distinguishes component tags, prop names, and literal values", () => {
@@ -40,14 +52,15 @@ describe("component playground contract", () => {
   });
 
   it("detects curated presets without requiring a complete state duplicate", () => {
-    expect(stateMatches({ status: "failed", variant: "outline" }, { status: "failed" })).toBe(true);
-    expect(stateMatches({ status: "ready" }, { status: "failed" })).toBe(false);
+    const defaults = playgroundDefinitions.file.defaults;
+    expect(stateMatches({ ...defaults, props: { ...defaults.props, status: "failed", variant: "outline" } }, { props: { status: "failed" } })).toBe(true);
+    expect(stateMatches({ ...defaults, props: { ...defaults.props, status: "ready" } }, { props: { status: "failed" } })).toBe(false);
   });
 
   it("rejects invalid URL option values and clamps numeric controls", () => {
     const definition = playgroundDefinitions.file;
-    const state = normalizePlaygroundState({ ...definition.defaults, variant: "invalid", bytes: 2000000 }, definition.defaults, definition.controls);
-    expect(state.variant).toBe("outline");
-    expect(state.bytes).toBe(1000000);
+    const state = normalizePlaygroundState({ ...definition.defaults, props: { ...definition.defaults.props, variant: "invalid", bytes: 2000000 } }, definition.defaults, definition.controls);
+    expect(state.props.variant).toBe("outline");
+    expect(state.props.bytes).toBe(1000000);
   });
 });

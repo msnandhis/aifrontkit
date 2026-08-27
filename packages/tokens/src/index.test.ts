@@ -3,6 +3,7 @@ import {
   checkThemeContrast,
   contrastRatio,
   createTheme,
+  cssVariableName,
   getThemeAttributes,
   motionRecipeNames,
   resolveTheme,
@@ -52,6 +53,10 @@ describe("theme contract", () => {
     expect(variables["--aifk-action"]).toBe("#f4f4f5");
     expect(variables["--aifk-z-modal"]).toBe("40");
     expect(variables["--aifk-type-font-family-sans"]).toContain("system-ui");
+    expect(variables["--aifk-space-0"]).toBe("0");
+    expect(variables["--aifk-space-control-height"]).toBe("2.5rem");
+    expect(variables["--aifk-conversation-content-measure"]).toBe("44rem");
+    expect(variables["--aifk-file-gap"]).toBe("var(--aifk-density-content-gap)");
     expect(variables["--aifk-motion-message-entry-duration"]).toBe("150ms");
     expect(variables["--aifk-motion-message-entry-reduced-duration"]).toBe("0ms");
     expect(getThemeAttributes(theme)).toEqual({
@@ -61,6 +66,12 @@ describe("theme contract", () => {
       "data-aifk-radius": "medium",
       "data-aifk-motion": "expressive"
     });
+  });
+
+  it("keeps projected variable names stable for numbered and camel-case tokens", () => {
+    expect(cssVariableName("space", "space0")).toBe("--aifk-space-0");
+    expect(cssVariableName("type", "fontSize2xl")).toBe("--aifk-type-font-size-2xl");
+    expect(cssVariableName("", "surfaceElevated")).toBe("--aifk-surface-elevated");
   });
 
   it("calculates WCAG contrast for hex and rgba colors", () => {

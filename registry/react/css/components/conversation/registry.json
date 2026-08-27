@@ -10,5 +10,5 @@
   ],
   "dependencies": ["@aifrontkit/react@^0.1.0"],
   "registryDependencies": ["message", "prompt-input"],
-  "meta": { "version": "0.3.0", "schemaMajor": 1, "aifrontkit": ">=0.1.0 <1" }
+  "meta": { "version": "0.3.0", "schemaMajor": 1, "aifrontkit": ">=0.1.0 <1", "target": { "framework": "react", "flavor": "css-modules" } }
 }

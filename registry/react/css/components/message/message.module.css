@@ -1,7 +1,7 @@
 .aifk-message {
-  --aifk-message-measure: 42rem;
-  --aifk-message-user-measure: 32rem;
-  --aifk-message-pad-block: 0.375rem;
+  --aifk-message-measure: var(--aifk-message-content-measure, 44rem);
+  --aifk-message-user-measure: var(--aifk-message-user-max-width, min(34rem, 88%));
+  --aifk-message-pad-block: var(--aifk-space-1, 0.25rem);
   box-sizing: border-box;
   display: block;
   inline-size: min(100%, var(--aifk-message-measure));
@@ -15,12 +15,12 @@
 }
 .aifk-message *, .aifk-message *::before, .aifk-message *::after { box-sizing: border-box; }
 .aifk-message[data-role="assistant"] { justify-self: start; }
-.aifk-message[data-role="user"] { justify-self: end; inline-size: fit-content; max-inline-size: min(88%, var(--aifk-message-user-measure)); padding: 0.625rem 0.875rem; border: 1px solid color-mix(in srgb, var(--aifk-border, ButtonBorder) 64%, transparent); border-radius: 1.125rem 1.125rem 0.375rem 1.125rem; background: var(--aifk-user-surface, var(--aifk-surface, Canvas)); }
+.aifk-message[data-role="user"] { justify-self: end; inline-size: fit-content; max-inline-size: var(--aifk-message-user-measure); padding: var(--aifk-message-user-padding-block, 0.75rem) var(--aifk-message-user-padding-inline, 1rem); border: 1px solid color-mix(in srgb, var(--aifk-border, ButtonBorder) 72%, transparent); border-radius: var(--aifk-radius-large, 0.875rem); background: var(--aifk-user-surface, var(--aifk-surface, Canvas)); }
 .aifk-message[data-role="system"] { justify-self: stretch; inline-size: 100%; padding: 0.625rem 0.75rem; border: 1px solid var(--aifk-border, ButtonBorder); border-inline-start: 2px solid var(--aifk-border-strong, ButtonBorder); border-radius: var(--aifk-radius-medium, 0.625rem); color: var(--aifk-text-muted, GrayText); background: var(--aifk-surface-subtle, Canvas); }
 .aifk-message[data-variant="minimal"] { --aifk-message-pad-block: 0.125rem; }
 .aifk-message[data-variant="dense"] { --aifk-message-pad-block: 0.25rem; font-size: 0.9375rem; }
 .aifk-message[data-variant="workspace"] { --aifk-message-measure: 100%; --aifk-message-user-measure: 42rem; }
-.aifk-message__body { display: flex; align-items: flex-start; gap: 0.75rem; min-inline-size: 0; }
+.aifk-message__body { display: flex; align-items: flex-start; gap: var(--aifk-message-gap, 0.75rem); min-inline-size: 0; }
 .aifk-message[data-role="user"] .aifk-message__body { display: block; }
 .aifk-message__avatar { display: grid; flex: 0 0 auto; place-items: center; inline-size: 1.75rem; block-size: 1.75rem; margin-block-start: 0.125rem; border: 1px solid var(--aifk-border, ButtonBorder); border-radius: 0.5rem; color: var(--aifk-text-muted, GrayText); background: var(--aifk-canvas, Canvas); }
 .aifk-message__avatar svg { inline-size: 0.875rem; block-size: 0.875rem; }
@@ -41,7 +41,7 @@
 .aifk-message__content [data-aifk-message-part="file"] { color: var(--aifk-accent, LinkText); text-decoration-thickness: 1px; text-underline-offset: 0.16em; }
 .aifk-message__state:empty { display: none; }
 .aifk-message__state { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
-.aifk-message__error { margin: 0; color: var(--aifk-destructive, CanvasText); font-size: 0.875rem; font-weight: 550; }
+.aifk-message__error { margin: 0; color: var(--aifk-destructive, CanvasText); font-size: 0.875rem; font-weight: var(--aifk-type-font-weight-medium, 500); }
 .aifk-message__interruption { margin: 0; color: var(--aifk-text-muted, GrayText); font-size: 0.8125rem; }
 .aifk-message__recovery { display: flex; align-items: center; gap: 0.375rem; }
 .aifk-message__recovery :where(button, a),
@@ -59,7 +59,7 @@
   background: transparent;
   font: inherit;
   font-size: 0.75rem;
-  font-weight: 550;
+  font-weight: var(--aifk-type-font-weight-medium, 500);
   line-height: 1;
   text-decoration: none;
   cursor: pointer;
@@ -69,7 +69,7 @@
 .aifk-message__recovery :where(button, a):hover,
 .aifk-message__actions :where(button, a):hover { color: var(--aifk-text, CanvasText); background: var(--aifk-surface, ButtonFace); }
 .aifk-message__recovery :where(button, a):active,
-.aifk-message__actions :where(button, a):active { transform: translateY(1px); }
+.aifk-message__actions :where(button, a):active { color: var(--aifk-text, CanvasText); background: var(--aifk-surface-subtle, ButtonFace); }
 .aifk-message__recovery :where(button, a):focus-visible,
 .aifk-message__actions :where(button, a):focus-visible { outline: 2px solid var(--aifk-focus, Highlight); outline-offset: 2px; }
 .aifk-message__recovery :where(button, a):disabled,

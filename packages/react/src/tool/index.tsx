@@ -4,10 +4,29 @@ import { useRuntimeState } from "../runtime/index.js";
 
 const ToolContext = createContext<ToolCall | null>(null);
 
-function Root({ toolCallId, children, ...props }: PropsWithChildren<{ toolCallId: string } & ComponentPropsWithoutRef<"section">>) {
-  const tool = useRuntimeState((state) => state.tools[toolCallId]);
+export interface ToolRootProps extends PropsWithChildren<ComponentPropsWithoutRef<"section">> {
+  /** Controlled tool data; does not require a runtime provider. */
+  tool?: ToolCall;
+  /** Runtime lookup identifier for event-driven tool state. */
+  toolCallId?: string;
+}
+
+type ToolFrameProps = Omit<ToolRootProps, "tool" | "toolCallId"> & { tool: ToolCall };
+
+function RootFrame({ tool, children, ...props }: ToolFrameProps) {
   if (!tool) return null;
   return <ToolContext.Provider value={tool}><section aria-label={`Tool: ${tool.name}`} data-aifk-tool="" data-status={tool.status} aria-busy={tool.status === "running"} {...props}>{children}</section></ToolContext.Provider>;
+}
+
+function RuntimeRoot({ toolCallId, ...props }: Omit<ToolRootProps, "tool"> & { toolCallId: string }) {
+  const tool = useRuntimeState((state) => state.tools[toolCallId]);
+  return tool ? <RootFrame {...props} tool={tool} /> : null;
+}
+
+function Root({ tool, toolCallId, ...props }: ToolRootProps) {
+  if (tool) return <RootFrame {...props} tool={tool} />;
+  if (toolCallId) return <RuntimeRoot {...props} toolCallId={toolCallId} />;
+  throw new Error("ToolPrimitive.Root requires either `tool` or `toolCallId`.");
 }
 
 function Name() {
