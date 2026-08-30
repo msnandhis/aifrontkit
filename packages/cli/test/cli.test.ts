@@ -7,6 +7,8 @@ import {
   aliasToDirectory,
   diffItem,
   initProject,
+  getRegistryItemInfo,
+  listRegistryItems,
   migrateConfig,
   migrateProject,
   migrateProvenance,
@@ -90,6 +92,12 @@ describe("AIFrontKit CLI", () => {
     await writeFile(configPath, `${JSON.stringify(config, null, 2)}\n`);
 
     await expect(addItem(root, "file")).rejects.toThrow(/not available for react\/tailwind/);
+  });
+
+  it("exposes deterministic registry discovery for agents and MCP bridges", async () => {
+    const items = await listRegistryItems(repositoryRoot, "agent progress");
+    expect(items.map((item) => item.name)).toEqual(["agent-progress"]);
+    expect(await getRegistryItemInfo("tool-approval", repositoryRoot)).toMatchObject({ type: "registry:block" });
   });
 
   it("fails closed for unavailable targets and cross-flavor updates", async () => {

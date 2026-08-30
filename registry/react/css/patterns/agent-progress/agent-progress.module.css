@@ -1,0 +1,68 @@
+.aifk-agent-progress {
+  display: grid;
+  gap: var(--aifk-space-4);
+  padding: var(--aifk-space-4);
+  color: var(--aifk-text);
+  background: var(--aifk-surface);
+  border: 1px solid var(--aifk-border);
+  border-radius: var(--aifk-radius-large);
+}
+
+.aifk-agent-progress__header {
+  display: flex;
+  align-items: center;
+  gap: var(--aifk-space-3);
+}
+
+.aifk-agent-progress__icon {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  color: var(--aifk-accent);
+  background: var(--aifk-accent-muted);
+  border-radius: var(--aifk-radius-medium);
+}
+
+.aifk-agent-progress__icon svg {
+  width: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-width: 1.5;
+}
+
+.aifk-agent-progress__identity { min-width: 0; }
+.aifk-agent-progress__title { margin: 0; font-size: var(--aifk-type-font-size-sm); }
+.aifk-agent-progress__status,
+.aifk-agent-progress__step-status { color: var(--aifk-text-muted); font-size: var(--aifk-type-font-size-xs); text-transform: capitalize; }
+.aifk-agent-progress__actions { display: flex; gap: var(--aifk-space-2); margin-inline-start: auto; }
+
+.aifk-agent-progress__actions button {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding-inline: var(--aifk-space-3);
+  color: inherit;
+  background: transparent;
+  border: 1px solid var(--aifk-border);
+  border-radius: var(--aifk-radius-medium);
+  cursor: pointer;
+}
+
+.aifk-agent-progress__actions button:focus-visible { outline: 2px solid var(--aifk-focus); outline-offset: 2px; }
+.aifk-agent-progress__progress,
+.aifk-agent-progress__step-progress { width: 100%; accent-color: var(--aifk-accent); }
+.aifk-agent-progress__steps { display: grid; gap: var(--aifk-space-3); margin: 0; padding: 0; list-style: none; }
+.aifk-agent-progress__step { display: grid; grid-template-columns: auto 1fr; gap: var(--aifk-space-3); align-items: start; }
+.aifk-agent-progress__marker { width: 0.625rem; height: 0.625rem; margin-top: 0.35rem; background: var(--aifk-border-strong); border-radius: 50%; }
+.aifk-agent-progress__step[data-status="running"] .aifk-agent-progress__marker { background: var(--aifk-accent); box-shadow: 0 0 0 0.25rem var(--aifk-accent-muted); }
+.aifk-agent-progress__step[data-status="complete"] .aifk-agent-progress__marker { background: var(--aifk-success); }
+.aifk-agent-progress__step[data-status="failed"] .aifk-agent-progress__marker { background: var(--aifk-destructive); }
+.aifk-agent-progress__step-title { display: block; font-size: var(--aifk-type-font-size-sm); font-weight: var(--aifk-type-font-weight-semibold); }
+.aifk-agent-progress__error { margin: 0; color: var(--aifk-destructive); }
+
+@media (prefers-reduced-motion: reduce) {
+  .aifk-agent-progress *,
+  .aifk-agent-progress *::before,
+  .aifk-agent-progress *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

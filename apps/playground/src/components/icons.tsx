@@ -1,4 +1,4 @@
-type IconName = "menu" | "close" | "search" | "sun" | "moon" | "github" | "arrow" | "copy" | "check" | "chevron" | "external";
+type IconName = "menu" | "close" | "search" | "sun" | "moon" | "github" | "arrow" | "copy" | "check" | "chevron" | "external" | "desktop" | "tablet" | "mobile" | "reset" | "share";
 
 const paths: Record<IconName, string> = {
   menu: "M3 4.5h10M3 8h10M3 11.5h10",
@@ -12,6 +12,11 @@ const paths: Record<IconName, string> = {
   check: "m3 8.2 3.1 3.1L13 4.7",
   chevron: "m5 3 5 5-5 5",
   external: "M6 3h7v7M13 3 5 11M11 13H3V5h4",
+  desktop: "M2.5 3.5h11v7h-11zM6 13h4M8 10.5V13",
+  tablet: "M4 2.5h8v11H4zM7 11.5h2",
+  mobile: "M5 2h6v12H5zM7 12h2",
+  reset: "M3 5V2.5m0 0h2.5M3 2.5A5.7 5.7 0 1 1 2.5 9",
+  share: "M5.5 8.4 10.5 5.5M5.5 8.6l5 2.9M4 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm8-3.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z",
 };
 
 export function Icon({ name }: { name: IconName }) {

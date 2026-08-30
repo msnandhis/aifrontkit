@@ -1,4 +1,4 @@
-import { EVENT_SCHEMA_VERSION, type AIFrontEvent, type AIFrontEventV1, type AIFrontEventV2 } from "../events/index.js";
+import { EVENT_SCHEMA_VERSION, PART_EVENT_SCHEMA_VERSION, type AIFrontEvent, type AIFrontEventV1, type AIFrontEventV2, type AIFrontEventV3 } from "../events/index.js";
 
 export interface SchemaMigration<TInput = unknown, TOutput = unknown> {
   from: number;
@@ -12,9 +12,15 @@ export function registerMigration<TInput, TOutput>(migration: SchemaMigration<TI
 }
 
 /** Converts v1's implicit first text part into v2's explicit address. */
-export function migrateEventToV2(event: AIFrontEvent): AIFrontEventV2 {
-  if (event.schemaVersion === EVENT_SCHEMA_VERSION) return event;
+export function migrateEventToV2(event: AIFrontEventV1 | AIFrontEventV2): AIFrontEventV2 {
+  if (event.schemaVersion === PART_EVENT_SCHEMA_VERSION) return event;
   return migrateV1EventToV2(event);
+}
+
+export function migrateEventToCurrent(event: AIFrontEvent): AIFrontEventV3 {
+  if (event.schemaVersion === EVENT_SCHEMA_VERSION) return event;
+  const v2 = event.schemaVersion === PART_EVENT_SCHEMA_VERSION ? event : migrateV1EventToV2(event);
+  return v2ToV3EventMigration.migrate(v2);
 }
 
 export const v1ToV2EventMigration = registerMigration<AIFrontEventV1, AIFrontEventV2>({
@@ -23,8 +29,14 @@ export const v1ToV2EventMigration = registerMigration<AIFrontEventV1, AIFrontEve
   migrate: migrateV1EventToV2
 });
 
+export const v2ToV3EventMigration = registerMigration<AIFrontEventV2, AIFrontEventV3>({
+  from: 2,
+  to: 3,
+  migrate: (event) => ({ ...event, schemaVersion: EVENT_SCHEMA_VERSION }) as AIFrontEventV3
+});
+
 function migrateV1EventToV2(event: AIFrontEventV1): AIFrontEventV2 {
-  const envelope = { schemaVersion: EVENT_SCHEMA_VERSION, id: event.id, threadId: event.threadId, timestamp: event.timestamp } as const;
+  const envelope = { schemaVersion: PART_EVENT_SCHEMA_VERSION, id: event.id, threadId: event.threadId, timestamp: event.timestamp } as const;
   switch (event.type) {
     case "message.started": return { ...envelope, type: event.type, messageId: event.messageId, role: event.role };
     case "message.delta": return { ...envelope, type: "message.part.delta", messageId: event.messageId, partId: "text:0", delta: event.delta };

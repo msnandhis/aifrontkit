@@ -1,5 +1,7 @@
 # Product strategy
 
+- [9.2 product and architecture upgrade](./9-2-upgrade-plan.md)
+
 These public documents define AIFrontKit's product boundary and cross-repository contracts.
 
 1. [Product vision](./product-vision.md)

@@ -1,7 +1,8 @@
-import type { Artifact, ContentPart, MessageRole, PartStatus, ToolStatus } from "../model/index.js";
+import type { Artifact, ContentPart, MessageRole, PartStatus, TaskProgress, TaskStatus, TaskStep, ToolStatus } from "../model/index.js";
 
-/** Current wire format. Schema v1 remains accepted while producers migrate. */
-export const EVENT_SCHEMA_VERSION = 2 as const;
+/** Current wire format. Older schemas remain accepted through migrations. */
+export const EVENT_SCHEMA_VERSION = 3 as const;
+export const PART_EVENT_SCHEMA_VERSION = 2 as const;
 export const LEGACY_EVENT_SCHEMA_VERSION = 1 as const;
 
 interface EventEnvelope<TVersion extends number> {
@@ -23,53 +24,65 @@ export type AIFrontEventV1 =
   | (EventEnvelope<typeof LEGACY_EVENT_SCHEMA_VERSION> & { type: "artifact.updated"; artifact: Artifact });
 
 export type AIFrontEventV2 =
-  | (EventEnvelope<typeof EVENT_SCHEMA_VERSION> & { type: "message.started"; messageId: string; role: MessageRole; parts?: ContentPart[] })
-  | (EventEnvelope<typeof EVENT_SCHEMA_VERSION> & { type: "message.part.added"; messageId: string; partId: string; part: ContentPart })
-  | (EventEnvelope<typeof EVENT_SCHEMA_VERSION> & { type: "message.part.delta"; messageId: string; partId: string; delta: string })
-  | (EventEnvelope<typeof EVENT_SCHEMA_VERSION> & { type: "message.part.updated"; messageId: string; partId: string; part: ContentPart })
-  | (EventEnvelope<typeof EVENT_SCHEMA_VERSION> & { type: "message.part.status"; messageId: string; partId: string; status: PartStatus; error?: string })
-  | (EventEnvelope<typeof EVENT_SCHEMA_VERSION> & { type: "message.completed"; messageId: string })
-  | (EventEnvelope<typeof EVENT_SCHEMA_VERSION> & { type: "message.interrupted"; messageId: string; reason?: string })
-  | (EventEnvelope<typeof EVENT_SCHEMA_VERSION> & { type: "message.failed"; messageId: string; error: string })
-  | (EventEnvelope<typeof EVENT_SCHEMA_VERSION> & { type: "tool.updated"; toolCallId: string; messageId?: string; partId?: string; name: string; status: ToolStatus; input?: unknown; output?: unknown; error?: string })
-  | (EventEnvelope<typeof EVENT_SCHEMA_VERSION> & { type: "approval.requested"; approvalId: string; toolCallId: string; summary: string })
-  | (EventEnvelope<typeof EVENT_SCHEMA_VERSION> & { type: "approval.resolved"; approvalId: string; resolution: "approved" | "rejected" | "expired" })
-  | (EventEnvelope<typeof EVENT_SCHEMA_VERSION> & { type: "artifact.updated"; artifact: Artifact });
+  | (EventEnvelope<typeof PART_EVENT_SCHEMA_VERSION> & { type: "message.started"; messageId: string; role: MessageRole; parts?: ContentPart[] })
+  | (EventEnvelope<typeof PART_EVENT_SCHEMA_VERSION> & { type: "message.part.added"; messageId: string; partId: string; part: ContentPart })
+  | (EventEnvelope<typeof PART_EVENT_SCHEMA_VERSION> & { type: "message.part.delta"; messageId: string; partId: string; delta: string })
+  | (EventEnvelope<typeof PART_EVENT_SCHEMA_VERSION> & { type: "message.part.updated"; messageId: string; partId: string; part: ContentPart })
+  | (EventEnvelope<typeof PART_EVENT_SCHEMA_VERSION> & { type: "message.part.status"; messageId: string; partId: string; status: PartStatus; error?: string })
+  | (EventEnvelope<typeof PART_EVENT_SCHEMA_VERSION> & { type: "message.completed"; messageId: string })
+  | (EventEnvelope<typeof PART_EVENT_SCHEMA_VERSION> & { type: "message.interrupted"; messageId: string; reason?: string })
+  | (EventEnvelope<typeof PART_EVENT_SCHEMA_VERSION> & { type: "message.failed"; messageId: string; error: string })
+  | (EventEnvelope<typeof PART_EVENT_SCHEMA_VERSION> & { type: "tool.updated"; toolCallId: string; messageId?: string; partId?: string; name: string; status: ToolStatus; input?: unknown; output?: unknown; error?: string })
+  | (EventEnvelope<typeof PART_EVENT_SCHEMA_VERSION> & { type: "approval.requested"; approvalId: string; toolCallId: string; summary: string })
+  | (EventEnvelope<typeof PART_EVENT_SCHEMA_VERSION> & { type: "approval.resolved"; approvalId: string; resolution: "approved" | "rejected" | "expired" })
+  | (EventEnvelope<typeof PART_EVENT_SCHEMA_VERSION> & { type: "artifact.updated"; artifact: Artifact });
 
-/** A runtime consumes both generations; new emitters should produce v2. */
-export type AIFrontEvent = AIFrontEventV1 | AIFrontEventV2;
+type WithSchemaVersion<T, TVersion extends number> = T extends EventEnvelope<number> ? Omit<T, "schemaVersion"> & { schemaVersion: TVersion } : never;
+
+export type AIFrontEventV3 =
+  | WithSchemaVersion<AIFrontEventV2, typeof EVENT_SCHEMA_VERSION>
+  | (EventEnvelope<typeof EVENT_SCHEMA_VERSION> & { type: "task.started"; taskId: string; title: string; metadata?: Record<string, unknown> })
+  | (EventEnvelope<typeof EVENT_SCHEMA_VERSION> & { type: "task.updated"; taskId: string; status: TaskStatus; progress?: TaskProgress; error?: string })
+  | (EventEnvelope<typeof EVENT_SCHEMA_VERSION> & { type: "task.step.updated"; taskId: string; step: TaskStep });
+
+/** A runtime consumes all supported generations; new emitters should produce v3. */
+export type AIFrontEvent = AIFrontEventV1 | AIFrontEventV2 | AIFrontEventV3;
 
 export class InvalidEventError extends Error {
   readonly code = "INVALID_EVENT";
 }
 
 export function isAIFrontEventV2(value: AIFrontEvent): value is AIFrontEventV2 {
+  return value.schemaVersion === PART_EVENT_SCHEMA_VERSION;
+}
+
+export function isAIFrontEventV3(value: AIFrontEvent): value is AIFrontEventV3 {
   return value.schemaVersion === EVENT_SCHEMA_VERSION;
 }
 
 export function assertEvent(value: unknown): asserts value is AIFrontEvent {
   if (!value || typeof value !== "object") throw new InvalidEventError("Event must be an object.");
   const event = value as Record<string, unknown>;
-  if (event.schemaVersion !== EVENT_SCHEMA_VERSION && event.schemaVersion !== LEGACY_EVENT_SCHEMA_VERSION) {
+  if (event.schemaVersion !== EVENT_SCHEMA_VERSION && event.schemaVersion !== PART_EVENT_SCHEMA_VERSION && event.schemaVersion !== LEGACY_EVENT_SCHEMA_VERSION) {
     throw new InvalidEventError(`Unsupported schema version: ${String(event.schemaVersion)}`);
   }
   for (const field of ["id", "threadId", "type"]) {
     if (typeof event[field] !== "string" || event[field] === "") throw new InvalidEventError(`Event field ${field} must be a non-empty string.`);
   }
   if (typeof event.timestamp !== "number" || !Number.isFinite(event.timestamp)) throw new InvalidEventError("Event timestamp must be finite.");
-  if (event.schemaVersion === EVENT_SCHEMA_VERSION && typeof event.type === "string" && event.type.startsWith("message.part.")) {
+  if (event.schemaVersion !== LEGACY_EVENT_SCHEMA_VERSION && typeof event.type === "string" && event.type.startsWith("message.part.")) {
     for (const field of ["messageId", "partId"]) {
       if (typeof event[field] !== "string" || event[field] === "") throw new InvalidEventError(`Part event field ${field} must be a non-empty string.`);
     }
   }
-  if (event.schemaVersion === EVENT_SCHEMA_VERSION) assertV2Payload(event);
+  if (event.schemaVersion !== LEGACY_EVENT_SCHEMA_VERSION) assertCurrentPayload(event);
 }
 
 function requiredString(event: Record<string, unknown>, field: string) {
   if (typeof event[field] !== "string" || event[field] === "") throw new InvalidEventError(`Event field ${field} must be a non-empty string.`);
 }
 
-function assertV2Payload(event: Record<string, unknown>) {
+function assertCurrentPayload(event: Record<string, unknown>) {
   switch (event.type) {
     case "message.started":
       requiredString(event, "messageId");
@@ -108,6 +121,25 @@ function assertV2Payload(event: Record<string, unknown>) {
     case "artifact.updated":
       if (!event.artifact || typeof event.artifact !== "object") throw new InvalidEventError("artifact.updated artifact must be an object.");
       return;
+    case "task.started":
+      if (event.schemaVersion !== EVENT_SCHEMA_VERSION) throw new InvalidEventError("Task events require schema version 3.");
+      requiredString(event, "taskId"); requiredString(event, "title"); return;
+    case "task.updated":
+      if (event.schemaVersion !== EVENT_SCHEMA_VERSION) throw new InvalidEventError("Task events require schema version 3.");
+      requiredString(event, "taskId");
+      if (!isTaskStatus(event.status)) throw new InvalidEventError("task.updated status is invalid.");
+      assertProgress(event.progress);
+      return;
+    case "task.step.updated":
+      if (event.schemaVersion !== EVENT_SCHEMA_VERSION) throw new InvalidEventError("Task events require schema version 3.");
+      requiredString(event, "taskId");
+      if (!event.step || typeof event.step !== "object") throw new InvalidEventError("task.step.updated step must be an object.");
+      requiredString(event.step as Record<string, unknown>, "id");
+      requiredString(event.step as Record<string, unknown>, "title");
+      if ((event.step as Record<string, unknown>).taskId !== event.taskId) throw new InvalidEventError("task.step.updated step.taskId must match taskId.");
+      if (!isTaskStepStatus((event.step as Record<string, unknown>).status)) throw new InvalidEventError("task.step.updated step status is invalid.");
+      assertProgress((event.step as Record<string, unknown>).progress);
+      return;
     default:
       throw new InvalidEventError(`Unsupported event type: ${String(event.type)}.`);
   }
@@ -119,4 +151,20 @@ function isPartStatus(value: unknown): value is PartStatus {
 
 function isToolStatus(value: unknown): value is ToolStatus {
   return value === "pending" || value === "input-streaming" || value === "running" || value === "approval-requested" || value === "approved" || value === "denied" || value === "output-available" || value === "complete" || value === "failed" || value === "cancelled";
+}
+
+function isTaskStatus(value: unknown): value is TaskStatus {
+  return value === "queued" || value === "running" || value === "awaiting-approval" || value === "paused" || value === "complete" || value === "failed" || value === "cancelled";
+}
+
+function isTaskStepStatus(value: unknown) {
+  return value === "pending" || value === "running" || value === "complete" || value === "failed" || value === "cancelled" || value === "skipped";
+}
+
+function assertProgress(value: unknown) {
+  if (value === undefined) return;
+  if (!value || typeof value !== "object") throw new InvalidEventError("Progress must be an object.");
+  const progress = value as Record<string, unknown>;
+  if (typeof progress.current !== "number" || !Number.isFinite(progress.current) || progress.current < 0) throw new InvalidEventError("Progress current must be a non-negative finite number.");
+  if (progress.total !== undefined && (typeof progress.total !== "number" || !Number.isFinite(progress.total) || progress.total <= 0 || progress.current > progress.total)) throw new InvalidEventError("Progress total must be positive and at least current.");
 }

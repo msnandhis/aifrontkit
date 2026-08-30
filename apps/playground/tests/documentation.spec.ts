@@ -38,6 +38,32 @@ test("renders every current component through a typed interactive playground", a
   }
 });
 
+test("keeps the inspector left of a bounded sticky preview on desktop", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto("/docs/components/conversation");
+
+  const controls = page.getByRole("complementary", { name: "Component controls" });
+  const stage = page.getByRole("region", { name: "Component preview stage" });
+  const controlsBox = await controls.boundingBox();
+  const stageBox = await stage.boundingBox();
+  expect(controlsBox).not.toBeNull();
+  expect(stageBox).not.toBeNull();
+  expect(controlsBox!.x).toBeLessThan(stageBox!.x);
+  expect(await page.locator(".playground-stage-sticky").evaluate((node) => getComputedStyle(node).position)).toBe("sticky");
+
+  await page.locator(".playground-stage-sticky").evaluate((node) => {
+    const absoluteTop = node.getBoundingClientRect().top + window.scrollY;
+    document.documentElement.style.scrollBehavior = "auto";
+    window.scrollTo(0, absoluteTop - 76 + 96);
+  });
+  await page.waitForTimeout(200);
+  const pinnedBox = await page.locator(".playground-stage-sticky").boundingBox();
+  expect(pinnedBox).not.toBeNull();
+  expect(pinnedBox!.y).toBeGreaterThanOrEqual(75);
+  expect(pinnedBox!.y).toBeLessThanOrEqual(77);
+  await expect(page.getByRole("button", { name: "Copy code" })).toBeVisible();
+});
+
 test("supports dark mode, source view, and component state changes", async ({ page }) => {
   await page.goto("/docs/components/file");
   await page.getByRole("button", { name: "Switch to dark theme" }).click();
@@ -100,6 +126,13 @@ test("keeps the mobile shell usable and bounded", async ({ page }) => {
   await expect(page.getByRole("complementary", { name: "Documentation navigation" })).toHaveClass(/is-open/);
   await page.getByRole("button", { name: "Toggle documentation navigation" }).click();
   await expect(page.getByRole("complementary", { name: "Component controls" })).toBeVisible();
+  const customize = page.getByRole("button", { name: /Customize/ });
+  await expect(customize).toHaveAttribute("aria-expanded", "false");
+  await expect(page.locator(".playground-inspector-body")).toBeHidden();
+  await customize.click();
+  await expect(customize).toHaveAttribute("aria-expanded", "true");
+  await expect(page.locator(".playground-inspector-body").getByRole("combobox", { name: "Scenario" })).toBeVisible();
+  expect(await page.locator(".playground-stage-sticky").evaluate((node) => getComputedStyle(node).position)).toBe("static");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
 });
 

@@ -1,7 +1,8 @@
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
-import { Icon } from "../components/icons.js";
-import { CodeView } from "./code-view.js";
-import { ControlPanel } from "./control-panel.js";
+import { PlaygroundEvents } from "./playground-events.js";
+import { PlaygroundInspector } from "./playground-inspector.js";
+import { PlaygroundStage } from "./playground-stage.js";
+import { PlaygroundToolbar } from "./playground-toolbar.js";
 import type { PlaygroundDefinition, PlaygroundEnvironment, PlaygroundRecord, PlaygroundState, PlaygroundView } from "./types.js";
 import { normalizePlaygroundState, readPlaygroundState, stateMatches, writePlaygroundState } from "./url-state.js";
 
@@ -18,6 +19,7 @@ export function ComponentPlayground<Props extends PlaygroundRecord, Environment 
   const [view, setView] = useState<PlaygroundView>("preview");
   const [copied, setCopied] = useState<"code" | "link" | null>(null);
   const [event, setEvent] = useState("No events yet. Interact with the preview to inspect callbacks.");
+  const [mobileControlsOpen, setMobileControlsOpen] = useState(false);
   const tabBaseId = useId();
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const code = useMemo(() => definition.generateCode(state), [definition, state]);
@@ -73,77 +75,45 @@ export function ComponentPlayground<Props extends PlaygroundRecord, Environment 
 
   return (
     <section className="component-playground" aria-label={`${definition.label} interactive playground`} data-playground-id={definition.id} data-playground-version={definition.version}>
-      <header className="playground-toolbar">
-        <div className="playground-tabs" role="tablist" aria-label="Playground view">
-          {(["preview", "code"] as const).map((item, index) => (
-            <button
-              key={item}
-              ref={(node) => { tabRefs.current[index] = node; }}
-              id={`${tabBaseId}-${item}-tab`}
-              type="button"
-              role="tab"
-              aria-controls={item === "preview" ? previewId : codeId}
-              aria-selected={view === item}
-              tabIndex={view === item ? 0 : -1}
-              onClick={() => selectView(item)}
-              onKeyDown={(keyboardEvent) => onTabKeyDown(keyboardEvent, index)}
-            >
-              {item === "preview" ? "Preview" : "Code"}
-            </button>
-          ))}
-        </div>
-        <div className="playground-toolbar-actions">
-          {view === "preview" ? (
-            <div className="playground-widths" role="group" aria-label="Preview width">
-              {(["responsive", "tablet", "mobile"] as const).map((item) => (
-                <button key={item} type="button" aria-pressed={state.environment.viewport === item} onClick={() => change("environment", "viewport", item)}>{humanize(item)}</button>
-              ))}
-            </div>
-          ) : (
-            <button className="playground-action" type="button" onClick={() => copy("code")}><Icon name={copied === "code" ? "check" : "copy"} />{copied === "code" ? "Copied" : "Copy code"}</button>
-          )}
-          <button className="playground-action playground-share" type="button" onClick={() => copy("link")}><Icon name={copied === "link" ? "check" : "external"} />{copied === "link" ? "Copied" : "Share"}</button>
-          <button className="playground-action" type="button" onClick={reset}>Reset</button>
-        </div>
-      </header>
+      <PlaygroundToolbar
+        view={view}
+        viewport={state.environment.viewport}
+        copied={copied}
+        tabBaseId={tabBaseId}
+        previewId={previewId}
+        codeId={codeId}
+        tabRefs={tabRefs}
+        onSelectView={selectView}
+        onTabKeyDown={onTabKeyDown}
+        onViewportChange={(viewport) => change("environment", "viewport", viewport)}
+        onCopyCode={() => void copy("code")}
+        onCopyLink={() => void copy("link")}
+        onReset={reset}
+      />
 
       <div className="playground-workspace">
-        <div className="playground-canvas" data-view={view}>
-          {view === "preview" ? (
-            <div
-              id={previewId}
-              role="tabpanel"
-              aria-labelledby={`${tabBaseId}-preview-tab`}
-              className="playground-frame"
-              data-playground-preview=""
-              data-width={state.environment.viewport}
-              data-aifk-theme={state.environment.theme}
-              data-aifk-motion={state.environment.motion}
-              dir={state.environment.direction}
-            >
-              <div className={`playground-render playground-render-${definition.id}`}>
-                {definition.render(state, { emit: setEvent, setProp: (key, value) => change("props", key, value) })}
-              </div>
-            </div>
-          ) : (
-            <div id={codeId} role="tabpanel" aria-labelledby={`${tabBaseId}-code-tab`} data-playground-code=""><CodeView code={code} /></div>
-          )}
-          <div className="playground-event" role="status" aria-live="polite"><span>Event</span><code>{event}</code></div>
-        </div>
-
-        <aside className="playground-controls" aria-label="Component controls">
-          <div className="playground-controls-heading">
-            <div><strong>Controls</strong><span>{definition.controls.length} configurable options</span></div>
-            <label htmlFor={`${definition.id}-scenario`}>Scenario</label>
-            <select id={`${definition.id}-scenario`} value={activeScenario} onChange={(changeEvent) => applyScenario(changeEvent.currentTarget.value)}>
-              {activeScenario === "custom" ? <option value="custom">Custom</option> : null}
-              {definition.scenarios.map((scenario) => <option key={scenario.id} value={scenario.id} data-playground-scenario={scenario.id}>{scenario.label}</option>)}
-            </select>
-            <p>{definition.scenarios.find((scenario) => scenario.id === activeScenario)?.description ?? "A configuration edited from one of the documented scenarios."}</p>
-          </div>
-          <ControlPanel state={state} controls={definition.controls} onChange={change} />
-        </aside>
+        <PlaygroundInspector
+          definition={definition}
+          state={state}
+          activeScenario={activeScenario}
+          mobileOpen={mobileControlsOpen}
+          onMobileToggle={() => setMobileControlsOpen((current) => !current)}
+          onApplyScenario={applyScenario}
+          onChange={change}
+        />
+        <PlaygroundStage
+          view={view}
+          environment={state.environment}
+          definitionId={definition.id}
+          previewId={previewId}
+          codeId={codeId}
+          tabBaseId={tabBaseId}
+          code={code}
+        >
+          {definition.render(state, { emit: setEvent, setProp: (key, value) => change("props", key, value) })}
+        </PlaygroundStage>
       </div>
+      <PlaygroundEvents event={event} />
       <p className="playground-status sr-only" aria-live="polite">{copied ? `${humanize(copied)} copied` : ""}</p>
     </section>
   );

@@ -13,7 +13,9 @@
     "./conversation": { "types": "./dist/conversation/index.d.ts", "import": "./dist/conversation/index.js" },
     "./message": { "types": "./dist/message/index.d.ts", "import": "./dist/message/index.js" },
     "./composer": { "types": "./dist/composer/index.d.ts", "import": "./dist/composer/index.js" },
-    "./tool": { "types": "./dist/tool/index.d.ts", "import": "./dist/tool/index.js" }
+    "./tool": { "types": "./dist/tool/index.d.ts", "import": "./dist/tool/index.js" },
+    "./task": { "types": "./dist/task/index.d.ts", "import": "./dist/task/index.js" },
+    "./approval": { "types": "./dist/approval/index.d.ts", "import": "./dist/approval/index.js" }
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",

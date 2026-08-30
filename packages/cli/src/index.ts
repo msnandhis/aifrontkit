@@ -386,10 +386,26 @@ async function readRegistryFile(registry: string, sourcePath: string) {
   return readFile(target, "utf8");
 }
 
-async function loadRegistryCatalog(registry: string): Promise<RegistryCatalog> {
+export async function readRegistryCatalog(registry = "https://registry.aifrontkit.dev"): Promise<RegistryCatalog> {
   const catalog = JSON.parse(await readRegistryFile(registry, "registry/registry.json")) as RegistryCatalog;
   validateRegistryCatalog(catalog);
   return catalog;
+}
+
+/** Deterministic discovery API for CLIs, MCP servers and other agents. */
+export async function listRegistryItems(registry?: string, query?: string) {
+  const catalog = await readRegistryCatalog(registry);
+  const normalized = query?.trim().toLowerCase();
+  return catalog.items
+    .filter((item) => !normalized || `${item.name} ${item.title} ${item.description} ${item.type}`.toLowerCase().includes(normalized))
+    .sort((left, right) => left.name.localeCompare(right.name));
+}
+
+export async function getRegistryItemInfo(name: string, registry?: string) {
+  const catalog = await readRegistryCatalog(registry);
+  const item = catalog.items.find((candidate) => candidate.name === name);
+  if (!item) throw new Error(`Registry item '${name}' was not found in the catalog.`);
+  return item;
 }
 
 export function validateRegistryCatalog(catalog: unknown): asserts catalog is RegistryCatalog {
@@ -583,7 +599,7 @@ function validateItemTarget(item: RegistryItem, config: AIFrontKitConfig) {
 export async function planAdd(root: string, name: string, registryOverride?: string): Promise<AddPlan> {
   const config = await loadProject(root);
   const registry = registryOverride ?? config.registry ?? "https://registry.aifrontkit.dev";
-  const catalog = await loadRegistryCatalog(registry);
+  const catalog = await readRegistryCatalog(registry);
   const { item } = await loadItem(registry, catalog, name, config.target);
   const { items, manifestPaths } = await loadItemTree(registry, catalog, name, config.target);
   for (const current of items.values()) validateItemTarget(current, config);

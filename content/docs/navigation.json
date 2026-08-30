@@ -49,7 +49,9 @@
         "primitives/message.md",
         "primitives/prompt-input.md",
         "primitives/file.md",
-        "primitives/tool-call.md"
+        "primitives/tool-call.md",
+        "primitives/task.md",
+        "primitives/approval.md"
       ]
     },
     {

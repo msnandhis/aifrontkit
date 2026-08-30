@@ -11,9 +11,13 @@
     "./model": { "types": "./dist/model/index.d.ts", "import": "./dist/model/index.js" },
     "./content": { "types": "./dist/content/index.d.ts", "import": "./dist/content/index.js" },
     "./events": { "types": "./dist/events/index.d.ts", "import": "./dist/events/index.js" },
+    "./commands": { "types": "./dist/commands/index.d.ts", "import": "./dist/commands/index.js" },
     "./runtime": { "types": "./dist/runtime/index.d.ts", "import": "./dist/runtime/index.js" },
     "./schema/v1": { "types": "./dist/schema/v1/index.d.ts", "import": "./dist/schema/v1/index.js" },
-    "./schemas/v1/event.json": "./schemas/v1/event.schema.json"
+    "./schemas/v1/event.json": "./schemas/v1/event.schema.json",
+    "./schemas/v1/command.json": "./schemas/v1/command.schema.json",
+    "./schemas/v2/event.json": "./schemas/v2/event.schema.json",
+    "./schemas/v3/event.json": "./schemas/v3/event.schema.json"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",

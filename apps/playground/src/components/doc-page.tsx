@@ -40,7 +40,7 @@ export function DocumentationPage({ doc, onOutline }: { doc: DocPage; onOutline(
   }
 
   return (
-    <article className="doc-page" ref={articleRef}>
+    <article className={`doc-page${doc.component ? " doc-page-component" : ""}`} ref={articleRef}>
       <nav className="breadcrumbs" aria-label="Breadcrumb">
         <Link to="/docs">Docs</Link><span>/</span><span>{doc.sectionTitle}</span>
       </nav>

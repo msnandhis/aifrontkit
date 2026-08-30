@@ -10,7 +10,7 @@ export function ControlPanel<Props extends PlaygroundRecord, Environment extends
   controls: readonly PlaygroundControl<Props, Environment>[];
   onChange(scope: "props" | "environment", key: string, value: PlaygroundRecord[string]): void;
 }) {
-  const [openGroups, setOpenGroups] = useState(() => new Set(["Content", "Appearance"]));
+  const [openGroups, setOpenGroups] = useState(() => new Set(["Content"]));
 
   function setGroupOpen(group: string, open: boolean) {
     setOpenGroups((current) => {
@@ -23,7 +23,7 @@ export function ControlPanel<Props extends PlaygroundRecord, Environment extends
 
   return (
     <div className="playground-control-groups">
-      {controlGroups.map((group) => {
+      {controlGroups.filter((group) => group !== "Appearance").map((group) => {
         const visible = controls.filter((control) => control.group === group && control.visible?.(state) !== false);
         if (!visible.length) return null;
         return (
@@ -37,6 +37,31 @@ export function ControlPanel<Props extends PlaygroundRecord, Environment extends
           </details>
         );
       })}
+    </div>
+  );
+}
+
+export function QuickControlPanel<Props extends PlaygroundRecord, Environment extends PlaygroundEnvironment>({
+  state,
+  controls,
+  onChange,
+}: {
+  state: PlaygroundState<Props, Environment>;
+  controls: readonly PlaygroundControl<Props, Environment>[];
+  onChange(scope: "props" | "environment", key: string, value: PlaygroundRecord[string]): void;
+}) {
+  const visible = controls.filter((control) => control.group === "Appearance" && control.visible?.(state) !== false);
+
+  return (
+    <div className="playground-quick-control-list">
+      {visible.map((control) => (
+        <ControlField
+          key={control.scope + "." + control.key}
+          control={control}
+          value={state[control.scope][control.key]}
+          onChange={(value) => onChange(control.scope, control.key, value)}
+        />
+      ))}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { createRuntime, type Message } from "@aifrontkit/core";
-import { AIFrontKitProvider, ComposerPrimitive, ConversationPrimitive, MessagePrimitive, ThemeProvider, ToolPrimitive } from "../src/index.js";
+import { AIFrontKitProvider, ApprovalPrimitive, ComposerPrimitive, ConversationPrimitive, MessagePrimitive, TaskPrimitive, ThemeProvider, ToolPrimitive } from "../src/index.js";
 
 describe("React primitives", () => {
   it("renders normalized runtime state without owning visual styling", () => {
@@ -216,6 +216,68 @@ describe("React primitives", () => {
     expect(html).toContain('aria-label="Tool: search"');
     expect(html).toContain('role="alert"');
     expect(html).toContain("Search index unavailable");
+  });
+
+  it("renders long-running task progress and ordered steps from runtime state", () => {
+    const runtime = createRuntime("thread-task", [
+      { schemaVersion: 3, id: "1", threadId: "thread-task", timestamp: 1, type: "task.started", taskId: "task-1", title: "Research competitors" },
+      { schemaVersion: 3, id: "2", threadId: "thread-task", timestamp: 2, type: "task.updated", taskId: "task-1", status: "running", progress: { current: 1, total: 3, label: "One of three steps" } },
+      { schemaVersion: 3, id: "3", threadId: "thread-task", timestamp: 3, type: "task.step.updated", taskId: "task-1", step: { id: "sources", taskId: "task-1", title: "Collect sources", status: "running" } }
+    ]);
+    const html = renderToStaticMarkup(
+      <AIFrontKitProvider runtime={runtime}>
+        <TaskPrimitive.Root taskId="task-1">
+          <TaskPrimitive.Title />
+          <TaskPrimitive.Status />
+          <TaskPrimitive.Progress />
+          <TaskPrimitive.Steps>{(stepId) => <TaskPrimitive.Step stepId={stepId}><TaskPrimitive.StepTitle /><TaskPrimitive.StepStatus /></TaskPrimitive.Step>}</TaskPrimitive.Steps>
+        </TaskPrimitive.Root>
+      </AIFrontKitProvider>
+    );
+    expect(html).toContain('aria-label="Task: Research competitors"');
+    expect(html).toContain('aria-busy="true"');
+    expect(html).toContain('aria-label="One of three steps"');
+    expect(html).toContain("Collect sources");
+  });
+
+  it("renders unknown task progress as indeterminate", () => {
+    const runtime = createRuntime("thread-indeterminate", [
+      { schemaVersion: 3, id: "1", threadId: "thread-indeterminate", timestamp: 1, type: "task.started", taskId: "task-1", title: "Wait for provider" },
+      { schemaVersion: 3, id: "2", threadId: "thread-indeterminate", timestamp: 2, type: "task.updated", taskId: "task-1", status: "running", progress: { current: 2 } }
+    ]);
+    const html = renderToStaticMarkup(<AIFrontKitProvider runtime={runtime}><TaskPrimitive.Root taskId="task-1"><TaskPrimitive.Progress /></TaskPrimitive.Root></AIFrontKitProvider>);
+    expect(html).toContain("<progress");
+    expect(html).not.toContain("value=");
+    expect(html).not.toContain("max=");
+  });
+
+  it("binds approval actions to normalized runtime state", () => {
+    const runtime = createRuntime("thread-approval", [
+      { schemaVersion: 2, id: "1", threadId: "thread-approval", timestamp: 1, type: "approval.requested", approvalId: "approval-1", toolCallId: "tool-1", summary: "Deploy to production" }
+    ]);
+    const html = renderToStaticMarkup(
+      <AIFrontKitProvider runtime={runtime}>
+        <ApprovalPrimitive.Root approvalId="approval-1">
+          <ApprovalPrimitive.Summary />
+          <ApprovalPrimitive.Reject />
+          <ApprovalPrimitive.Approve />
+          <ApprovalPrimitive.Status />
+        </ApprovalPrimitive.Root>
+      </AIFrontKitProvider>
+    );
+    expect(html).toContain('aria-label="Approval required"');
+    expect(html).toContain("Deploy to production");
+    expect(html).not.toContain("disabled");
+  });
+
+  it("does not allow resolved approval buttons to be re-enabled by props", () => {
+    const html = renderToStaticMarkup(
+      <ApprovalPrimitive.Root approval={{ id: "approval-1", toolCallId: "tool-1", summary: "Deploy", status: "approved" }}>
+        <ApprovalPrimitive.Approve disabled={false} />
+        <ApprovalPrimitive.Reject disabled={false} />
+      </ApprovalPrimitive.Root>
+    );
+    expect(html.match(/disabled=""/g)).toHaveLength(2);
   });
 
   it("projects a configurable theme onto a scoped root", () => {

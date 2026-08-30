@@ -29,6 +29,10 @@ Versioned schemas define identifiers, content parts, events, commands, runtime c
 
 A deterministic store reduces normalized events into conversation, message, stream, tool, approval, artifact, attachment, task, and error state. Commands express user intent; transports perform external I/O. Framework bindings subscribe through selectors.
 
+Long-running task state is independent from transcript state. This lets a task
+pause for approval, fail at a step or resume after reconnect without inventing a
+message or coupling the UI to one agent runtime.
+
 ### Interface layer
 
 Headless primitives bind runtime state and accessible actions to UI semantics. Styled components are distributed mainly as editable source. Blocks and experiences compose them without bypassing runtime contracts.
@@ -58,4 +62,3 @@ The runtime holds ephemeral client state. Customer callbacks own durable thread 
 ## Architectural rejection criteria
 
 Reject a proposal if it embeds provider parsing in components, couples core to React, executes customer tools or models, makes a paid service necessary for Free runtime use, introduces parallel schemas for Studio, or allows private code to become an OSS build dependency.
-

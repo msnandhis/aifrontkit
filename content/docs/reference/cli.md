@@ -14,6 +14,8 @@ npx aifrontkit add file
 npx aifrontkit diff file
 npx aifrontkit doctor
 npx aifrontkit migrate
+npx aifrontkit list --json
+npx aifrontkit info agent-progress --json
 ```
 
 The project configuration is intentionally small:
@@ -43,3 +45,6 @@ configured flavor cannot overwrite an item installed for another flavor.
 
 Use `--dry-run`, `--cwd=path`, and `--registry=path-or-url` in automation and local
 registry development.
+
+`list` and `info` provide stable JSON output for agents, MCP bridges and registry
+automation. Search with `--query=approval` without scraping the documentation UI.

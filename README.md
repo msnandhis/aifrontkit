@@ -84,6 +84,7 @@ Behavior packages are published under `@aifrontkit/*`. Visual UI is installed fr
 ```bash
 npx aifrontkit init
 npx aifrontkit add conversation
+npx aifrontkit list --json
 ```
 
 The first-party installer is independent of shadcn. It resolves registry dependencies, respects the project's alias, protects locally edited files, and records provenance for reviewable upgrades.

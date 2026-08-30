@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
-import { createRuntime, createRuntimeFromMessages, createStateFromMessages, getConversationStatus, migrateEventToV2, reduceEvent, createInitialState, type AIFrontEvent } from "../src/index.js";
+import { createRuntime, createRuntimeFromMessages, createStateFromMessages, getConversationStatus, migrateEventToCurrent, migrateEventToV2, reduceEvent, createInitialState, type AIFrontEvent } from "../src/index.js";
 
 const base = { schemaVersion: 1, threadId: "thread-1", timestamp: 1 } as const;
 
@@ -93,10 +93,54 @@ describe("framework-neutral runtime", () => {
     expect(v2).toMatchObject({ schemaVersion: 2, type: "message.part.delta", partId: "text:0" });
   });
 
+  it("migrates v2 part events to the current v3 envelope", () => {
+    const current = migrateEventToCurrent({ schemaVersion: 2, id: "v2-current", threadId: "thread-1", timestamp: 1, type: "message.completed", messageId: "m1" });
+    expect(current).toMatchObject({ schemaVersion: 3, type: "message.completed", messageId: "m1" });
+  });
+
   it("derives conversation lifecycle separately from message lifecycle", () => {
     const state = createStateFromMessages("thread-1", [{
       id: "m1", threadId: "thread-1", role: "assistant", status: "streaming", parts: [], createdAt: 1
     }]);
     expect(getConversationStatus(state)).toBe("streaming");
+  });
+
+  it("tracks ordered long-running task steps independently from transcript messages", () => {
+    const events: AIFrontEvent[] = [
+      { schemaVersion: 3, id: "task-1", threadId: "thread-1", timestamp: 1, type: "task.started", taskId: "research", title: "Research the market" },
+      { schemaVersion: 3, id: "task-2", threadId: "thread-1", timestamp: 2, type: "task.step.updated", taskId: "research", step: { id: "sources", taskId: "research", title: "Collect sources", status: "running", progress: { current: 2, total: 5 } } },
+      { schemaVersion: 3, id: "task-3", threadId: "thread-1", timestamp: 3, type: "task.step.updated", taskId: "research", step: { id: "sources", taskId: "research", title: "Collect sources", status: "complete", progress: { current: 5, total: 5 }, completedAt: 3 } },
+      { schemaVersion: 3, id: "task-4", threadId: "thread-1", timestamp: 4, type: "task.updated", taskId: "research", status: "complete", progress: { current: 1, total: 1 } }
+    ];
+    const state = events.reduce(reduceEvent, createInitialState("thread-1"));
+    expect(state.taskOrder).toEqual(["research"]);
+    expect(state.tasks.research).toMatchObject({ status: "complete", completedAt: 4, stepOrder: ["sources"] });
+    expect(state.tasks.research?.steps.sources).toMatchObject({ status: "complete", progress: { current: 5, total: 5 } });
+  });
+
+  it("clears stale terminal task and step fields when work resumes", () => {
+    const events: AIFrontEvent[] = [
+      { schemaVersion: 3, id: "start", threadId: "thread-1", timestamp: 1, type: "task.started", taskId: "retry", title: "Retry work" },
+      { schemaVersion: 3, id: "step-failed", threadId: "thread-1", timestamp: 2, type: "task.step.updated", taskId: "retry", step: { id: "work", taskId: "retry", title: "Work", status: "failed", completedAt: 2, error: "Temporary failure" } },
+      { schemaVersion: 3, id: "task-failed", threadId: "thread-1", timestamp: 3, type: "task.updated", taskId: "retry", status: "failed", error: "Temporary failure" },
+      { schemaVersion: 3, id: "task-running", threadId: "thread-1", timestamp: 4, type: "task.updated", taskId: "retry", status: "running" },
+      { schemaVersion: 3, id: "step-running", threadId: "thread-1", timestamp: 5, type: "task.step.updated", taskId: "retry", step: { id: "work", taskId: "retry", title: "Work", status: "running" } }
+    ];
+    const state = events.reduce(reduceEvent, createInitialState("thread-1"));
+    expect(state.tasks.retry).not.toHaveProperty("completedAt");
+    expect(state.tasks.retry).not.toHaveProperty("error");
+    expect(state.tasks.retry?.steps.work).not.toHaveProperty("completedAt");
+    expect(state.tasks.retry?.steps.work).not.toHaveProperty("error");
+  });
+
+  it("rejects invalid task progress and steps for unknown tasks", () => {
+    expect(() => reduceEvent(createInitialState("thread-1"), {
+      schemaVersion: 3, id: "task-invalid", threadId: "thread-1", timestamp: 1,
+      type: "task.updated", taskId: "missing", status: "running", progress: { current: 2, total: 1 }
+    })).toThrow(/Progress total/);
+    expect(() => reduceEvent(createInitialState("thread-1"), {
+      schemaVersion: 3, id: "step-invalid", threadId: "thread-1", timestamp: 1,
+      type: "task.step.updated", taskId: "missing", step: { id: "s1", taskId: "missing", title: "Unknown", status: "running" }
+    })).toThrow(/unknown task/);
   });
 });

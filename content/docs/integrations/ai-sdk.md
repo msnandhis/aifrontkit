@@ -16,3 +16,8 @@ install it.
 
 Compatibility fixtures protect mappings as either project evolves. Unsupported
 parts must produce an explicit fallback or diagnostic rather than disappearing.
+
+The adapter emits schema v3 part-addressed events for text, reasoning, sources,
+files, typed data, tool input, tool output, approval requests and errors. This
+preserves stream order and part identity instead of flattening everything into a
+single text field.

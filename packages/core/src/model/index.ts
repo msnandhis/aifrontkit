@@ -10,6 +10,10 @@ export type ConversationStatus = "idle" | "submitted" | "streaming" | "awaiting-
 export type PartStatus = "pending" | "streaming" | "complete" | "interrupted" | "failed";
 /** Lifecycle of a tool invocation. */
 export type ToolStatus = "pending" | "input-streaming" | "running" | "approval-requested" | "approved" | "denied" | "output-available" | "complete" | "failed" | "cancelled";
+/** Lifecycle of a long-running agent task shown independently from messages. */
+export type TaskStatus = "queued" | "running" | "awaiting-approval" | "paused" | "complete" | "failed" | "cancelled";
+/** Lifecycle of one task step. */
+export type TaskStepStatus = "pending" | "running" | "complete" | "failed" | "cancelled" | "skipped";
 
 /** IDs are required by v2 part-addressed events; persisted v1 data may omit them. */
 export interface BaseContentPart {
@@ -125,4 +129,40 @@ export interface Artifact {
   version: number;
   status: "streaming" | "ready" | "failed";
   content?: unknown;
+}
+
+export interface TaskProgress {
+  current: number;
+  total?: number;
+  label?: string;
+}
+
+export interface TaskStep {
+  id: string;
+  taskId: string;
+  title: string;
+  status: TaskStepStatus;
+  detail?: string;
+  progress?: TaskProgress;
+  startedAt?: number;
+  completedAt?: number;
+  error?: string;
+}
+
+/**
+ * A frontend projection of long-running agent work. It describes observable
+ * progress only and never exposes or executes a provider's hidden plan.
+ */
+export interface AgentTask {
+  id: string;
+  threadId: string;
+  title: string;
+  status: TaskStatus;
+  stepOrder: readonly string[];
+  steps: Readonly<Record<string, TaskStep>>;
+  progress?: TaskProgress;
+  startedAt?: number;
+  completedAt?: number;
+  error?: string;
+  metadata?: Record<string, unknown>;
 }

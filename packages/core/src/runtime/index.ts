@@ -1,6 +1,6 @@
-import { assertEvent, type AIFrontEvent, type AIFrontEventV2 } from "../events/index.js";
-import { migrateEventToV2 } from "../migrations/index.js";
-import type { Approval, Artifact, ContentPart, ConversationStatus, Message, ToolCall, ToolContentPart } from "../model/index.js";
+import { assertEvent, type AIFrontEvent, type AIFrontEventV3 } from "../events/index.js";
+import { migrateEventToCurrent } from "../migrations/index.js";
+import type { AgentTask, Approval, Artifact, ContentPart, ConversationStatus, Message, ToolCall, ToolContentPart } from "../model/index.js";
 
 export interface RuntimeState {
   threadId: string;
@@ -9,11 +9,13 @@ export interface RuntimeState {
   tools: Readonly<Record<string, ToolCall>>;
   approvals: Readonly<Record<string, Approval>>;
   artifacts: Readonly<Record<string, Artifact>>;
+  taskOrder: readonly string[];
+  tasks: Readonly<Record<string, AgentTask>>;
   processedEventIds: ReadonlySet<string>;
 }
 
 export function createInitialState(threadId: string): RuntimeState {
-  return { threadId, messageOrder: [], messages: {}, tools: {}, approvals: {}, artifacts: {}, processedEventIds: new Set() };
+  return { threadId, messageOrder: [], messages: {}, tools: {}, approvals: {}, artifacts: {}, taskOrder: [], tasks: {}, processedEventIds: new Set() };
 }
 
 export function createStateFromMessages(threadId: string, messages: readonly Message[]): RuntimeState {
@@ -60,7 +62,7 @@ function appendPart(message: Message, partId: string, part: ContentPart): Messag
   return { ...message, parts: [...message.parts, { ...part, id: part.id ?? partId }] };
 }
 
-function mergeToolPart(message: Message, event: Extract<AIFrontEventV2, { type: "tool.updated" }>): Message {
+function mergeToolPart(message: Message, event: Extract<AIFrontEventV3, { type: "tool.updated" }>): Message {
   if (!event.partId) return message;
   const index = partIndex(message.parts, event.partId);
   const part: ToolContentPart = {
@@ -89,7 +91,7 @@ export function reduceEvent(state: RuntimeState, input: AIFrontEvent): RuntimeSt
   assertEvent(input);
   if (input.threadId !== state.threadId) throw new Error(`Event thread ${input.threadId} does not match runtime thread ${state.threadId}.`);
   if (state.processedEventIds.has(input.id)) return state;
-  const event = migrateEventToV2(input);
+  const event = migrateEventToCurrent(input);
   const processedEventIds = new Set(state.processedEventIds).add(event.id);
 
   switch (event.type) {
@@ -181,6 +183,71 @@ export function reduceEvent(state: RuntimeState, input: AIFrontEvent): RuntimeSt
     }
     case "artifact.updated":
       return { ...state, processedEventIds, artifacts: { ...state.artifacts, [event.artifact.id]: event.artifact } };
+    case "task.started": {
+      const existing = state.tasks[event.taskId];
+      const task: AgentTask = existing ?? {
+        id: event.taskId,
+        threadId: event.threadId,
+        title: event.title,
+        status: "running",
+        stepOrder: [],
+        steps: {},
+        startedAt: event.timestamp,
+        ...(event.metadata === undefined ? {} : { metadata: event.metadata })
+      };
+      return {
+        ...state,
+        processedEventIds,
+        tasks: { ...state.tasks, [event.taskId]: task },
+        taskOrder: existing ? state.taskOrder : [...state.taskOrder, event.taskId]
+      };
+    }
+    case "task.updated": {
+      const task = state.tasks[event.taskId];
+      if (!task) throw new Error(`Cannot update unknown task ${event.taskId}.`);
+      const terminal = event.status === "complete" || event.status === "failed" || event.status === "cancelled";
+      const { completedAt: _completedAt, error: _error, ...activeTask } = task;
+      return {
+        ...state,
+        processedEventIds,
+        tasks: {
+          ...state.tasks,
+          [event.taskId]: {
+            ...activeTask,
+            status: event.status,
+            ...(event.progress === undefined ? {} : { progress: event.progress }),
+            ...(event.error === undefined ? {} : { error: event.error }),
+            ...(terminal ? { completedAt: event.timestamp } : {})
+          }
+        }
+      };
+    }
+    case "task.step.updated": {
+      const task = state.tasks[event.taskId];
+      if (!task) throw new Error(`Cannot update a step for unknown task ${event.taskId}.`);
+      const existing = task.steps[event.step.id];
+      const terminal = event.step.status === "complete" || event.step.status === "failed" || event.step.status === "cancelled" || event.step.status === "skipped";
+      const { completedAt: _existingCompletedAt, error: _existingError, ...activeStep } = existing ?? {};
+      const { completedAt, error, ...stepUpdate } = event.step;
+      const nextStep = {
+        ...activeStep,
+        ...stepUpdate,
+        ...(terminal && completedAt !== undefined ? { completedAt } : {}),
+        ...(error === undefined ? {} : { error })
+      };
+      return {
+        ...state,
+        processedEventIds,
+        tasks: {
+          ...state.tasks,
+          [event.taskId]: {
+            ...task,
+            stepOrder: existing ? task.stepOrder : [...task.stepOrder, event.step.id],
+            steps: { ...task.steps, [event.step.id]: nextStep }
+          }
+        }
+      };
+    }
   }
 }
 

@@ -4,3 +4,5 @@ export * from "./conversation/index.js";
 export * from "./message/index.js";
 export * from "./composer/index.js";
 export * from "./tool/index.js";
+export * from "./task/index.js";
+export * from "./approval/index.js";

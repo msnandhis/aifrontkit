@@ -16,3 +16,8 @@ custom transport and omit this package.
 
 Fixtures cover supported lifecycle, text, tool, and error mappings. Unknown or
 invalid events must be surfaced safely and must not corrupt existing runtime state.
+
+Run and step lifecycle events project into the canonical task model. Text and
+tool streams produce schema v3 part-addressed events, including the distinct tool
+input-streaming and running phases. Run failures remain task failures and do not
+invent a transcript message.
