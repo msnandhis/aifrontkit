@@ -1,24 +1,59 @@
 {
   "name": "@aifrontkit/core",
-  "version": "0.1.0",
+  "version": "0.2.0-next.0",
   "description": "Framework-neutral normalized events and browser runtime for AIFrontKit",
   "type": "module",
   "sideEffects": false,
   "license": "Apache-2.0",
-  "repository": { "type": "git", "url": "git+https://github.com/msnandhis/openfrontkit.git", "directory": "packages/core" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/msnandhis/openfrontkit.git",
+    "directory": "packages/core"
+  },
   "homepage": "https://github.com/msnandhis/openfrontkit#readme",
-  "bugs": { "url": "https://github.com/msnandhis/openfrontkit/issues" },
-  "engines": { "node": ">=22" },
-  "publishConfig": { "access": "public", "provenance": true },
-  "files": ["dist", "schemas"],
+  "bugs": {
+    "url": "https://github.com/msnandhis/openfrontkit/issues"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "files": [
+    "dist",
+    "schemas"
+  ],
   "exports": {
-    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
-    "./model": { "types": "./dist/model/index.d.ts", "import": "./dist/model/index.js" },
-    "./content": { "types": "./dist/content/index.d.ts", "import": "./dist/content/index.js" },
-    "./events": { "types": "./dist/events/index.d.ts", "import": "./dist/events/index.js" },
-    "./commands": { "types": "./dist/commands/index.d.ts", "import": "./dist/commands/index.js" },
-    "./runtime": { "types": "./dist/runtime/index.d.ts", "import": "./dist/runtime/index.js" },
-    "./schema/v1": { "types": "./dist/schema/v1/index.d.ts", "import": "./dist/schema/v1/index.js" },
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./model": {
+      "types": "./dist/model/index.d.ts",
+      "import": "./dist/model/index.js"
+    },
+    "./content": {
+      "types": "./dist/content/index.d.ts",
+      "import": "./dist/content/index.js"
+    },
+    "./events": {
+      "types": "./dist/events/index.d.ts",
+      "import": "./dist/events/index.js"
+    },
+    "./commands": {
+      "types": "./dist/commands/index.d.ts",
+      "import": "./dist/commands/index.js"
+    },
+    "./runtime": {
+      "types": "./dist/runtime/index.d.ts",
+      "import": "./dist/runtime/index.js"
+    },
+    "./schema/v1": {
+      "types": "./dist/schema/v1/index.d.ts",
+      "import": "./dist/schema/v1/index.js"
+    },
     "./schemas/v1/event.json": "./schemas/v1/event.schema.json",
     "./schemas/v1/command.json": "./schemas/v1/command.schema.json",
     "./schemas/v2/event.json": "./schemas/v2/event.schema.json",
@@ -30,5 +65,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run"
   },
-  "devDependencies": { "typescript": "^5.9.2", "vitest": "^3.2.4" }
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
 }
