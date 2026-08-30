@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, realpath, writeFile } from "node:fs/promises";
 import { basename, dirname, isAbsolute, join, relative, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { assertExistingPathContained } from "./path-safety.js";
 
 export {
@@ -190,7 +191,8 @@ export interface AddPlan {
 
 const configName = "aifrontkit.json";
 const provenancePath = ".aifrontkit/installed.json";
-const configSchema = "https://aifrontkit.dev/schemas/config.json";
+const configSchema = "https://aifrontkit.dev/schemas/config/v2.json";
+export const DEFAULT_REGISTRY_URL = fileURLToPath(new URL(".", import.meta.url));
 
 function hash(value: string) {
   return createHash("sha256").update(value).digest("hex");
@@ -400,7 +402,7 @@ async function readRegistryFile(registry: string, sourcePath: string) {
   return readFile(await assertExistingPathContained(registryRoot, target, `Registry path '${sourcePath}'`), "utf8");
 }
 
-export async function readRegistryCatalog(registry = "https://registry.aifrontkit.dev"): Promise<RegistryCatalog> {
+export async function readRegistryCatalog(registry = DEFAULT_REGISTRY_URL): Promise<RegistryCatalog> {
   const catalog = JSON.parse(await readRegistryFile(registry, "registry/registry.json")) as RegistryCatalog;
   validateRegistryCatalog(catalog);
   return catalog;
@@ -464,12 +466,17 @@ async function loadItem(registry: string, catalog: RegistryCatalog, name: string
   return { item, manifestPath };
 }
 
-function registryOrigin(registry: string) {
+export async function getRegistryOrigin(registry = DEFAULT_REGISTRY_URL) {
+  if (!/^https?:\/\//.test(registry) && resolve(registry) === resolve(DEFAULT_REGISTRY_URL)) {
+    const packageManifest = JSON.parse(await readFile(fileURLToPath(new URL("../package.json", import.meta.url)), "utf8")) as { version?: unknown };
+    if (typeof packageManifest.version !== "string" || packageManifest.version.length === 0) throw new Error("The AIFrontKit package version is unavailable.");
+    return `bundled:aifrontkit@${packageManifest.version}`;
+  }
   return /^https?:\/\//.test(registry) ? registry.replace(/\/$/, "") : resolve(registry);
 }
 
 function rewriteInstalledImports(source: string) {
-  return source.replace(/\.\.\/([a-z0-9-]+)\/\1\.js/g, "./$1.js");
+  return source.replace(/(?:\.\.\/)+(?:[a-z0-9-]+\/)*([a-z0-9-]+)\/\1\.js/g, "./$1.js");
 }
 
 async function loadItemTree(
@@ -612,7 +619,7 @@ function validateItemTarget(item: RegistryItem, config: AIFrontKitConfig) {
 
 export async function planAdd(root: string, name: string, registryOverride?: string): Promise<AddPlan> {
   const config = await loadProject(root);
-  const registry = registryOverride ?? config.registry ?? "https://registry.aifrontkit.dev";
+  const registry = registryOverride ?? config.registry ?? DEFAULT_REGISTRY_URL;
   const catalog = await readRegistryCatalog(registry);
   const { item } = await loadItem(registry, catalog, name, config.target);
   const { items, manifestPaths } = await loadItemTree(registry, catalog, name, config.target);
@@ -641,7 +648,7 @@ export async function planAdd(root: string, name: string, registryOverride?: str
       compatibility: itemCompatibility(current, dependencies)
     });
   }
-  return { config, registry, registryOrigin: registryOrigin(registry), item, items, manifestPaths, plannedItems, files, dependencies };
+  return { config, registry, registryOrigin: await getRegistryOrigin(registry), item, items, manifestPaths, plannedItems, files, dependencies };
 }
 
 export async function addItem(root: string, name: string, options: { registry?: string; force?: boolean; dryRun?: boolean } = {}) {

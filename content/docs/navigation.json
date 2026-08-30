@@ -71,6 +71,7 @@
         "reference/packages.md",
         "reference/cli.md",
         "reference/registry-manifest.md",
+        "reference/product-editions.md",
         "reference/compatibility.md"
       ]
     }

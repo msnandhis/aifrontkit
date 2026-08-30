@@ -43,7 +43,7 @@ specifiers. A TypeScript alias is never treated as a directory:
 
 ```json
 {
-  "$schema": "https://aifrontkit.dev/schemas/config.json",
+  "$schema": "https://aifrontkit.dev/schemas/config/v2.json",
   "schemaVersion": 2,
   "target": {
     "framework": "react",
@@ -82,6 +82,10 @@ Additional registries are configured by URL and trust policy. Command plugins ar
 ## MCP discovery
 
 `aifrontkit mcp --registry=path-or-url` starts a read-only stdio MCP server. It exposes `registry_list`, `registry_info` and `registry_verify_provenance`. The server never installs files or executes registry code. Use `--trust-key=public-key.pem --key-id=release-key-id` to require one configured signing identity when agents verify provenance.
+
+The preview CLI ships a bundled Community registry so `list`, `info` and `add`
+work without a hosted AIFrontKit service. The custom `--registry` flag remains
+available for immutable releases, mirrors and local validation.
 
 The transport uses newline-delimited JSON-RPC and negotiates MCP protocol version `2025-06-18`. The same discovery operations remain exported as TypeScript APIs for hosts that already provide their own MCP transport.
 

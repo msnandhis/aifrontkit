@@ -63,8 +63,52 @@ test("loads every declared scenario through the real registry fixture harness", 
       if (component === "file") await expect(frame.locator("[data-slot=file]")).toBeVisible();
       if (component === "agent-progress") await expect(frame.locator('[data-fixture-pattern="agent-progress"]')).toBeVisible();
       if (component === "tool-approval") await expect(frame.locator('[data-fixture-pattern="tool-approval"]')).toBeVisible();
+      if (component === "research-agent") await expect(frame.locator('[data-fixture-pattern="research-agent"]')).toBeVisible();
     }
   }
+});
+
+test("walks the flagship research agent through production recovery states", async ({ page }) => {
+  const componentSwitcher = page.getByRole("group", { name: "Component" });
+  const frame = page.locator(".viewport-frame");
+
+  await componentSwitcher.getByRole("button", { name: /^Research agent/ }).click();
+  const workflow = frame.locator('[data-fixture-pattern="research-agent"]');
+  await expect(workflow).toHaveAttribute("data-stage", "streaming");
+  await expect(workflow.getByLabel("Response streaming")).toBeVisible();
+  await expect(workflow.locator('[data-aifk-tool][data-status="running"]')).toBeVisible();
+  await expect(workflow.locator('[data-slot="file"]')).toContainText("market-signal-brief.pdf");
+
+  await workflow.getByRole("button", { name: "Continue research" }).click();
+  await expect(workflow).toHaveAttribute("data-stage", "approval");
+  const transitionStatus = workflow.locator("[data-aifk-stage-status]");
+  await expect(transitionStatus).toBeFocused();
+  await expect(transitionStatus).toContainText("Needs approval");
+  await workflow.getByRole("button", { name: "Approve" }).click();
+  await expect(workflow).toHaveAttribute("data-stage", "offline");
+  await expect(transitionStatus).toBeFocused();
+  await expect(transitionStatus).toContainText("Paused offline");
+
+  await workflow.getByRole("button", { name: "Retry connection" }).click();
+  await expect(workflow).toHaveAttribute("data-stage", "reconnecting");
+  await expect(transitionStatus).toBeFocused();
+  await expect(transitionStatus).toContainText("Reconnecting");
+  await workflow.getByRole("button", { name: "Restore session" }).click();
+  await expect(workflow).toHaveAttribute("data-stage", "failed");
+  await expect(transitionStatus).toBeFocused();
+  await expect(transitionStatus).toContainText("Recovery available");
+  await expect(workflow.locator("[data-aifk-tool-error]")).toContainText("temporarily unavailable");
+
+  await workflow.getByRole("button", { name: "Resume" }).click();
+  await expect(workflow).toHaveAttribute("data-stage", "complete");
+  await expect(transitionStatus).toBeFocused();
+  await expect(transitionStatus).toContainText("Complete");
+  await expect(workflow.getByRole("heading", { name: "Sources" })).toBeVisible();
+  await expect(workflow.getByRole("link", { name: "AI SDK documentation" })).toBeVisible();
+  await page.getByRole("group", { name: "Preview viewport" }).getByRole("button", { name: "375" }).click();
+  await expect(frame).toHaveCSS("width", "375px");
+  expect(await frame.evaluate((element) => element.scrollWidth <= element.clientWidth + 1)).toBe(true);
+  expect((await new AxeBuilder({ page }).include('[data-fixture-pattern="research-agent"]').analyze()).violations).toEqual([]);
 });
 
 test("covers agent progress and approval decisions as interactive visual states", async ({ page }) => {

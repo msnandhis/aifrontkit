@@ -45,7 +45,7 @@ Adapters are optional UI integration helpers, not AI backends. A custom backend 
 
 ## Development
 
-Requires Node.js 22+ and pnpm 10+.
+Requires Node.js 22+ and pnpm 11.19+.
 
 ```bash
 pnpm install

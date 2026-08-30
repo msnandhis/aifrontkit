@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { readFile } from "node:fs/promises";
-import { addItem, createProvenanceTrustPolicy, createRegistryProvenance, diffItem, doctor, getRegistryItemInfo, initProject, listRegistryItems, migrateProject, verifyRegistryProvenance, writeRegistryProvenance } from "./index.js";
+import { addItem, createProvenanceTrustPolicy, createRegistryProvenance, DEFAULT_REGISTRY_URL, diffItem, doctor, getRegistryItemInfo, initProject, listRegistryItems, migrateProject, verifyRegistryProvenance, writeRegistryProvenance } from "./index.js";
 import { runMcpServer } from "./mcp.js";
 
 const [command, ...args] = process.argv.slice(2);
@@ -65,7 +65,7 @@ try {
     const path = await writeRegistryProvenance(registry, document);
     console.log(`Signed ${document.artifacts.length} registry artifacts at ${path}`);
   } else if (command === "provenance-verify") {
-    const resolvedRegistry = registry ?? "https://registry.aifrontkit.dev";
+    const resolvedRegistry = registry ?? DEFAULT_REGISTRY_URL;
     if (trustKeyFlag && !keyIdFlag) throw new Error("provenance-verify requires --key-id when --trust-key is provided.");
     const trustedPublicKeys = trustKeyFlag && keyIdFlag ? { [keyIdFlag.slice("--key-id=".length)]: await readFile(trustKeyFlag.slice("--trust-key=".length), "utf8") } : undefined;
     const result = await verifyRegistryProvenance(resolvedRegistry, createProvenanceTrustPolicy(trustedPublicKeys, allowUntrusted));

@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aifrontkit.dev/schemas/adoption-summary-v1.json",
+  "title": "AIFrontKit consented aggregate adoption summary",
+  "description": "A local opt-in aggregate for developer validation. It contains no participant identifiers or customer content.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "generatedAt", "consent", "product", "cohort", "metrics"],
+  "properties": {
+    "$schema": { "const": "https://aifrontkit.dev/schemas/adoption-summary-v1.json" },
+    "schemaVersion": { "const": 1 },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "consent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["explicit", "noticeVersion", "collection"],
+      "properties": {
+        "explicit": { "const": true },
+        "noticeVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+$" },
+        "collection": { "const": "local-aggregate-export" }
+      }
+    },
+    "product": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "releaseChannel"],
+      "properties": {
+        "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?$" },
+        "releaseChannel": { "enum": ["preview", "stable"] }
+      }
+    },
+    "cohort": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["size", "framework", "integration", "experience"],
+      "properties": {
+        "size": { "type": "integer", "minimum": 1 },
+        "framework": { "$ref": "#/$defs/countByFramework" },
+        "integration": { "$ref": "#/$defs/countByIntegration" },
+        "experience": { "$ref": "#/$defs/countByExperience" }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["installation", "firstWorkingUi", "adapterChoice", "scenarios", "outcomes"],
+      "properties": {
+        "installation": { "$ref": "#/$defs/attemptMetric" },
+        "firstWorkingUi": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["eligible", "completed", "durationMinutes"],
+          "properties": {
+            "eligible": { "$ref": "#/$defs/count" },
+            "completed": { "$ref": "#/$defs/count" },
+            "durationMinutes": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["under5", "from5To15", "from15To30", "over30"],
+              "properties": {
+                "under5": { "$ref": "#/$defs/count" },
+                "from5To15": { "$ref": "#/$defs/count" },
+                "from15To30": { "$ref": "#/$defs/count" },
+                "over30": { "$ref": "#/$defs/count" }
+              }
+            }
+          }
+        },
+        "adapterChoice": { "$ref": "#/$defs/attemptMetric" },
+        "scenarios": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["streaming", "retryRecovery", "approval", "longRunningTask"],
+          "properties": {
+            "streaming": { "$ref": "#/$defs/attemptMetric" },
+            "retryRecovery": { "$ref": "#/$defs/attemptMetric" },
+            "approval": { "$ref": "#/$defs/attemptMetric" },
+            "longRunningTask": { "$ref": "#/$defs/attemptMetric" },
+            "attachments": { "$ref": "#/$defs/attemptMetric" }
+          }
+        },
+        "outcomes": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["completed", "abandoned", "wouldAdopt", "needsFollowup"],
+          "properties": {
+            "completed": { "$ref": "#/$defs/count" },
+            "abandoned": { "$ref": "#/$defs/count" },
+            "wouldAdopt": { "$ref": "#/$defs/count" },
+            "needsFollowup": { "$ref": "#/$defs/count" }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "count": { "type": "integer", "minimum": 0 },
+    "attemptMetric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attempted", "completedWithoutHelp", "completedWithHelp"],
+      "properties": {
+        "attempted": { "$ref": "#/$defs/count" },
+        "completedWithoutHelp": { "$ref": "#/$defs/count" },
+        "completedWithHelp": { "$ref": "#/$defs/count" }
+      }
+    },
+    "countByFramework": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "vite": { "$ref": "#/$defs/count" },
+        "nextApp": { "$ref": "#/$defs/count" },
+        "nextPages": { "$ref": "#/$defs/count" },
+        "other": { "$ref": "#/$defs/count" }
+      }
+    },
+    "countByIntegration": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "custom": { "$ref": "#/$defs/count" },
+        "aiSdk": { "$ref": "#/$defs/count" },
+        "agUi": { "$ref": "#/$defs/count" },
+        "langGraph": { "$ref": "#/$defs/count" },
+        "externalStore": { "$ref": "#/$defs/count" },
+        "other": { "$ref": "#/$defs/count" }
+      }
+    },
+    "countByExperience": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "firstAiUi": { "$ref": "#/$defs/count" },
+        "someAiUi": { "$ref": "#/$defs/count" },
+        "productionAiUi": { "$ref": "#/$defs/count" },
+        "preferNotToSay": { "$ref": "#/$defs/count" }
+      }
+    }
+  }
+}

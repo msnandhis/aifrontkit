@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aifrontkit.dev/schemas/config/v2.json",
+  "title": "AIFrontKit project configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "schemaVersion", "target", "output", "imports"],
+  "properties": {
+    "$schema": { "type": "string", "format": "uri" },
+    "schemaVersion": { "const": 2 },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["framework", "flavor"],
+      "properties": {
+        "framework": { "const": "react" },
+        "flavor": { "enum": ["css-modules", "tailwind"] }
+      }
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["components"],
+      "properties": {
+        "components": { "type": "string", "minLength": 1 },
+        "styles": { "type": "string", "minLength": 1 }
+      }
+    },
+    "imports": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["components"],
+      "properties": { "components": { "type": "string", "minLength": 1 } }
+    },
+    "registry": { "type": "string", "minLength": 1 }
+  }
+}

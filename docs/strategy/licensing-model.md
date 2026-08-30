@@ -35,6 +35,11 @@ Enterprise agreements may add SSO, audit records, procurement terms, private dis
 
 Free includes a usable core runtime, essential primitives/components, public themes, adapters, CLI, documentation, and representative experiences. Paid value comes from breadth and acceleration: premium assets, advanced Studio workflows, collaboration, organization controls, commercial grants, protected delivery, and support.
 
+The operational edition matrix, Community guarantees and support targets are
+defined in [Community and commercial product boundary](./commercial-boundary.md).
+That boundary must remain valid regardless of the exact licenses approved by
+legal counsel.
+
 ## Enforcement principles
 
 - Never place payment secrets or authoritative entitlement logic in the OSS client.
@@ -50,4 +55,3 @@ Free includes a usable core runtime, essential primitives/components, public the
 3. Contributor license agreement or developer certificate of origin.
 4. Definitions of developer, organization, project, redistribution, and generated copy.
 5. Treatment of modified copied source and post-subscription rights.
-

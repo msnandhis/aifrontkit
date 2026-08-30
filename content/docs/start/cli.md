@@ -21,7 +21,7 @@ This creates `aifrontkit.json`:
 
 ```json
 {
-  "$schema": "https://aifrontkit.dev/schemas/config.json",
+  "$schema": "https://aifrontkit.dev/schemas/config/v2.json",
   "schemaVersion": 2,
   "target": {
     "framework": "react",

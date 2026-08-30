@@ -2,6 +2,8 @@
 
 - [9.2 product and architecture upgrade](./9-2-upgrade-plan.md)
 - [Trusted publishing and release provenance](./trusted-publishing.md)
+- [Community and commercial product boundary](./commercial-boundary.md)
+- [Developer validation and adoption measurement](./developer-validation.md)
 
 These public documents define AIFrontKit's product boundary and cross-repository contracts.
 

@@ -5,9 +5,10 @@
 The repository is ready for npm trusted publishing but does not activate a publish
 workflow yet. Trusted publishing requires the final GitHub organization,
 repository, workflow filename and npm package settings to match exactly. Those
-external values are not represented in this checkout. The public package manifests
-also do not yet declare repository URLs. Adding an active publish job now would
-either fail or risk targeting the wrong package identity.
+external npm ownership values are not represented in this checkout. Public package
+manifests now declare the canonical repository, public access and provenance. Adding
+an active publish job before the package names and trusted-publisher mapping are
+claimed would still fail or risk targeting the wrong package identity.
 
 No npm token or registry signing private key belongs in repository secrets. npm
 publishing should use GitHub OIDC and npm provenance. Registry manifests use the
@@ -58,6 +59,14 @@ correctly. Validate its publish subprocess against a disposable package or repla
 the publish step with direct `npm publish` calls over reviewed package tarballs.
 Keep release creation manual until tag, workspace ordering and Changesets behavior
 have been exercised in a non-publishing dry run.
+
+## First preview version policy
+
+All public packages remain below `1.0.0` while their contracts are in preview.
+Breaking changes before `1.0.0` use a minor Changesets bump rather than a major
+bump. The first coordinated preview plan therefore targets `0.2.0-next.0` after
+entering `next` prerelease mode. Do this on a dedicated release branch because
+Changesets prerelease mode should not block normal work on `main`.
 
 ## Verification gate
 

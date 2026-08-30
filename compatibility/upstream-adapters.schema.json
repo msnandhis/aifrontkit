@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aifrontkit.dev/schemas/upstream-adapters.schema.json",
+  "title": "AIFrontKit upstream adapter compatibility configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "adapters"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": 1 },
+    "adapters": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "fixture"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "fixture": { "type": "string", "pattern": "^fixtures/adapters/.+\\.json$" }
+        }
+      }
+    }
+  }
+}

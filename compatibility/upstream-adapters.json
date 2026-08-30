@@ -1,0 +1,18 @@
+{
+  "$schema": "./upstream-adapters.schema.json",
+  "schemaVersion": 1,
+  "adapters": [
+    {
+      "id": "ai-sdk",
+      "fixture": "fixtures/adapters/ai-sdk-7.0.85/ui-message-stream.json"
+    },
+    {
+      "id": "ag-ui",
+      "fixture": "fixtures/adapters/ag-ui-core-0.0.59/events.json"
+    },
+    {
+      "id": "langgraph",
+      "fixture": "fixtures/adapters/langgraph-1.4.13/stream-modes.json"
+    }
+  ]
+}

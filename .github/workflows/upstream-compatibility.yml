@@ -1,0 +1,35 @@
+name: upstream compatibility
+
+on:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  adapter-fixtures:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 11.19.0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: Compare pinned fixtures with npm releases
+        shell: bash
+        run: |
+          set -o pipefail
+          pnpm compatibility:upstream --fail-on-drift | tee upstream-compatibility.md
+      - name: Publish compatibility report
+        if: always()
+        shell: bash
+        run: |
+          if [[ -f upstream-compatibility.md ]]; then
+            cat upstream-compatibility.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Compatibility monitor did not produce a report." >> "$GITHUB_STEP_SUMMARY"
+          fi

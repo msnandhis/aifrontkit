@@ -9,6 +9,7 @@ import {
   createProvenanceTrustPolicy,
   createRegistryProvenance,
   diffItem,
+  getRegistryOrigin,
   initProject,
   getRegistryItemInfo,
   listRegistryItems,
@@ -117,7 +118,7 @@ describe("AIFrontKit CLI", () => {
       method: "tools/call",
       params: { name: "registry_list", arguments: { query: "approval" } }
     });
-    expect(listed).toMatchObject({ result: { structuredContent: { value: [{ name: "tool-approval" }] } } });
+    expect((listed as { result: { structuredContent: { value: unknown[] } } }).result.structuredContent.value).toEqual(expect.arrayContaining([expect.objectContaining({ name: "tool-approval" })]));
     const info = await handle({
       jsonrpc: "2.0",
       id: 3,
@@ -317,5 +318,17 @@ describe("AIFrontKit CLI", () => {
     await initProject(root, { registry: repositoryRoot });
     const plan = await planAdd(root, "conversation");
     expect(plan.dependencies).toEqual(expect.arrayContaining(["@aifrontkit/core@^0.1.0", "@aifrontkit/react@^0.1.0"]));
+  });
+
+  it("uses stable provenance for the bundled registry and installs the flagship workflow", async () => {
+    expect(await getRegistryOrigin()).toMatch(/^bundled:aifrontkit@\d+\.\d+\.\d+/);
+    const root = await mkdtemp(join(tmpdir(), "aifrontkit-cli-research-agent-"));
+    await initProject(root, { registry: repositoryRoot });
+    const plan = await addItem(root, "research-agent");
+    expect(plan.items.size).toBe(4);
+    const source = await readFile(join(root, "src/components/aifrontkit/research-agent.tsx"), "utf8");
+    expect(source).toContain('from "./file.js"');
+    expect(source).toContain('from "./agent-progress.js"');
+    expect(source).toContain('from "./tool-approval.js"');
   });
 });

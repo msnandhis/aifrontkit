@@ -1,0 +1,30 @@
+{
+  "$schema": "https://aifrontkit.dev/schemas/adoption-summary-v1.json",
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-30T12:00:00.000Z",
+  "consent": { "explicit": true, "noticeVersion": "1.0", "collection": "local-aggregate-export" },
+  "product": { "version": "0.1.0-next.1", "releaseChannel": "preview" },
+  "cohort": {
+    "size": 8,
+    "framework": { "vite": 3, "nextApp": 3, "nextPages": 2 },
+    "integration": { "custom": 2, "aiSdk": 3, "agUi": 2, "langGraph": 1 },
+    "experience": { "firstAiUi": 2, "someAiUi": 3, "productionAiUi": 3 }
+  },
+  "metrics": {
+    "installation": { "attempted": 8, "completedWithoutHelp": 7, "completedWithHelp": 1 },
+    "firstWorkingUi": {
+      "eligible": 8,
+      "completed": 8,
+      "durationMinutes": { "under5": 2, "from5To15": 5, "from15To30": 1, "over30": 0 }
+    },
+    "adapterChoice": { "attempted": 8, "completedWithoutHelp": 7, "completedWithHelp": 1 },
+    "scenarios": {
+      "streaming": { "attempted": 8, "completedWithoutHelp": 8, "completedWithHelp": 0 },
+      "retryRecovery": { "attempted": 8, "completedWithoutHelp": 7, "completedWithHelp": 1 },
+      "approval": { "attempted": 8, "completedWithoutHelp": 7, "completedWithHelp": 1 },
+      "longRunningTask": { "attempted": 8, "completedWithoutHelp": 6, "completedWithHelp": 2 },
+      "attachments": { "attempted": 8, "completedWithoutHelp": 6, "completedWithHelp": 2 }
+    },
+    "outcomes": { "completed": 8, "abandoned": 0, "wouldAdopt": 6, "needsFollowup": 2 }
+  }
+}

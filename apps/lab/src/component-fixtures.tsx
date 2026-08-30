@@ -5,8 +5,9 @@ import { ToolCallFixture, toolCallQualityScenarios, type ToolCallFixtureId } fro
 import { fileExample, type FileExampleState } from "../../../registry/react/css/components/file/file.example.js";
 import { AgentProgressFixture, agentProgressQualityScenarios, type AgentProgressFixtureId } from "../../../registry/react/css/patterns/agent-progress/agent-progress.fixture.js";
 import { ToolApprovalFixture, toolApprovalQualityScenarios, type ToolApprovalFixtureId } from "../../../registry/react/css/patterns/tool-approval/tool-approval.fixture.js";
+import { ResearchAgentFixture, researchAgentQualityScenarios, type ResearchAgentFixtureId } from "../../../registry/react/css/patterns/research-agent/research-agent.fixture.js";
 
-export type LabComponentId = "conversation" | "message" | "prompt-input" | "tool-call" | "file" | "agent-progress" | "tool-approval";
+export type LabComponentId = "conversation" | "message" | "prompt-input" | "tool-call" | "file" | "agent-progress" | "tool-approval" | "research-agent";
 export type LabComponentMaturity = "preview" | "experimental";
 
 export interface LabScenario {
@@ -132,6 +133,13 @@ export const componentFixtureContracts: readonly LabComponentContract[] = [
     description: "Explicit review boundaries for consequential agent actions.",
     scenarios: toolApprovalQualityScenarios.map((scenario) => ({ id: scenario.id, title: scenarioTitle(scenario.id), expectation: scenario.expectation })),
   },
+  {
+    id: "research-agent",
+    title: "Research agent",
+    maturity: "experimental",
+    description: "Flagship provider-neutral workflow covering the production states beyond a chat transcript.",
+    scenarios: researchAgentQualityScenarios.map((scenario) => ({ id: scenario.id, title: scenarioTitle(scenario.id), expectation: scenario.expectation })),
+  },
 ];
 
 export const componentFixtureMap = Object.fromEntries(componentFixtureContracts.map((contract) => [contract.id, contract])) as Record<LabComponentId, LabComponentContract>;
@@ -157,6 +165,8 @@ export function renderRegistryFixture(
       return <AgentProgressFixture scenario={scenario as AgentProgressFixtureId} emit={emit} />;
     case "tool-approval":
       return <ToolApprovalFixture scenario={scenario as ToolApprovalFixtureId} emit={emit} />;
+    case "research-agent":
+      return <ResearchAgentFixture scenario={scenario as ResearchAgentFixtureId} emit={emit} />;
     case "conversation":
     default:
       return conversationExample.render(conversationStateFor(scenario), { emit });

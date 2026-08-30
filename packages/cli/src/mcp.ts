@@ -1,5 +1,5 @@
 import { createInterface } from "node:readline";
-import { getRegistryItemInfo, listRegistryItems } from "./index.js";
+import { DEFAULT_REGISTRY_URL, getRegistryItemInfo, listRegistryItems } from "./index.js";
 import { verifyRegistryProvenance } from "./provenance.js";
 
 export const MCP_PROTOCOL_VERSION = "2025-06-18";
@@ -104,7 +104,7 @@ export function createMcpRequestHandler(options: { registry?: string; trustedPub
         }
         if (name === "registry_verify_provenance") {
           if (!exactInput(args, {})) return errorResponse(request.id, -32602, "registry_verify_provenance does not accept arguments.");
-          return response(request.id, textResult(await verifyRegistryProvenance(options.registry ?? "https://registry.aifrontkit.dev", {
+          return response(request.id, textResult(await verifyRegistryProvenance(options.registry ?? DEFAULT_REGISTRY_URL, {
             ...(options.trustedPublicKeys ? { trustedPublicKeys: options.trustedPublicKeys } : {}),
             ...(options.requireTrustedKey ? { requireTrustedKey: true } : {})
           })));
