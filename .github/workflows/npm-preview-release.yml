@@ -1,0 +1,60 @@
+name: npm preview release
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish the checked-in prerelease versions to the next tag
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: npm-preview-release
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 11.19.0 }
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm release:check
+
+  publish:
+    if: inputs.publish && startsWith(github.ref, 'refs/heads/release/')
+    needs: verify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 11.19.0 }
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+      - run: pnpm install --frozen-lockfile
+      - name: Confirm prerelease mode
+        run: node -e 'const pre = require("./.changeset/pre.json"); if (pre.mode !== "pre" || pre.tag !== "next") process.exit(1)'
+      - name: Publish preview packages
+        run: pnpm exec changeset publish --tag next
+        env:
+          NPM_CONFIG_PROVENANCE: true

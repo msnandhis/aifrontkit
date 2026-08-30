@@ -2,63 +2,39 @@
 
 ## Current decision
 
-The repository is ready for npm trusted publishing but does not activate a publish
-workflow yet. Trusted publishing requires the final GitHub organization,
-repository, workflow filename and npm package settings to match exactly. Those
-external npm ownership values are not represented in this checkout. Public package
-manifests now declare the canonical repository, public access and provenance. Adding
-an active publish job before the package names and trusted-publisher mapping are
-claimed would still fail or risk targeting the wrong package identity.
+The repository has a manual preview workflow at
+`.github/workflows/npm-preview-release.yml`. Its verification job is safe to run
+without npm credentials. The publish job only runs from a `release/*` branch when
+the operator explicitly enables its `publish` input. It also uses the protected
+`npm` GitHub environment.
+
+Publishing remains externally blocked until the package names are owned and every
+npm package maps its trusted publisher to the exact GitHub repository, workflow
+filename and `npm` environment. Public package manifests declare the canonical
+repository, public access and provenance.
 
 No npm token or registry signing private key belongs in repository secrets. npm
 publishing should use GitHub OIDC and npm provenance. Registry manifests use the
 separate Ed25519 signing flow documented in `docs/cli.md` because they can also be
 mirrored independently of npm.
 
-## Activation template
+## Exact trusted-publisher mapping
 
-After the npm package owners configure trusted publishing for the final repository
-and workflow filename, add a release job with these properties:
+Configure each public npm package with these GitHub Actions values:
 
-```yaml
-name: release
-on:
-  workflow_dispatch:
-permissions:
-  contents: read
-  id-token: write
-jobs:
-  publish:
-    runs-on: ubuntu-latest
-    environment: npm
-    steps:
-      - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 11.19.0
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          registry-url: https://registry.npmjs.org
-          package-manager-cache: false
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm release:check
-      # Replace this line with the validated monorepo publisher.
-      - run: pnpm changeset publish
-        env:
-          NPM_CONFIG_PROVENANCE: true
-```
+- Organization or user: `msnandhis`
+- Repository: `openfrontkit`
+- Workflow filename: `npm-preview-release.yml`
+- Environment: `npm`
 
-Before activation, confirm that every public package has the intended npm owner,
-matching `repository.url` metadata and a trusted publisher entry for the exact
-workflow filename. npm requires a compatible npm CLI and a GitHub-hosted runner.
-Trusted publishing generates npm provenance automatically.
+Before enabling `publish`, confirm that every public package has the intended npm
+owner and the mapping above. The workflow uses Node.js 24 on a GitHub-hosted runner
+and grants `id-token: write` only to the publish job. Trusted publishing generates
+npm provenance without a long-lived npm token.
 
-The checked-in Changesets version must not be assumed to handle OIDC authentication
-correctly. Validate its publish subprocess against a disposable package or replace
-the publish step with direct `npm publish` calls over reviewed package tarballs.
 Keep release creation manual until tag, workspace ordering and Changesets behavior
-have been exercised in a non-publishing dry run.
+have been exercised through the first preview. The local release gate validates
+the same package tarballs and a clean consumer before the publish job runs.
 
 ## First preview version policy
 
