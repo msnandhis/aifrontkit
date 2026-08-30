@@ -1,4 +1,4 @@
-import type { Artifact, ContentPart, MessageRole, PartStatus, TaskProgress, TaskStatus, TaskStep, ToolStatus } from "../model/index.js";
+import type { Artifact, ConnectionStatus, ContentPart, MessageRole, PartStatus, TaskProgress, TaskStatus, TaskStep, ToolStatus } from "../model/index.js";
 
 /** Current wire format. Older schemas remain accepted through migrations. */
 export const EVENT_SCHEMA_VERSION = 3 as const;
@@ -43,7 +43,8 @@ export type AIFrontEventV3 =
   | WithSchemaVersion<AIFrontEventV2, typeof EVENT_SCHEMA_VERSION>
   | (EventEnvelope<typeof EVENT_SCHEMA_VERSION> & { type: "task.started"; taskId: string; title: string; metadata?: Record<string, unknown> })
   | (EventEnvelope<typeof EVENT_SCHEMA_VERSION> & { type: "task.updated"; taskId: string; status: TaskStatus; progress?: TaskProgress; error?: string })
-  | (EventEnvelope<typeof EVENT_SCHEMA_VERSION> & { type: "task.step.updated"; taskId: string; step: TaskStep });
+  | (EventEnvelope<typeof EVENT_SCHEMA_VERSION> & { type: "task.step.updated"; taskId: string; step: TaskStep })
+  | (EventEnvelope<typeof EVENT_SCHEMA_VERSION> & { type: "connection.changed"; status: ConnectionStatus; attempt?: number; nextRetryAt?: number; reason?: string; error?: string });
 
 /** A runtime consumes all supported generations; new emitters should produce v3. */
 export type AIFrontEvent = AIFrontEventV1 | AIFrontEventV2 | AIFrontEventV3;
@@ -140,6 +141,15 @@ function assertCurrentPayload(event: Record<string, unknown>) {
       if (!isTaskStepStatus((event.step as Record<string, unknown>).status)) throw new InvalidEventError("task.step.updated step status is invalid.");
       assertProgress((event.step as Record<string, unknown>).progress);
       return;
+    case "connection.changed":
+      if (event.schemaVersion !== EVENT_SCHEMA_VERSION) throw new InvalidEventError("Connection events require schema version 3.");
+      if (!isConnectionStatus(event.status)) throw new InvalidEventError("connection.changed status is invalid.");
+      if (event.attempt !== undefined && (!Number.isInteger(event.attempt) || (event.attempt as number) < 0)) throw new InvalidEventError("connection.changed attempt must be a non-negative integer.");
+      if (event.nextRetryAt !== undefined && (typeof event.nextRetryAt !== "number" || !Number.isFinite(event.nextRetryAt))) throw new InvalidEventError("connection.changed nextRetryAt must be finite.");
+      if (event.reason !== undefined && (typeof event.reason !== "string" || event.reason === "")) throw new InvalidEventError("connection.changed reason must be a non-empty string.");
+      if (event.error !== undefined && (typeof event.error !== "string" || event.error === "")) throw new InvalidEventError("connection.changed error must be a non-empty string.");
+      if (event.status === "failed" && (typeof event.error !== "string" || event.error === "")) throw new InvalidEventError("connection.changed failed status requires an error.");
+      return;
     default:
       throw new InvalidEventError(`Unsupported event type: ${String(event.type)}.`);
   }
@@ -155,6 +165,10 @@ function isToolStatus(value: unknown): value is ToolStatus {
 
 function isTaskStatus(value: unknown): value is TaskStatus {
   return value === "queued" || value === "running" || value === "awaiting-approval" || value === "paused" || value === "complete" || value === "failed" || value === "cancelled";
+}
+
+function isConnectionStatus(value: unknown): value is ConnectionStatus {
+  return value === "connected" || value === "reconnecting" || value === "offline" || value === "failed";
 }
 
 function isTaskStepStatus(value: unknown) {

@@ -143,4 +143,45 @@ describe("framework-neutral runtime", () => {
       type: "task.step.updated", taskId: "missing", step: { id: "s1", taskId: "missing", title: "Unknown", status: "running" }
     })).toThrow(/unknown task/);
   });
+
+  it("tracks reconnect, offline and recovered connection transitions", () => {
+    const events: AIFrontEvent[] = [
+      { schemaVersion: 3, id: "connection-1", threadId: "thread-1", timestamp: 10, type: "connection.changed", status: "reconnecting", attempt: 1, nextRetryAt: 20, reason: "Transport closed" },
+      { schemaVersion: 3, id: "connection-2", threadId: "thread-1", timestamp: 20, type: "connection.changed", status: "offline", attempt: 1, reason: "Browser offline" },
+      { schemaVersion: 3, id: "connection-3", threadId: "thread-1", timestamp: 30, type: "connection.changed", status: "failed", attempt: 2, error: "Retries exhausted" },
+      { schemaVersion: 3, id: "connection-4", threadId: "thread-1", timestamp: 40, type: "connection.changed", status: "connected" }
+    ];
+    const state = events.reduce(reduceEvent, createInitialState("thread-1"));
+    expect(state.connection).toEqual({ status: "connected", attempt: 0, updatedAt: 40 });
+  });
+
+  it("clears stale connection fields and ignores out-of-order transitions", () => {
+    const current = reduceEvent(createInitialState("thread-1"), {
+      schemaVersion: 3, id: "connection-current", threadId: "thread-1", timestamp: 20,
+      type: "connection.changed", status: "reconnecting", attempt: 3, nextRetryAt: 30, reason: "Temporary loss"
+    });
+    const stale = reduceEvent(current, {
+      schemaVersion: 3, id: "connection-stale", threadId: "thread-1", timestamp: 10,
+      type: "connection.changed", status: "offline", reason: "Old browser signal"
+    });
+    expect(stale.connection).toEqual(current.connection);
+    expect(stale).toBe(current);
+
+    const failed = reduceEvent(current, {
+      schemaVersion: 3, id: "connection-failed", threadId: "thread-1", timestamp: 40,
+      type: "connection.changed", status: "failed", attempt: 4, error: "Retries exhausted"
+    });
+    expect(failed.connection).toEqual({ status: "failed", attempt: 4, updatedAt: 40, error: "Retries exhausted" });
+  });
+
+  it("rejects unsafe connection event payloads", () => {
+    expect(() => reduceEvent(createInitialState("thread-1"), {
+      schemaVersion: 3, id: "connection-invalid", threadId: "thread-1", timestamp: 1,
+      type: "connection.changed", status: "reconnecting", attempt: -1
+    })).toThrow(/non-negative integer/);
+    expect(() => reduceEvent(createInitialState("thread-1"), {
+      schemaVersion: 3, id: "connection-failed", threadId: "thread-1", timestamp: 1,
+      type: "connection.changed", status: "failed"
+    })).toThrow(/requires an error/);
+  });
 });

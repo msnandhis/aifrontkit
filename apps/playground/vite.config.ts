@@ -10,6 +10,26 @@ import remarkMdxFrontmatter from "remark-mdx-frontmatter";
 
 const docsRoot = fileURLToPath(new URL("../../content/docs", import.meta.url));
 const searchModuleId = "virtual:aifrontkit-docs-search";
+const metadataModuleId = "virtual:aifrontkit-docs-metadata";
+
+function parseFrontmatter(source: string, file: string) {
+  const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  if (!match) throw new Error(`Documentation page is missing frontmatter: ${file}`);
+  const values = Object.fromEntries(match[1]!.split(/\r?\n/).flatMap((line) => {
+    const separator = line.indexOf(":");
+    if (separator < 0) return [];
+    const key = line.slice(0, separator).trim();
+    const raw = line.slice(separator + 1).trim();
+    const value = raw.replace(/^(?:"([\s\S]*)"|'([\s\S]*)')$/, "$1$2");
+    return [[key, value]];
+  }));
+  if (!values.title || !values.description) throw new Error(`Documentation page requires title and description frontmatter: ${file}`);
+  return {
+    title: values.title,
+    description: values.description,
+    ...(values.status ? { status: values.status } : {}),
+  };
+}
 
 function documentationSearchPlugin(): Plugin {
   function markdownFiles(directory: string): string[] {
@@ -22,11 +42,18 @@ function documentationSearchPlugin(): Plugin {
 
   return {
     name: "aifrontkit-documentation-search",
-    resolveId(id) { return id === searchModuleId ? `\0${searchModuleId}` : null; },
+    resolveId(id) { return id === searchModuleId || id === metadataModuleId ? `\0${id}` : null; },
     load(id) {
-      if (id !== `\0${searchModuleId}`) return null;
-      const sources = Object.fromEntries(markdownFiles(docsRoot).map((path) => [relative(docsRoot, path).replaceAll("\\", "/"), readFileSync(path, "utf8")]));
-      return `export default ${JSON.stringify(sources)};`;
+      if (id !== `\0${searchModuleId}` && id !== `\0${metadataModuleId}`) return null;
+      const documents = markdownFiles(docsRoot).map((path) => {
+        const file = relative(docsRoot, path).replaceAll("\\", "/");
+        const source = readFileSync(path, "utf8");
+        return { file, source, frontmatter: parseFrontmatter(source, file) };
+      });
+      const entries = id === `\0${searchModuleId}`
+        ? Object.fromEntries(documents.map(({ file, source }) => [file, source]))
+        : Object.fromEntries(documents.map(({ file, frontmatter }) => [file, frontmatter]));
+      return `export default ${JSON.stringify(entries)};`;
     },
   };
 }

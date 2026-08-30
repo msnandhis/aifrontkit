@@ -1,9 +1,13 @@
-import { useCallback, useEffect, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { BrowserRouter, Link, Navigate, NavLink, Route, Routes, useLocation } from "react-router-dom";
 import { DocumentationPage, type OutlineItem } from "./components/doc-page.js";
 import { Icon } from "./components/icons.js";
-import { SearchDialog } from "./components/search-dialog.js";
 import { docSections, docsByPath } from "./lib/docs.js";
+
+const SearchDialog = lazy(async () => {
+  const module = await import("./components/search-dialog.js");
+  return { default: module.SearchDialog };
+});
 
 type Theme = "light" | "dark";
 
@@ -81,7 +85,7 @@ function DocumentationShell() {
         {navigationOpen ? <button className="navigation-scrim" type="button" aria-label="Close navigation" onClick={() => setNavigationOpen(false)} /> : null}
 
         <main className="docs-main" id="main-content">
-          {doc ? <DocumentationPage doc={doc} onOutline={updateOutline} /> : <NotFound />}
+          {doc ? <DocumentationPage key={doc.path} doc={doc} onOutline={updateOutline} /> : <NotFound />}
         </main>
 
         <aside className="page-outline" aria-label="On this page">
@@ -90,7 +94,11 @@ function DocumentationShell() {
           <a className="outline-github" href="https://github.com/msnandhis/openfrontkit"><Icon name="external" />Edit on GitHub</a>
         </aside>
       </div>
-      <SearchDialog open={searchOpen} onClose={closeSearch} />
+      {searchOpen ? (
+        <Suspense fallback={null}>
+          <SearchDialog open onClose={closeSearch} />
+        </Suspense>
+      ) : null}
     </div>
   );
 }

@@ -11,13 +11,18 @@ The CLI initializes AIFrontKit integration, discovers registry content, installs
 - `diff`: compare local source against the configured registry source.
 - `doctor`: report the selected target, filesystem output, import alias, and installed provenance.
 - `migrate`: explicitly rewrite legacy configuration and provenance to the current schema.
+- `list`: discover registry entries with deterministic text or JSON output.
+- `info`: inspect one entry and its supported targets.
+- `mcp`: expose read-only registry discovery and provenance verification over stdio MCP.
+- `provenance-sign`: create a detached Ed25519 registry provenance bundle with a release key.
+- `provenance-verify`: verify signatures, manifest digests and source digests against the current registry.
 
 `add` supports `--dry-run` and refuses to overwrite changed source without
 `--force`. `--registry=path-or-url` supports local registry work and mirrors.
 
 ## Planned command families
 
-- `search` / `info`: inspect catalog metadata, compatibility, source, and license.
+- `search`: add faceted compatibility, source and license discovery beyond the current `list` and `info` commands.
 - `upgrade`: apply a reviewed diff with migration metadata.
 - `remove`: remove only safely attributable files/dependencies, with preview.
 - `validate` / `doctor`: check schemas, package ranges, paths, aliases, and environment.
@@ -73,6 +78,28 @@ flavor. Use a separate output until an explicit style-migration command ships.
 ## Extensibility
 
 Additional registries are configured by URL and trust policy. Command plugins are deferred until a secure, necessary use case exists; registry item types and adapters provide most ecosystem extensibility without executing third-party CLI code.
+
+## MCP discovery
+
+`aifrontkit mcp --registry=path-or-url` starts a read-only stdio MCP server. It exposes `registry_list`, `registry_info` and `registry_verify_provenance`. The server never installs files or executes registry code. Use `--trust-key=public-key.pem --key-id=release-key-id` to require one configured signing identity when agents verify provenance.
+
+The transport uses newline-delimited JSON-RPC and negotiates MCP protocol version `2025-06-18`. The same discovery operations remain exported as TypeScript APIs for hosts that already provide their own MCP transport.
+
+## Registry provenance
+
+Release automation can sign the complete public catalog without storing a key in the repository:
+
+```sh
+aifrontkit provenance-sign --registry=. --key=/secure/release-key.pem --key-id=official-2026
+aifrontkit provenance-verify --registry=. --trust-key=official-2026.pub.pem --key-id=official-2026
+```
+
+The detached `registry/provenance.json` bundle uses Ed25519 signatures. Each signed item binds its manifest digest and a digest over every declared source file. A valid but self-declared signature is reported separately from a signature whose key matches an explicit trust policy.
+
+`provenance-verify` requires a matching `--trust-key` for a successful exit by
+default. `--allow-untrusted` is available for inspecting community or development
+signatures. Its output still labels the result as untrusted and callers must opt in
+explicitly.
 
 ## Testing
 

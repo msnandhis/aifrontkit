@@ -15,7 +15,8 @@
     "./composer": { "types": "./dist/composer/index.d.ts", "import": "./dist/composer/index.js" },
     "./tool": { "types": "./dist/tool/index.d.ts", "import": "./dist/tool/index.js" },
     "./task": { "types": "./dist/task/index.d.ts", "import": "./dist/task/index.js" },
-    "./approval": { "types": "./dist/approval/index.d.ts", "import": "./dist/approval/index.js" }
+    "./approval": { "types": "./dist/approval/index.d.ts", "import": "./dist/approval/index.js" },
+    "./connection": { "types": "./dist/connection/index.d.ts", "import": "./dist/connection/index.js" }
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",

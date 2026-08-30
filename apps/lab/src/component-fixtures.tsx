@@ -3,8 +3,10 @@ import { messageExample, type MessageExampleState } from "../../../registry/reac
 import { promptInputExample, type PromptInputExampleState } from "../../../registry/react/css/components/prompt-input/prompt-input.example.js";
 import { ToolCallFixture, toolCallQualityScenarios, type ToolCallFixtureId } from "../../../registry/react/css/components/tool-call/tool-call.fixture.js";
 import { fileExample, type FileExampleState } from "../../../registry/react/css/components/file/file.example.js";
+import { AgentProgressFixture, agentProgressQualityScenarios, type AgentProgressFixtureId } from "../../../registry/react/css/patterns/agent-progress/agent-progress.fixture.js";
+import { ToolApprovalFixture, toolApprovalQualityScenarios, type ToolApprovalFixtureId } from "../../../registry/react/css/patterns/tool-approval/tool-approval.fixture.js";
 
-export type LabComponentId = "conversation" | "message" | "prompt-input" | "tool-call" | "file";
+export type LabComponentId = "conversation" | "message" | "prompt-input" | "tool-call" | "file" | "agent-progress" | "tool-approval";
 export type LabComponentMaturity = "preview" | "experimental";
 
 export interface LabScenario {
@@ -116,6 +118,20 @@ export const componentFixtureContracts: readonly LabComponentContract[] = [
     description: "Tool lifecycle status, output boundaries, and failure meaning.",
     scenarios: toolCallQualityScenarios.map((scenario) => ({ id: scenario.id, title: scenarioTitle(scenario.id), expectation: scenario.expectation })),
   },
+  {
+    id: "agent-progress",
+    title: "Agent progress",
+    maturity: "experimental",
+    description: "Long-running task progress, step history, cancellation and recovery states.",
+    scenarios: agentProgressQualityScenarios.map((scenario) => ({ id: scenario.id, title: scenarioTitle(scenario.id), expectation: scenario.expectation })),
+  },
+  {
+    id: "tool-approval",
+    title: "Tool approval",
+    maturity: "experimental",
+    description: "Explicit review boundaries for consequential agent actions.",
+    scenarios: toolApprovalQualityScenarios.map((scenario) => ({ id: scenario.id, title: scenarioTitle(scenario.id), expectation: scenario.expectation })),
+  },
 ];
 
 export const componentFixtureMap = Object.fromEntries(componentFixtureContracts.map((contract) => [contract.id, contract])) as Record<LabComponentId, LabComponentContract>;
@@ -137,6 +153,10 @@ export function renderRegistryFixture(
       return promptInputExample.render(promptInputStateFor(scenario), { emit, setProp: () => undefined });
     case "tool-call":
       return <ToolCallFixture scenario={scenario as ToolCallFixtureId} />;
+    case "agent-progress":
+      return <AgentProgressFixture scenario={scenario as AgentProgressFixtureId} emit={emit} />;
+    case "tool-approval":
+      return <ToolApprovalFixture scenario={scenario as ToolApprovalFixtureId} emit={emit} />;
     case "conversation":
     default:
       return conversationExample.render(conversationStateFor(scenario), { emit });

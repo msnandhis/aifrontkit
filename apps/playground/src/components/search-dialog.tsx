@@ -1,5 +1,6 @@
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import searchSources from "virtual:aifrontkit-docs-search";
 import { docs } from "../lib/docs.js";
 import { Icon } from "./icons.js";
 
@@ -17,7 +18,7 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose(): void
     return docs.map((doc) => {
       const title = doc.title.toLocaleLowerCase();
       const metadata = `${doc.description} ${doc.sectionTitle} ${doc.path}`.toLocaleLowerCase();
-      const source = doc.searchText.toLocaleLowerCase();
+      const source = (searchSources[doc.file] ?? "").toLocaleLowerCase();
       const haystack = `${title} ${metadata} ${source}`;
       if (!words.every((word) => haystack.includes(word))) return null;
       const phrase = words.join(" ");

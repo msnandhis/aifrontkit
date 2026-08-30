@@ -51,7 +51,8 @@
         "primitives/file.md",
         "primitives/tool-call.md",
         "primitives/task.md",
-        "primitives/approval.md"
+        "primitives/approval.md",
+        "primitives/connection.md"
       ]
     },
     {

@@ -134,6 +134,17 @@ svg { display: block; fill: none; stroke: currentColor; stroke-linecap: round; s
 .registry-fixture-preview > [data-fixture-component] { inline-size: min(100%, 42rem); min-inline-size: 0; }
 .registry-fixture-preview [data-fixture-context] { display: inline-flex; max-inline-size: 100%; padding: 0.35rem 0.6rem; border: 1px solid var(--aifk-border, ButtonBorder); border-radius: var(--aifk-radius-pill, 999px); color: var(--aifk-text-muted, GrayText); font-size: 0.75rem; overflow-wrap: anywhere; }
 .registry-fixture-preview [data-fixture-submit-count] { display: block; min-block-size: 1.25rem; margin-block-start: 0.5rem; color: var(--aifk-text-muted, GrayText); font-size: 0.75rem; }
+.registry-fixture-preview [data-fixture-pattern] { inline-size: min(100%, 36rem); }
+.aifk-tool-approval-fixture > [data-aifk-approval] { display: grid; grid-template-columns: 1fr auto auto; gap: 0.75rem; align-items: center; padding: 1.25rem; color: var(--aifk-text); background: var(--aifk-surface); border: 1px solid var(--aifk-border); border-radius: var(--aifk-radius-large); }
+.aifk-tool-approval-fixture :is(h2, h3, h4), .aifk-tool-approval-fixture [data-slot="approval-summary"], .aifk-tool-approval-fixture dl, .aifk-tool-approval-fixture p { grid-column: 1 / -1; }
+.aifk-tool-approval-fixture :is(h2, h3, h4), .aifk-tool-approval-fixture p { margin: 0; }
+.aifk-tool-approval-fixture dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0.35rem 0.75rem; margin: 0; padding: 0.75rem; background: var(--aifk-surface-subtle); border-radius: var(--aifk-radius-medium); }
+.aifk-tool-approval-fixture dt { color: var(--aifk-text-muted); }
+.aifk-tool-approval-fixture dd { margin: 0; overflow-wrap: anywhere; }
+.aifk-tool-approval-fixture button { min-height: 2.75rem; padding-inline: 1rem; border: 1px solid var(--aifk-border); border-radius: var(--aifk-radius-medium); cursor: pointer; }
+.aifk-tool-approval-fixture button:last-of-type { color: var(--aifk-accent-contrast); background: var(--aifk-accent); border-color: var(--aifk-accent); }
+.aifk-tool-approval-fixture button:disabled { cursor: not-allowed; opacity: 0.55; }
+.aifk-tool-approval-fixture button:focus-visible { outline: 2px solid var(--aifk-focus); outline-offset: 2px; }
 .preview-application .aifk-conversation__header { padding: 0.75rem clamp(0.875rem, 3vw, 1.25rem); }
 .conversation-title { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .conversation-title > span { display: grid; gap: 0.05rem; }
@@ -220,8 +231,13 @@ svg { display: block; fill: none; stroke: currentColor; stroke-linecap: round; s
 }
 
 @media (max-width: 46rem) {
+  .lab-shell { grid-template-rows: auto auto auto auto; }
   .lab-header { grid-template-columns: minmax(0, 1fr) auto; }
   .header-context { display: none; }
+  .lab-brand { grid-column: 1; grid-row: 1; }
+  .reset-button { grid-column: 2; grid-row: 1; }
+  .component-switcher { grid-column: 1 / -1; grid-row: 2; width: 100%; min-width: 0; overflow-x: auto; border-inline: 0; border-radius: 0; scrollbar-width: thin; }
+  .component-switcher button { flex: 0 0 auto; min-height: 2.75rem; }
   .lab-main { padding: 1.25rem 0; }
   .preview-heading { align-items: flex-start; padding-inline: 1rem; }
   .preview-heading > div > span { max-width: 31rem; }

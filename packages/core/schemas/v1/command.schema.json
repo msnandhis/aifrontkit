@@ -10,7 +10,7 @@
     "threadId": { "type": "string", "minLength": 1 },
     "timestamp": { "type": "number" },
     "type": {
-      "enum": ["message.send", "message.retry", "task.stop", "task.resume", "approval.resolve", "attachment.remove", "error.dismiss"]
+      "enum": ["message.send", "message.retry", "connection.retry", "task.stop", "task.resume", "approval.resolve", "attachment.remove", "error.dismiss"]
     }
   },
   "additionalProperties": true

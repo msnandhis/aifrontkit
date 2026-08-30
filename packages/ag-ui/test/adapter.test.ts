@@ -60,4 +60,26 @@ describe("AG-UI adapter", () => {
     const [result] = adapter.adapt({ type: "TOOL_CALL_RESULT", toolCallId: "c1", messageId: "tool-result-message", content: { count: 1 } });
     expect(result).toMatchObject({ type: "tool.updated", status: "complete", messageId: "m1", partId: "tool:c1" });
   });
+
+  it("completes every active step before a run finishes", () => {
+    const adapter = createAGUIAdapter({ threadId: "t1", now: () => 20 });
+    adapter.adapt({ type: "RUN_STARTED", runId: "run-1" });
+    adapter.adapt({ type: "STEP_STARTED", stepName: "Search" });
+    adapter.adapt({ type: "STEP_STARTED", stepName: "Compose" });
+    const events = adapter.adapt({ type: "RUN_FINISHED", runId: "run-1" });
+    expect(events.map((event) => event.type === "task.step.updated" ? [event.step.title, event.step.status] : [event.type, event.type === "task.updated" ? event.status : undefined])).toEqual([
+      ["Search", "complete"],
+      ["Compose", "complete"],
+      ["task.updated", "complete"]
+    ]);
+  });
+
+  it("fails every active step before a run error terminates the task", () => {
+    const adapter = createAGUIAdapter({ threadId: "t1", now: () => 30 });
+    adapter.adapt({ type: "RUN_STARTED", runId: "run-1" });
+    adapter.adapt({ type: "STEP_STARTED", stepName: "Search" });
+    const events = adapter.adapt({ type: "RUN_ERROR", message: "upstream unavailable", code: "TEMPORARY" });
+    expect(events[0]).toMatchObject({ type: "task.step.updated", step: { title: "Search", status: "failed", error: "upstream unavailable" } });
+    expect(events[1]).toMatchObject({ type: "task.updated", status: "failed", error: "upstream unavailable" });
+  });
 });

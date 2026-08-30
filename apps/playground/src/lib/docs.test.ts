@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import searchSources from "virtual:aifrontkit-docs-search";
 import { docSections, docs, docsByPath } from "./docs.js";
 
 describe("documentation registry", () => {
@@ -31,6 +32,6 @@ describe("documentation registry", () => {
   });
 
   it("indexes authored documentation content", () => {
-    expect(docsByPath.get("/docs/components/message")?.searchText).toContain("aria-busy");
+    expect(searchSources["primitives/message.md"]).toContain("aria-busy");
   });
 });

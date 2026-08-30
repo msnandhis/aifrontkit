@@ -6,3 +6,4 @@ export * from "./composer/index.js";
 export * from "./tool/index.js";
 export * from "./task/index.js";
 export * from "./approval/index.js";
+export * from "./connection/index.js";

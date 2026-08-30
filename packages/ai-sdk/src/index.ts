@@ -21,6 +21,9 @@ export type AISDKUIStreamPart =
   | { type: "file"; id?: string; url: string; mediaType: string; filename?: string }
   | { type: `data-${string}`; id?: string; data: unknown }
   | { type: "error"; errorText: string }
+  | { type: "abort"; reason?: string }
+  | { type: "start-step" }
+  | { type: "finish-step" }
   | { type: "tool-input-start"; toolCallId: string; toolName: string }
   | { type: "tool-input-delta"; toolCallId: string; inputTextDelta: string }
   | { type: "tool-input-available"; toolCallId: string; toolName: string; input: unknown }
@@ -66,6 +69,14 @@ export function createAISDKAdapter(context: AdapterContext) {
         case "error":
           messageFailed = true;
           return [{ ...envelope(), type: "message.failed", messageId: activeMessageId, error: part.errorText }];
+        case "abort":
+          messageFailed = true;
+          return [{ ...envelope(), type: "message.interrupted", messageId: activeMessageId, ...(part.reason === undefined ? {} : { reason: part.reason }) }];
+        case "start-step":
+        case "finish-step":
+          // AI SDK steps join multiple model calls inside one assistant message.
+          // They are transport boundaries rather than user-facing agent tasks.
+          return [];
         case "finish":
           return messageFailed ? [] : [{ ...envelope(), type: "message.completed", messageId: activeMessageId }];
         case "tool-input-start":

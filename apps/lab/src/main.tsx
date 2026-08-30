@@ -130,7 +130,7 @@ function Lab() {
 
   function selectComponent(nextComponent: LabComponentId) {
     setComponentId(nextComponent);
-    setScenarioId("default");
+    setScenarioId(componentFixtureMap[nextComponent].scenarios[0]?.id ?? "default");
     setDirection("ltr");
     setFixtureEvent("No component event yet.");
   }

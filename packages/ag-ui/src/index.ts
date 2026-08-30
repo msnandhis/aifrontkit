@@ -1,8 +1,11 @@
 import type { AIFrontEvent } from "@aifrontkit/core";
 
+export * from "./external-store.js";
+export * from "./langgraph.js";
+
 export type AGUIEvent =
-  | { type: "RUN_STARTED"; runId: string; threadId?: string; timestamp?: number }
-  | { type: "RUN_FINISHED"; runId: string; timestamp?: number }
+  | { type: "RUN_STARTED"; runId: string; threadId?: string; parentRunId?: string; input?: unknown; timestamp?: number }
+  | { type: "RUN_FINISHED"; runId: string; threadId?: string; result?: unknown; timestamp?: number }
   | { type: "STEP_STARTED"; stepName: string; timestamp?: number }
   | { type: "STEP_FINISHED"; stepName: string; timestamp?: number }
   | { type: "TEXT_MESSAGE_START"; messageId: string; role?: string; timestamp?: number }
@@ -12,7 +15,12 @@ export type AGUIEvent =
   | { type: "TOOL_CALL_ARGS"; toolCallId: string; delta: string; timestamp?: number }
   | { type: "TOOL_CALL_END"; toolCallId: string; timestamp?: number }
   | { type: "TOOL_CALL_RESULT"; toolCallId: string; content: unknown; messageId?: string; timestamp?: number }
-  | { type: "RUN_ERROR"; message: string; timestamp?: number };
+  | { type: "REASONING_START"; messageId: string; timestamp?: number }
+  | { type: "REASONING_MESSAGE_START"; messageId: string; role: "reasoning"; timestamp?: number }
+  | { type: "REASONING_MESSAGE_CONTENT"; messageId: string; delta: string; timestamp?: number }
+  | { type: "REASONING_MESSAGE_END"; messageId: string; timestamp?: number }
+  | { type: "REASONING_END"; messageId: string; timestamp?: number }
+  | { type: "RUN_ERROR"; message: string; code?: string; timestamp?: number };
 
 export function createAGUIAdapter(options: { threadId: string; createId?: () => string; now?: () => number; taskTitle?: (runId: string) => string }) {
   let sequence = 0;
@@ -35,8 +43,16 @@ export function createAGUIAdapter(options: { threadId: string; createId?: () => 
           stepIds.clear();
           return [{ ...envelope(timestamp), type: "task.started", taskId: event.runId, title: options.taskTitle?.(event.runId) ?? "Agent run" }];
         case "RUN_FINISHED": {
+          const events: AIFrontEvent[] = Array.from(stepIds, ([title, id]) => ({
+            ...envelope(timestamp),
+            type: "task.step.updated",
+            taskId: event.runId,
+            step: { id, taskId: event.runId, title, status: "complete", completedAt: timestamp }
+          }));
+          stepIds.clear();
           activeRunId = undefined;
-          return [{ ...envelope(timestamp), type: "task.updated", taskId: event.runId, status: "complete" }];
+          events.push({ ...envelope(timestamp), type: "task.updated", taskId: event.runId, status: "complete" });
+          return events;
         }
         case "STEP_STARTED": {
           if (!activeRunId) return [];
@@ -62,6 +78,21 @@ export function createAGUIAdapter(options: { threadId: string; createId?: () => 
             { ...envelope(timestamp), type: "message.part.status", messageId: event.messageId, partId: `text:${event.messageId}`, status: "complete" },
             { ...envelope(timestamp), type: "message.completed", messageId: event.messageId }
           ];
+        case "REASONING_MESSAGE_START":
+          return [
+            { ...envelope(timestamp), type: "message.started", messageId: event.messageId, role: "assistant" },
+            { ...envelope(timestamp), type: "message.part.added", messageId: event.messageId, partId: `reasoning:${event.messageId}`, part: { type: "reasoning", text: "", visible: true, partStatus: "streaming" } }
+          ];
+        case "REASONING_MESSAGE_CONTENT":
+          return [{ ...envelope(timestamp), type: "message.part.delta", messageId: event.messageId, partId: `reasoning:${event.messageId}`, delta: event.delta }];
+        case "REASONING_MESSAGE_END":
+          return [
+            { ...envelope(timestamp), type: "message.part.status", messageId: event.messageId, partId: `reasoning:${event.messageId}`, status: "complete" },
+            { ...envelope(timestamp), type: "message.completed", messageId: event.messageId }
+          ];
+        case "REASONING_START":
+        case "REASONING_END":
+          return [];
         case "TOOL_CALL_START":
           toolNames.set(event.toolCallId, event.toolCallName);
           if (event.parentMessageId) toolMessages.set(event.toolCallId, event.parentMessageId);
@@ -83,8 +114,16 @@ export function createAGUIAdapter(options: { threadId: string; createId?: () => 
         case "RUN_ERROR": {
           if (!activeRunId) return [];
           const taskId = activeRunId;
+          const events: AIFrontEvent[] = Array.from(stepIds, ([title, id]) => ({
+            ...envelope(timestamp),
+            type: "task.step.updated",
+            taskId,
+            step: { id, taskId, title, status: "failed", completedAt: timestamp, error: event.message }
+          }));
+          stepIds.clear();
           activeRunId = undefined;
-          return [{ ...envelope(timestamp), type: "task.updated", taskId, status: "failed", error: event.message }];
+          events.push({ ...envelope(timestamp), type: "task.updated", taskId, status: "failed", error: event.message });
+          return events;
         }
         default:
           return [];

@@ -1,6 +1,20 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, realpath, writeFile } from "node:fs/promises";
 import { basename, dirname, isAbsolute, join, relative, resolve } from "node:path";
+import { assertExistingPathContained } from "./path-safety.js";
+
+export {
+  REGISTRY_PROVENANCE_SCHEMA_VERSION,
+  createProvenanceTrustPolicy,
+  createRegistryProvenance,
+  verifyRegistryProvenance,
+  writeRegistryProvenance
+} from "./provenance.js";
+export type {
+  RegistryProvenanceArtifact,
+  RegistryProvenanceDocument,
+  RegistryProvenanceVerification
+} from "./provenance.js";
 
 /** The current on-disk configuration schema. */
 export const CONFIG_SCHEMA_VERSION = 2 as const;
@@ -383,7 +397,7 @@ async function readRegistryFile(registry: string, sourcePath: string) {
   const target = resolve(registryRoot, sourcePath);
   const pathFromRoot = relative(registryRoot, target);
   if (pathFromRoot.startsWith("..") || isAbsolute(pathFromRoot)) throw new Error(`Registry path escapes its root: ${sourcePath}`);
-  return readFile(target, "utf8");
+  return readFile(await assertExistingPathContained(registryRoot, target, `Registry path '${sourcePath}'`), "utf8");
 }
 
 export async function readRegistryCatalog(registry = "https://registry.aifrontkit.dev"): Promise<RegistryCatalog> {

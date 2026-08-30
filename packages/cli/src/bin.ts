@@ -1,5 +1,7 @@
 #!/usr/bin/env node
-import { addItem, diffItem, doctor, getRegistryItemInfo, initProject, listRegistryItems, migrateProject } from "./index.js";
+import { readFile } from "node:fs/promises";
+import { addItem, createProvenanceTrustPolicy, createRegistryProvenance, diffItem, doctor, getRegistryItemInfo, initProject, listRegistryItems, migrateProject, verifyRegistryProvenance, writeRegistryProvenance } from "./index.js";
+import { runMcpServer } from "./mcp.js";
 
 const [command, ...args] = process.argv.slice(2);
 const flags = args.filter((value) => value.startsWith("--"));
@@ -13,9 +15,13 @@ const dryRun = flags.includes("--dry-run");
 const json = flags.includes("--json");
 const queryFlag = flags.find((flag) => flag.startsWith("--query="));
 const query = queryFlag?.slice("--query=".length);
+const keyFlag = flags.find((flag) => flag.startsWith("--key="));
+const keyIdFlag = flags.find((flag) => flag.startsWith("--key-id="));
+const trustKeyFlag = flags.find((flag) => flag.startsWith("--trust-key="));
+const allowUntrusted = flags.includes("--allow-untrusted");
 
 function usage() {
-  return "Usage: aifrontkit <init|migrate|list|info|add|diff|doctor> [component] [--cwd=path] [--registry=path-or-url] [--query=text] [--json] [--dry-run] [--force]";
+  return "Usage: aifrontkit <init|migrate|list|info|add|diff|doctor|mcp|provenance-sign|provenance-verify> [component] [--cwd=path] [--registry=path-or-url] [--query=text] [--json] [--dry-run] [--force] [--allow-untrusted]";
 }
 
 try {
@@ -48,6 +54,23 @@ try {
     console.log(`Target: ${result.targetDirectory}`);
     console.log(`Import: ${result.importAlias}`);
     console.log(`Installed: ${Object.keys(result.provenance.items).join(", ") || "none"}`);
+  } else if (command === "mcp") {
+    if (trustKeyFlag && !keyIdFlag) throw new Error("mcp requires --key-id when --trust-key is provided.");
+    const trustedPublicKeys = trustKeyFlag && keyIdFlag ? { [keyIdFlag.slice("--key-id=".length)]: await readFile(trustKeyFlag.slice("--trust-key=".length), "utf8") } : undefined;
+    await runMcpServer({ ...(registry ? { registry } : {}), ...(trustedPublicKeys ? { trustedPublicKeys, requireTrustedKey: true } : {}) });
+  } else if (command === "provenance-sign") {
+    if (!registry || !keyFlag || !keyIdFlag) throw new Error("provenance-sign requires --registry, --key and --key-id.");
+    const privateKey = await readFile(keyFlag.slice("--key=".length), "utf8");
+    const document = await createRegistryProvenance(registry, { keyId: keyIdFlag.slice("--key-id=".length), privateKey });
+    const path = await writeRegistryProvenance(registry, document);
+    console.log(`Signed ${document.artifacts.length} registry artifacts at ${path}`);
+  } else if (command === "provenance-verify") {
+    const resolvedRegistry = registry ?? "https://registry.aifrontkit.dev";
+    if (trustKeyFlag && !keyIdFlag) throw new Error("provenance-verify requires --key-id when --trust-key is provided.");
+    const trustedPublicKeys = trustKeyFlag && keyIdFlag ? { [keyIdFlag.slice("--key-id=".length)]: await readFile(trustKeyFlag.slice("--trust-key=".length), "utf8") } : undefined;
+    const result = await verifyRegistryProvenance(resolvedRegistry, createProvenanceTrustPolicy(trustedPublicKeys, allowUntrusted));
+    console.log(json ? JSON.stringify(result, null, 2) : `${result.valid ? "Valid" : "Invalid"} ${result.trusted ? "trusted" : "untrusted"} signature set from ${result.keyId} (${result.artifacts.length} artifacts)`);
+    if (!result.valid) process.exitCode = 1;
   } else {
     console.error(usage());
     process.exitCode = 1;

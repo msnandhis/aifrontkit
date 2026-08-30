@@ -61,8 +61,86 @@ test("loads every declared scenario through the real registry fixture harness", 
       if (component === "prompt-input") await expect(frame.getByRole("textbox", { name: "Message" })).toBeVisible();
       if (component === "tool-call") await expect(frame.locator("[data-aifk-tool]")).toBeVisible();
       if (component === "file") await expect(frame.locator("[data-slot=file]")).toBeVisible();
+      if (component === "agent-progress") await expect(frame.locator('[data-fixture-pattern="agent-progress"]')).toBeVisible();
+      if (component === "tool-approval") await expect(frame.locator('[data-fixture-pattern="tool-approval"]')).toBeVisible();
     }
   }
+});
+
+test("covers agent progress and approval decisions as interactive visual states", async ({ page }) => {
+  const componentSwitcher = page.getByRole("group", { name: "Component" });
+  const fixtureNavigation = page.getByRole("complementary", { name: "Component fixtures" });
+  const frame = page.locator(".viewport-frame");
+
+  await componentSwitcher.getByRole("button", { name: /^Agent progress/ }).click();
+  await fixtureNavigation.getByRole("button", { name: /^Running/ }).click();
+  await expect(frame.getByRole("heading", { name: "Audit release readiness" })).toBeVisible();
+  await frame.getByRole("button", { name: "Stop" }).click();
+  await expect(page.locator("[data-fixture-event]")).toContainText("onStop()");
+
+  await fixtureNavigation.getByRole("button", { name: /^Failed/ }).click();
+  await expect(frame.getByRole("alert")).toContainText("Accessibility review needs attention");
+
+  await componentSwitcher.getByRole("button", { name: /^Tool approval/ }).click();
+  await fixtureNavigation.getByRole("button", { name: /^Requested/ }).click();
+  await expect(frame.getByText("Publish version 1.0.0 to the public registry.")).toBeVisible();
+  await frame.getByRole("button", { name: "Approve" }).click();
+  await expect(page.locator("[data-fixture-event]")).toContainText("onApprove()");
+
+  await fixtureNavigation.getByRole("button", { name: /^Expired/ }).click();
+  await expect(frame.getByRole("button", { name: "Approve" })).toBeDisabled();
+  await expect(frame.getByRole("button", { name: "Reject" })).toBeDisabled();
+  expect((await new AxeBuilder({ page }).include(".viewport-frame").analyze()).violations).toEqual([]);
+});
+
+test("keeps pattern visual contracts portable across themes and narrow layouts", async ({ page }) => {
+  const componentSwitcher = page.getByRole("group", { name: "Component" });
+  const fixtureNavigation = page.getByRole("complementary", { name: "Component fixtures" });
+  const frame = page.locator(".viewport-frame");
+
+  await componentSwitcher.getByRole("button", { name: /^Agent progress/ }).click();
+  await page.getByRole("group", { name: "Theme" }).getByRole("button", { name: "Dark" }).click();
+  await fixtureNavigation.getByRole("button", { name: /^Failed/ }).click();
+  await expect(frame.locator("[data-aifk-theme=dark]")).toBeVisible();
+  expect((await new AxeBuilder({ page }).include(".viewport-frame").analyze()).violations).toEqual([]);
+
+  await componentSwitcher.getByRole("button", { name: /^Tool approval/ }).click();
+  await fixtureNavigation.getByRole("button", { name: /^Expired/ }).click();
+  await page.getByRole("group", { name: "Preview viewport" }).getByRole("button", { name: "375" }).click();
+  await expect(frame).toHaveCSS("width", "375px");
+  await expect(frame.locator('[data-fixture-pattern="tool-approval"]')).toBeVisible();
+  expect(await frame.evaluate((element) => element.scrollWidth <= element.clientWidth + 1)).toBe(true);
+  expect((await new AxeBuilder({ page }).include(".viewport-frame").analyze()).violations).toEqual([]);
+});
+
+test("captures reviewed agent and approval pattern baselines", async ({ page }) => {
+  const componentSwitcher = page.getByRole("group", { name: "Component" });
+  const fixtureNavigation = page.getByRole("complementary", { name: "Component fixtures" });
+  const frame = page.locator(".viewport-frame");
+  const theme = page.getByRole("group", { name: "Theme" });
+  const viewport = page.getByRole("group", { name: "Preview viewport" });
+
+  await componentSwitcher.getByRole("button", { name: /^Agent progress/ }).click();
+  await fixtureNavigation.getByRole("button", { name: /^Running/ }).click();
+  await expect(frame).toHaveScreenshot("agent-progress-running-light.webp");
+  await theme.getByRole("button", { name: "Dark" }).click();
+  await fixtureNavigation.getByRole("button", { name: /^Failed/ }).click();
+  await expect(frame).toHaveScreenshot("agent-progress-failed-dark.webp");
+  await viewport.getByRole("button", { name: "375" }).click();
+  await fixtureNavigation.getByRole("button", { name: /^Paused/ }).click();
+  await expect(frame).toHaveScreenshot("agent-progress-paused-dark-375.webp");
+
+  await componentSwitcher.getByRole("button", { name: /^Tool approval/ }).click();
+  await theme.getByRole("button", { name: "Light" }).click();
+  await viewport.getByRole("button", { name: "768" }).click();
+  await fixtureNavigation.getByRole("button", { name: /^Requested/ }).click();
+  await expect(frame).toHaveScreenshot("tool-approval-requested-light.webp");
+  await theme.getByRole("button", { name: "Dark" }).click();
+  await fixtureNavigation.getByRole("button", { name: /^Approved/ }).click();
+  await expect(frame).toHaveScreenshot("tool-approval-approved-dark.webp");
+  await viewport.getByRole("button", { name: "375" }).click();
+  await fixtureNavigation.getByRole("button", { name: /^Expired/ }).click();
+  await expect(frame).toHaveScreenshot("tool-approval-expired-dark-375.webp");
 });
 
 test("exercises prompt input keyboard, pending, and rejection semantics", async ({ page }) => {

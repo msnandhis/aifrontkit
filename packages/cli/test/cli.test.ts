@@ -1,10 +1,13 @@
-import { mkdir, mkdtemp, readFile, symlink, writeFile } from "node:fs/promises";
+import { generateKeyPairSync } from "node:crypto";
+import { cp, mkdir, mkdtemp, readFile, symlink, unlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   addItem,
   aliasToDirectory,
+  createProvenanceTrustPolicy,
+  createRegistryProvenance,
   diffItem,
   initProject,
   getRegistryItemInfo,
@@ -15,7 +18,10 @@ import {
   outputToDirectory,
   planAdd,
   resolveRegistryCatalogItem,
+  verifyRegistryProvenance,
+  writeRegistryProvenance,
 } from "../src/index.js";
+import { createMcpRequestHandler, MCP_PROTOCOL_VERSION } from "../src/mcp.js";
 
 const repositoryRoot = resolve(import.meta.dirname, "../../..");
 
@@ -98,6 +104,111 @@ describe("AIFrontKit CLI", () => {
     const items = await listRegistryItems(repositoryRoot, "agent progress");
     expect(items.map((item) => item.name)).toEqual(["agent-progress"]);
     expect(await getRegistryItemInfo("tool-approval", repositoryRoot)).toMatchObject({ type: "registry:block" });
+  });
+
+  it("serves read-only registry discovery over MCP JSON-RPC", async () => {
+    const handle = createMcpRequestHandler({ registry: repositoryRoot });
+    const initialized = await handle({ jsonrpc: "2.0", id: 1, method: "initialize", params: { protocolVersion: MCP_PROTOCOL_VERSION, capabilities: {}, clientInfo: { name: "test", version: "1" } } });
+    expect(initialized).toMatchObject({ result: { protocolVersion: MCP_PROTOCOL_VERSION, capabilities: { tools: {} } } });
+    await handle({ jsonrpc: "2.0", method: "notifications/initialized" });
+    const listed = await handle({
+      jsonrpc: "2.0",
+      id: 2,
+      method: "tools/call",
+      params: { name: "registry_list", arguments: { query: "approval" } }
+    });
+    expect(listed).toMatchObject({ result: { structuredContent: { value: [{ name: "tool-approval" }] } } });
+    const info = await handle({
+      jsonrpc: "2.0",
+      id: 3,
+      method: "tools/call",
+      params: { name: "registry_info", arguments: { name: "agent-progress" } }
+    });
+    expect(info).toMatchObject({ result: { structuredContent: { name: "agent-progress", type: "registry:block" } } });
+  });
+
+  it("enforces MCP envelopes, lifecycle and exact tool inputs", async () => {
+    const handle = createMcpRequestHandler({ registry: repositoryRoot });
+    await expect(handle({ jsonrpc: "1.0", id: 1, method: "tools/list" })).resolves.toMatchObject({ error: { code: -32600 } });
+    await expect(handle({ jsonrpc: "2.0", method: "tools/list" })).resolves.toMatchObject({ error: { code: -32600 } });
+    await expect(handle({ jsonrpc: "2.0", id: 1, method: "notifications/initialized" })).resolves.toMatchObject({ error: { code: -32600 } });
+    await expect(handle({ jsonrpc: "2.0", id: 2, method: "tools/list" })).resolves.toMatchObject({ error: { code: -32002 } });
+    await expect(handle({ jsonrpc: "2.0", id: 3, method: "initialize", params: {} })).resolves.toMatchObject({ error: { code: -32602 } });
+    await handle({ jsonrpc: "2.0", id: 4, method: "initialize", params: { protocolVersion: MCP_PROTOCOL_VERSION, capabilities: {}, clientInfo: { name: "test", version: "1" } } });
+    await expect(handle({ jsonrpc: "2.0", id: 5, method: "tools/list" })).resolves.toMatchObject({ error: { code: -32002 } });
+    await handle({ jsonrpc: "2.0", method: "notifications/initialized" });
+    await expect(handle({ jsonrpc: "2.0", id: 6, method: "tools/list", params: { _meta: { requestId: "test" } } })).resolves.toMatchObject({ result: { tools: expect.any(Array) } });
+    await expect(handle({ jsonrpc: "2.0", id: 7, method: "tools/call", params: { name: "registry_verify_provenance" } })).resolves.toMatchObject({ result: expect.any(Object) });
+    await expect(handle({ jsonrpc: "2.0", id: 8, method: "tools/call", params: { name: "registry_info", arguments: { name: "file", extra: true } } })).resolves.toMatchObject({ error: { code: -32602 } });
+    await expect(handle({ jsonrpc: "2.0", id: 9, method: "tools/call", params: { name: "unknown", arguments: {} } })).resolves.toMatchObject({ error: { code: -32601 } });
+    await expect(handle({ jsonrpc: "2.0", id: 10, method: "unknown" })).resolves.toMatchObject({ error: { code: -32601 } });
+    await expect(handle({ jsonrpc: "2.0", id: 11, method: "tools/call", params: { name: "registry_info", arguments: { name: "missing" } } })).resolves.toMatchObject({ result: { isError: true } });
+  });
+
+  it("signs and verifies current registry artifacts with an explicit trust key", async () => {
+    const root = await mkdtemp(join(tmpdir(), "aifrontkit-provenance-"));
+    await cp(join(repositoryRoot, "registry"), join(root, "registry"), { recursive: true });
+    const { privateKey, publicKey } = generateKeyPairSync("ed25519", {
+      privateKeyEncoding: { type: "pkcs8", format: "pem" },
+      publicKeyEncoding: { type: "spki", format: "pem" }
+    });
+    const document = await createRegistryProvenance(root, {
+      keyId: "test-release",
+      privateKey,
+      generatedAt: "2026-08-30T00:00:00.000Z"
+    });
+    expect(document.artifacts.length).toBeGreaterThan(1);
+    expect(document.artifacts.every((artifact) => artifact.signature.length > 40)).toBe(true);
+    await expect(verifyRegistryProvenance(root, {
+      document,
+      trustedPublicKeys: { "test-release": publicKey },
+      requireTrustedKey: true
+    })).resolves.toMatchObject({ valid: true, trusted: true, errors: [] });
+
+    const retimestamped = { ...document, generatedAt: "2026-08-31T00:00:00.000Z" };
+    await expect(verifyRegistryProvenance(root, { document: retimestamped })).resolves.toMatchObject({ valid: false });
+
+    const sourcePath = join(root, "registry/react/css/patterns/tool-approval/tool-approval.tsx");
+    await writeFile(sourcePath, `${await readFile(sourcePath, "utf8")}\n// tampered\n`);
+    const result = await verifyRegistryProvenance(root, { document });
+    expect(result.valid).toBe(false);
+    expect(result.errors).toEqual(expect.arrayContaining([expect.stringMatching(/changed after signing/)]));
+  });
+
+  it("distinguishes a valid self-declared signature from a trusted signer", async () => {
+    const { privateKey } = generateKeyPairSync("ed25519", { privateKeyEncoding: { type: "pkcs8", format: "pem" } });
+    const document = await createRegistryProvenance(repositoryRoot, { keyId: "community", privateKey });
+    const result = await verifyRegistryProvenance(repositoryRoot, { document });
+    expect(result).toMatchObject({ valid: true, trusted: false, keyId: "community" });
+    const cliDefault = await verifyRegistryProvenance(repositoryRoot, { document, ...createProvenanceTrustPolicy() });
+    expect(cliDefault).toMatchObject({ valid: false, trusted: false });
+    expect(cliDefault.errors).toContain("Signing key 'community' is not trusted.");
+    await expect(verifyRegistryProvenance(repositoryRoot, { document, ...createProvenanceTrustPolicy(undefined, true) })).resolves.toMatchObject({ valid: true, trusted: false });
+  });
+
+  it("rejects registry reads and provenance writes through escaping symlinks", async () => {
+    const registryRoot = await mkdtemp(join(tmpdir(), "aifrontkit-registry-symlink-"));
+    await cp(join(repositoryRoot, "registry"), join(registryRoot, "registry"), { recursive: true });
+    const outside = await mkdtemp(join(tmpdir(), "aifrontkit-registry-outside-"));
+    const outsideSource = join(outside, "file.tsx");
+    await writeFile(outsideSource, "export const escaped = true;\n");
+    const sourcePath = join(registryRoot, "registry/react/css/components/file/file.tsx");
+    await unlink(sourcePath);
+    await symlink(outsideSource, sourcePath);
+    const { privateKey } = generateKeyPairSync("ed25519", { privateKeyEncoding: { type: "pkcs8", format: "pem" } });
+    await expect(createRegistryProvenance(registryRoot, { keyId: "test", privateKey })).rejects.toThrow(/symlink outside the registry root/);
+    const projectRoot = await mkdtemp(join(tmpdir(), "aifrontkit-registry-project-"));
+    await initProject(projectRoot, { registry: registryRoot });
+    await expect(planAdd(projectRoot, "file")).rejects.toThrow(/symlink outside the registry root/);
+
+    await unlink(sourcePath);
+    await writeFile(sourcePath, "export const File = true;\n");
+    const document = await createRegistryProvenance(registryRoot, { keyId: "test", privateKey });
+    const outsideOutput = join(outside, "provenance.json");
+    await writeFile(outsideOutput, "unchanged\n");
+    await symlink(outsideOutput, join(registryRoot, "registry/provenance.json"));
+    await expect(writeRegistryProvenance(registryRoot, document)).rejects.toThrow(/symlink outside the registry root/);
+    expect(await readFile(outsideOutput, "utf8")).toBe("unchanged\n");
   });
 
   it("fails closed for unavailable targets and cross-flavor updates", async () => {

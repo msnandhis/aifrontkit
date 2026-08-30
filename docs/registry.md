@@ -41,6 +41,16 @@ Signed or hash-verified manifests bind item versions to file contents. Installed
 provenance records the exact target and resolved manifest path for diff-based
 upgrades. Switching flavor never silently replaces installed source.
 
+The detached provenance schema lives at `contracts/registry/provenance.schema.json`.
+It signs the catalog and every public targeted manifest with Ed25519. Item
+signatures also bind the SHA-256 digest of each declared source file. Verification
+distinguishes cryptographic validity from identity trust so community mirrors can
+use their own keys without being presented as official.
+
+Signing keys remain outside the repository. Release automation creates the bundle
+with `aifrontkit provenance-sign`; consumers and MCP clients verify it with an
+explicit public key trust policy.
+
 ## Publishing workflow
 
 Validate schema → resolve dependencies → build previews → run tests/security scans → review documentation/license → create immutable version → publish index entry. Published versions are immutable; corrections produce a new version or explicit revocation advisory.

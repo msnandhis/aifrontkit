@@ -14,6 +14,8 @@ export type ToolStatus = "pending" | "input-streaming" | "running" | "approval-r
 export type TaskStatus = "queued" | "running" | "awaiting-approval" | "paused" | "complete" | "failed" | "cancelled";
 /** Lifecycle of one task step. */
 export type TaskStepStatus = "pending" | "running" | "complete" | "failed" | "cancelled" | "skipped";
+/** Browser-visible transport lifecycle. It does not prescribe a network client. */
+export type ConnectionStatus = "connected" | "reconnecting" | "offline" | "failed";
 
 /** IDs are required by v2 part-addressed events; persisted v1 data may omit them. */
 export interface BaseContentPart {
@@ -165,4 +167,18 @@ export interface AgentTask {
   completedAt?: number;
   error?: string;
   metadata?: Record<string, unknown>;
+}
+
+/**
+ * A frontend projection of connectivity. Adapters can map browser or transport
+ * signals into this model without giving the core runtime ownership of retries.
+ */
+export interface ConnectionState {
+  status: ConnectionStatus;
+  /** Zero-based retry count for the current interruption. */
+  attempt: number;
+  updatedAt: number;
+  nextRetryAt?: number;
+  reason?: string;
+  error?: string;
 }

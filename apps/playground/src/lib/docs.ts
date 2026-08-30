@@ -1,6 +1,6 @@
 import type { ComponentType } from "react";
 import navigationData from "../../../../content/docs/navigation.json" with { type: "json" };
-import searchSources from "virtual:aifrontkit-docs-search";
+import documentationMetadata from "virtual:aifrontkit-docs-metadata";
 
 export interface DocFrontmatter {
   title: string;
@@ -8,7 +8,7 @@ export interface DocFrontmatter {
   status?: string;
 }
 
-interface DocModule {
+export interface DocModule {
   default: ComponentType;
   frontmatter: DocFrontmatter;
 }
@@ -18,9 +18,8 @@ export interface DocPage extends DocFrontmatter {
   path: string;
   sectionId: string;
   sectionTitle: string;
-  searchText: string;
   component?: "conversation" | "message" | "prompt-input" | "file" | "tool-call";
-  Content: ComponentType;
+  load(): Promise<DocModule>;
 }
 
 export interface DocSection {
@@ -29,7 +28,7 @@ export interface DocSection {
   pages: DocPage[];
 }
 
-const modules = import.meta.glob<DocModule>("../../../../content/docs/**/*.md", { eager: true });
+const modules = import.meta.glob<DocModule>("../../../../content/docs/**/*.md");
 
 export function fileToPath(file: string) {
   const clean = file.replace(/\.md$/, "");
@@ -47,7 +46,7 @@ function componentFromFile(file: string): DocPage["component"] {
   return undefined;
 }
 
-function moduleFor(file: string) {
+function loaderFor(file: string) {
   const key = Object.keys(modules).find((candidate) => candidate.endsWith(`/content/docs/${file}`));
   if (!key) throw new Error(`Documentation navigation references a missing page: ${file}`);
   return modules[key]!;
@@ -57,17 +56,17 @@ export const docSections: DocSection[] = navigationData.sections.map((section) =
   id: section.id,
   title: section.title,
   pages: section.pages.map((file) => {
-    const module = moduleFor(file);
+    const frontmatter = documentationMetadata[file];
+    if (!frontmatter) throw new Error(`Documentation metadata is missing a navigation page: ${file}`);
     const component = componentFromFile(file);
     return {
-      ...module.frontmatter,
+      ...frontmatter,
       file,
       path: fileToPath(file),
       sectionId: section.id,
       sectionTitle: section.title,
-      searchText: searchSources[file] ?? "",
       ...(component ? { component } : {}),
-      Content: module.default,
+      load: loaderFor(file),
     };
   }),
 }));

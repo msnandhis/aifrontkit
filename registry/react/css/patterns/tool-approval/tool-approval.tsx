@@ -9,11 +9,12 @@ export interface ToolApprovalProps {
   approvalId?: string;
   target: string;
   reversible: boolean;
+  headingLevel?: 2 | 3 | 4;
   onApprove(): void;
   onReject(): void;
 }
 
-export function ToolApproval({ summary, approval, approvalId, target, reversible, onApprove, onReject }: ToolApprovalProps) {
+export function ToolApproval({ summary, approval, approvalId, target, reversible, headingLevel = 2, onApprove, onReject }: ToolApprovalProps) {
   const controlled: Approval = {
     id: "controlled-approval",
     toolCallId: "controlled-tool",
@@ -21,9 +22,10 @@ export function ToolApproval({ summary, approval, approvalId, target, reversible
     status: "requested"
   };
   const rootProps = approval ? { approval } : approvalId ? { approvalId } : { approval: controlled };
+  const Heading = `h${headingLevel}` as "h2" | "h3" | "h4";
   return (
     <ApprovalPrimitive.Root {...rootProps} onApprove={onApprove} onReject={onReject}>
-      <h3>Approval required</h3>
+      <Heading>Approval required</Heading>
       <ApprovalPrimitive.Summary />
       <dl><dt>Target</dt><dd>{target}</dd><dt>Reversible</dt><dd>{reversible ? "Yes" : "No"}</dd></dl>
       <ApprovalPrimitive.Reject />

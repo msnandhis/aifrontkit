@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { createRuntime, type Message } from "@aifrontkit/core";
-import { AIFrontKitProvider, ApprovalPrimitive, ComposerPrimitive, ConversationPrimitive, MessagePrimitive, TaskPrimitive, ThemeProvider, ToolPrimitive } from "../src/index.js";
+import { AIFrontKitProvider, ApprovalPrimitive, ComposerPrimitive, ConnectionPrimitive, ConversationPrimitive, MessagePrimitive, TaskPrimitive, ThemeProvider, ToolPrimitive } from "../src/index.js";
 
 describe("React primitives", () => {
   it("renders normalized runtime state without owning visual styling", () => {
@@ -278,6 +278,53 @@ describe("React primitives", () => {
       </ApprovalPrimitive.Root>
     );
     expect(html.match(/disabled=""/g)).toHaveLength(2);
+  });
+
+  it("renders reconnecting state as a polite busy status", () => {
+    const runtime = createRuntime("thread-connection", [{
+      schemaVersion: 3, id: "connection-1", threadId: "thread-connection", timestamp: 1,
+      type: "connection.changed", status: "reconnecting", attempt: 2, nextRetryAt: 10
+    }]);
+    const html = renderToStaticMarkup(
+      <AIFrontKitProvider runtime={runtime}>
+        <ConnectionPrimitive.Root>
+          <ConnectionPrimitive.Status />
+          <ConnectionPrimitive.Message />
+          <ConnectionPrimitive.Retry />
+        </ConnectionPrimitive.Root>
+      </AIFrontKitProvider>
+    );
+    expect(html).toContain('aria-label="Connection status"');
+    expect(html).toContain('aria-busy="true"');
+    expect(html).toContain('data-status="reconnecting"');
+    expect(html).toContain('data-attempt="2"');
+    expect(html).toContain('aria-live="polite"');
+    expect(html).not.toContain("Retry connection");
+  });
+
+  it("renders an offline state and disables retry without a handler", () => {
+    const html = renderToStaticMarkup(
+      <ConnectionPrimitive.Root connection={{ status: "offline", attempt: 1, updatedAt: 1, reason: "Browser offline" }}>
+        <ConnectionPrimitive.Status />
+        <ConnectionPrimitive.Message />
+        <ConnectionPrimitive.Retry />
+      </ConnectionPrimitive.Root>
+    );
+    expect(html).toContain("You are offline");
+    expect(html).toContain("Browser offline");
+    expect(html).toContain('type="button"');
+    expect(html).toContain("Retry connection");
+    expect(html).toContain('disabled=""');
+  });
+
+  it("enables controlled connection retry when an action is supplied", () => {
+    const html = renderToStaticMarkup(
+      <ConnectionPrimitive.Root connection={{ status: "failed", attempt: 2, updatedAt: 2, error: "Retries exhausted" }} onRetry={() => undefined}>
+        <ConnectionPrimitive.Retry />
+      </ConnectionPrimitive.Root>
+    );
+    expect(html).toContain("Retry connection");
+    expect(html).not.toContain("disabled");
   });
 
   it("projects a configurable theme onto a scoped root", () => {

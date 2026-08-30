@@ -1,6 +1,7 @@
 # Product strategy
 
 - [9.2 product and architecture upgrade](./9-2-upgrade-plan.md)
+- [Trusted publishing and release provenance](./trusted-publishing.md)
 
 These public documents define AIFrontKit's product boundary and cross-repository contracts.
 

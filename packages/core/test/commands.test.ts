@@ -30,4 +30,11 @@ describe("frontend command contract", () => {
       type: "message.send", messageId: "message-1", parts: []
     })).toThrow(/non-empty/);
   });
+
+  it("accepts a provider-neutral manual connection retry", () => {
+    expect(() => assertCommand({
+      schemaVersion: 1, id: "connection-retry", threadId: "thread-1", timestamp: 3,
+      type: "connection.retry"
+    })).not.toThrow();
+  });
 });

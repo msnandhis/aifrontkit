@@ -16,6 +16,7 @@ interface CommandEnvelope {
 export type AIFrontCommand =
   | (CommandEnvelope & { type: "message.send"; messageId: string; parts: ContentPart[]; metadata?: Record<string, unknown> })
   | (CommandEnvelope & { type: "message.retry"; messageId: string })
+  | (CommandEnvelope & { type: "connection.retry" })
   | (CommandEnvelope & { type: "task.stop"; taskId: string; reason?: string })
   | (CommandEnvelope & { type: "task.resume"; taskId: string })
   | (CommandEnvelope & { type: "approval.resolve"; approvalId: string; resolution: "approved" | "rejected" })
@@ -40,6 +41,7 @@ export function assertCommand(value: unknown): asserts value is AIFrontCommand {
       if (command.parts.some((part) => !part || typeof part !== "object" || typeof (part as Record<string, unknown>).type !== "string")) throw new InvalidCommandError("message.send parts must contain typed objects.");
       return;
     case "message.retry": requiredString(command, "messageId"); return;
+    case "connection.retry": return;
     case "task.stop":
     case "task.resume": requiredString(command, "taskId"); return;
     case "approval.resolve":

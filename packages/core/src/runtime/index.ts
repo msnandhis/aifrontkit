@@ -1,6 +1,6 @@
 import { assertEvent, type AIFrontEvent, type AIFrontEventV3 } from "../events/index.js";
 import { migrateEventToCurrent } from "../migrations/index.js";
-import type { AgentTask, Approval, Artifact, ContentPart, ConversationStatus, Message, ToolCall, ToolContentPart } from "../model/index.js";
+import type { AgentTask, Approval, Artifact, ConnectionState, ContentPart, ConversationStatus, Message, ToolCall, ToolContentPart } from "../model/index.js";
 
 export interface RuntimeState {
   threadId: string;
@@ -11,11 +11,23 @@ export interface RuntimeState {
   artifacts: Readonly<Record<string, Artifact>>;
   taskOrder: readonly string[];
   tasks: Readonly<Record<string, AgentTask>>;
+  connection: ConnectionState;
   processedEventIds: ReadonlySet<string>;
 }
 
 export function createInitialState(threadId: string): RuntimeState {
-  return { threadId, messageOrder: [], messages: {}, tools: {}, approvals: {}, artifacts: {}, taskOrder: [], tasks: {}, processedEventIds: new Set() };
+  return {
+    threadId,
+    messageOrder: [],
+    messages: {},
+    tools: {},
+    approvals: {},
+    artifacts: {},
+    taskOrder: [],
+    tasks: {},
+    connection: { status: "connected", attempt: 0, updatedAt: 0 },
+    processedEventIds: new Set()
+  };
 }
 
 export function createStateFromMessages(threadId: string, messages: readonly Message[]): RuntimeState {
@@ -245,6 +257,22 @@ export function reduceEvent(state: RuntimeState, input: AIFrontEvent): RuntimeSt
             stepOrder: existing ? task.stepOrder : [...task.stepOrder, event.step.id],
             steps: { ...task.steps, [event.step.id]: nextStep }
           }
+        }
+      };
+    }
+    case "connection.changed": {
+      if (event.timestamp < state.connection.updatedAt) return state;
+      const attempt = event.status === "connected" ? 0 : event.attempt ?? state.connection.attempt;
+      return {
+        ...state,
+        processedEventIds,
+        connection: {
+          status: event.status,
+          attempt,
+          updatedAt: event.timestamp,
+          ...(event.status === "reconnecting" && event.nextRetryAt !== undefined ? { nextRetryAt: event.nextRetryAt } : {}),
+          ...(event.reason === undefined ? {} : { reason: event.reason }),
+          ...(event.status === "failed" && event.error !== undefined ? { error: event.error } : {})
         }
       };
     }

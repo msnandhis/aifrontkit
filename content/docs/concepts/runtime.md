@@ -28,3 +28,8 @@ network behavior remain customer-owned.
 Long-running work uses `AgentTask` and ordered `TaskStep` records. Task state is
 separate from messages so a paused run, approval wait or failed step stays
 representable even when no component is mounted.
+
+Connection state is also a projection rather than a network client. Transports
+emit `connection.changed` facts for connected, reconnecting, offline and failed
+states. Applications handle `connection.retry` and decide how backoff, browser
+signals and provider reconnection work.

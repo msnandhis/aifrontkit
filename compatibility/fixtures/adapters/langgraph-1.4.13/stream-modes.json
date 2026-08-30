@@ -1,0 +1,21 @@
+{
+  "fixtureSchemaVersion": 1,
+  "upstream": {
+    "package": "@langchain/langgraph",
+    "version": "1.4.13",
+    "protocol": "streamMode tuples",
+    "capturedAt": "2026-08-30",
+    "source": "https://docs.langchain.com/oss/javascript/langgraph/streaming"
+  },
+  "chunks": [
+    ["messages", [{ "id": "message-1", "content": "First pass" }, { "langgraph_node": "research" }]],
+    ["updates", { "research": { "sources": 2 } }],
+    ["messages", [{ "id": "message-1", "content": "Second pass" }, { "langgraph_node": "research" }]],
+    ["updates", { "research": { "sources": 4 } }],
+    ["tools", { "event": "on_tool_start", "name": "fetch", "toolCallId": "tool-1", "input": { "url": "https://one.example" } }],
+    ["tools", { "event": "on_tool_start", "name": "fetch", "toolCallId": "tool-2", "input": { "url": "https://two.example" } }],
+    ["tools", { "event": "on_tool_end", "name": "fetch", "toolCallId": "tool-1", "output": { "status": 200 } }],
+    ["tools", { "event": "on_tool_error", "name": "fetch", "toolCallId": "tool-2", "error": "temporary network failure" }]
+  ],
+  "expectedTypes": ["task.started", "message.started", "message.part.added", "task.step.updated", "message.part.delta", "task.step.updated", "task.step.updated", "message.part.delta", "task.step.updated", "tool.updated", "tool.updated", "tool.updated", "tool.updated", "message.part.status", "message.completed", "task.updated"]
+}

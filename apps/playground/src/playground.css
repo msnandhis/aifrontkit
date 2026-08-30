@@ -326,3 +326,18 @@ kbd { padding: 0.12rem 0.35rem; border: 1px solid var(--aifk-border); border-rad
   .component-playground, .search-dialog, .page-pagination a { border: 1px solid CanvasText; }
   .brand-mark { border: 1px solid ButtonText; }
 }
+.component-preview-loading {
+  display: grid;
+  min-height: 18rem;
+  place-items: center;
+  color: var(--aifk-text-muted);
+  background: var(--aifk-surface-subtle);
+  border: 1px solid var(--aifk-border);
+  border-radius: var(--aifk-radius-large);
+}
+
+.documentation-loading {
+  min-height: 12rem;
+  padding-block: 3rem;
+  color: var(--aifk-text-muted);
+}

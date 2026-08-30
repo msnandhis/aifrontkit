@@ -12,6 +12,8 @@
       "@aifrontkit/react/composer": ["packages/react/src/composer/index.tsx"],
       "@aifrontkit/react/message": ["packages/react/src/message/index.tsx"],
       "@aifrontkit/react/tool": ["packages/react/src/tool/index.tsx"],
+      "@aifrontkit/react/task": ["packages/react/src/task/index.tsx"],
+      "@aifrontkit/react/approval": ["packages/react/src/approval/index.tsx"],
       "@aifrontkit/testing": ["packages/testing/src/index.ts"]
     }
   },

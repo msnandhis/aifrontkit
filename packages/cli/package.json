@@ -6,6 +6,11 @@
   "license": "Apache-2.0",
   "bin": { "aifrontkit": "./dist/bin.js" },
   "files": ["dist"],
+  "exports": {
+    ".": "./dist/index.js",
+    "./mcp": "./dist/mcp.js",
+    "./provenance": "./dist/provenance.js"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",

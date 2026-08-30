@@ -1,0 +1,36 @@
+{
+  "fixtureSchemaVersion": 1,
+  "upstream": {
+    "package": "@ag-ui/core",
+    "version": "0.0.59",
+    "protocol": "AG-UI event stream",
+    "capturedAt": "2026-08-30",
+    "source": "https://docs.ag-ui.com/sdk/js/core/events"
+  },
+  "scenarios": [
+    {
+      "name": "repeated step and reasoning lifecycle",
+      "events": [
+        { "type": "RUN_STARTED", "threadId": "thread-1", "runId": "run-1", "timestamp": 100 },
+        { "type": "STEP_STARTED", "stepName": "search", "timestamp": 101 },
+        { "type": "STEP_FINISHED", "stepName": "search", "timestamp": 102 },
+        { "type": "STEP_STARTED", "stepName": "search", "timestamp": 103 },
+        { "type": "STEP_FINISHED", "stepName": "search", "timestamp": 104 },
+        { "type": "REASONING_MESSAGE_START", "messageId": "reasoning-1", "role": "reasoning", "timestamp": 105 },
+        { "type": "REASONING_MESSAGE_CONTENT", "messageId": "reasoning-1", "delta": "Checking sources", "timestamp": 106 },
+        { "type": "REASONING_MESSAGE_END", "messageId": "reasoning-1", "timestamp": 107 },
+        { "type": "RUN_FINISHED", "threadId": "thread-1", "runId": "run-1", "result": { "status": "ok" }, "timestamp": 108 }
+      ],
+      "expectedTypes": ["task.started", "task.step.updated", "task.step.updated", "task.step.updated", "task.step.updated", "message.started", "message.part.added", "message.part.delta", "message.part.status", "message.completed", "task.updated"]
+    },
+    {
+      "name": "transient run failure",
+      "events": [
+        { "type": "RUN_STARTED", "threadId": "thread-1", "runId": "run-retry", "timestamp": 200 },
+        { "type": "STEP_STARTED", "stepName": "retry provider", "timestamp": 201 },
+        { "type": "RUN_ERROR", "message": "gateway unavailable", "code": "UPSTREAM_UNAVAILABLE", "timestamp": 202 }
+      ],
+      "expectedTypes": ["task.started", "task.step.updated", "task.step.updated", "task.updated"]
+    }
+  ]
+}

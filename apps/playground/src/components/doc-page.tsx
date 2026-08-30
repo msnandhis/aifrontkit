@@ -1,10 +1,14 @@
 import { MDXProvider } from "@mdx-js/react";
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { adjacentDocs, type DocPage } from "../lib/docs.js";
-import { ComponentPreview } from "./component-preview.js";
 import { Icon } from "./icons.js";
 import { mdxComponents } from "./mdx-components.js";
+
+const ComponentPreview = lazy(async () => {
+  const module = await import("./component-preview.js");
+  return { default: module.ComponentPreview };
+});
 
 export interface OutlineItem {
   id: string;
@@ -17,20 +21,30 @@ export function DocumentationPage({ doc, onOutline }: { doc: DocPage; onOutline(
   const location = useLocation();
   const { previous, next } = adjacentDocs(doc.path);
   const [copied, setCopied] = useState(false);
+  const Content = useMemo(() => lazy(async () => {
+    const module = await doc.load();
+    return { default: module.default };
+  }), [doc]);
 
   useEffect(() => {
     document.title = `${doc.title} – AIFrontKit`;
-    const headings = Array.from(articleRef.current?.querySelectorAll("h2, h3") ?? []);
-    const seen = new Map<string, number>();
-    const items = headings.map((heading) => {
-      const base = slugify(heading.textContent ?? "section");
-      const count = seen.get(base) ?? 0;
-      seen.set(base, count + 1);
-      heading.id ||= count ? `${base}-${count + 1}` : base;
-      return { id: heading.id, label: heading.textContent ?? "Section", level: Number(heading.tagName.slice(1)) as 2 | 3 };
-    });
-    onOutline(items);
+    const refreshOutline = () => {
+      const headings = Array.from(articleRef.current?.querySelectorAll("h2, h3") ?? []);
+      const seen = new Map<string, number>();
+      const items = headings.map((heading) => {
+        const base = slugify(heading.textContent ?? "section");
+        const count = seen.get(base) ?? 0;
+        seen.set(base, count + 1);
+        heading.id ||= count ? `${base}-${count + 1}` : base;
+        return { id: heading.id, label: heading.textContent ?? "Section", level: Number(heading.tagName.slice(1)) as 2 | 3 };
+      });
+      onOutline(items);
+    };
+    refreshOutline();
+    const observer = new MutationObserver(refreshOutline);
+    if (articleRef.current) observer.observe(articleRef.current, { childList: true, subtree: true });
     requestAnimationFrame(() => document.getElementById("page-title")?.focus({ preventScroll: true }));
+    return () => observer.disconnect();
   }, [doc, location.pathname, onOutline]);
 
   async function copyLink() {
@@ -52,9 +66,15 @@ export function DocumentationPage({ doc, onOutline }: { doc: DocPage; onOutline(
         <p>{doc.description}</p>
         <button className="copy-link" type="button" onClick={copyLink}><Icon name={copied ? "check" : "copy"} />{copied ? "Copied" : "Copy link"}</button>
       </header>
-      {doc.component ? <ComponentPreview component={doc.component} /> : null}
+      {doc.component ? (
+        <Suspense fallback={<div className="component-preview-loading" role="status">Loading interactive preview…</div>}>
+          <ComponentPreview component={doc.component} />
+        </Suspense>
+      ) : null}
       <div className="mdx-content">
-        <MDXProvider components={mdxComponents}><doc.Content /></MDXProvider>
+        <Suspense fallback={<div className="documentation-loading" role="status">Loading documentation…</div>}>
+          <MDXProvider components={mdxComponents}><Content /></MDXProvider>
+        </Suspense>
       </div>
       <nav className="page-pagination" aria-label="Documentation pagination">
         {previous ? <Link to={previous.path}><span>Previous</span><strong>{previous.title}</strong></Link> : <span />}

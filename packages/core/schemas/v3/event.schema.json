@@ -25,7 +25,8 @@
         "artifact.updated",
         "task.started",
         "task.updated",
-        "task.step.updated"
+        "task.step.updated",
+        "connection.changed"
       ]
     }
   },

@@ -1,0 +1,44 @@
+{
+  "fixtureSchemaVersion": 1,
+  "upstream": {
+    "package": "ai",
+    "version": "7.0.85",
+    "protocol": "UI message stream v1",
+    "capturedAt": "2026-08-30",
+    "source": "https://ai-sdk.dev/docs/ai-sdk-ui/stream-protocol"
+  },
+  "scenarios": [
+    {
+      "name": "tool approval lifecycle",
+      "parts": [
+        { "type": "start", "messageId": "message-1" },
+        { "type": "tool-input-start", "toolCallId": "call-1", "toolName": "deploy" },
+        { "type": "tool-input-delta", "toolCallId": "call-1", "inputTextDelta": "{\"target\":\"preview\"}" },
+        { "type": "tool-input-available", "toolCallId": "call-1", "toolName": "deploy", "input": { "target": "preview" } },
+        { "type": "tool-approval-request", "approvalId": "approval-1", "toolCallId": "call-1", "summary": "Deploy preview" },
+        { "type": "tool-output-available", "toolCallId": "call-1", "output": { "url": "https://preview.example" } },
+        { "type": "finish" }
+      ],
+      "expectedTypes": ["message.started", "tool.updated", "tool.updated", "tool.updated", "tool.updated", "approval.requested", "tool.updated", "message.completed"]
+    },
+    {
+      "name": "transient upstream failure",
+      "parts": [
+        { "type": "start", "messageId": "message-failed" },
+        { "type": "text-start", "id": "text-1" },
+        { "type": "error", "errorText": "provider connection reset" },
+        { "type": "finish" }
+      ],
+      "expectedTypes": ["message.started", "message.part.added", "message.failed"]
+    },
+    {
+      "name": "user abort",
+      "parts": [
+        { "type": "start", "messageId": "message-aborted" },
+        { "type": "abort", "reason": "user cancelled" },
+        { "type": "finish" }
+      ],
+      "expectedTypes": ["message.started", "message.interrupted"]
+    }
+  ]
+}
