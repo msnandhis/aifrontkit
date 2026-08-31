@@ -639,7 +639,7 @@ test("enforces File lifecycle, safe download, keyboard, and unavailable-source s
 test("keeps touch actions at least 44px in a coarse-pointer browser", async ({ browser }) => {
   const context = await browser.newContext({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
   const page = await context.newPage();
-  await page.goto(process.env.AIFRONTKIT_LAB_URL ?? "http://127.0.0.1:5174/");
+  await page.goto(process.env.AIFRONTKIT_LAB_URL ?? "http://127.0.0.1:5180/");
   const action = page.getByRole("button", { name: "Add attachment" });
   await expect(action).toBeVisible();
   const box = await action.boundingBox();
