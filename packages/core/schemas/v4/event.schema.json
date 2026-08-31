@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aifrontkit.dev/schemas/events/v4.json",
+  "title": "AIFrontKit event envelope v4",
+  "type": "object",
+  "required": ["schemaVersion", "id", "threadId", "timestamp", "type"],
+  "properties": {
+    "schemaVersion": { "const": 4 },
+    "id": { "type": "string", "minLength": 1 },
+    "threadId": { "type": "string", "minLength": 1 },
+    "timestamp": { "type": "number" },
+    "type": {
+      "enum": [
+        "message.started",
+        "message.part.added",
+        "message.part.delta",
+        "message.part.updated",
+        "message.part.status",
+        "message.completed",
+        "message.interrupted",
+        "message.failed",
+        "tool.updated",
+        "approval.requested",
+        "approval.resolved",
+        "artifact.updated",
+        "task.started",
+        "task.updated",
+        "task.step.updated",
+        "connection.changed",
+        "checkpoint.updated"
+      ]
+    },
+    "checkpoint": {
+      "type": "object",
+      "required": ["id", "version", "sequence", "kind", "title", "status", "restorable", "createdAt", "updatedAt"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "version": { "type": "integer", "minimum": 1 },
+        "sequence": { "type": "integer", "minimum": 0 },
+        "kind": { "enum": ["automatic", "manual", "approval-boundary", "interruption"] },
+        "title": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["available", "restoring", "restored", "failed", "expired", "incompatible", "superseded"] },
+        "restorable": { "type": "boolean" },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" },
+        "summary": { "type": "string", "minLength": 1 },
+        "sourceTaskId": { "type": "string", "minLength": 1 },
+        "sourceStepId": { "type": "string", "minLength": 1 },
+        "sourceTaskVersion": { "type": "integer", "minimum": 1 },
+        "expiresAt": { "type": "number" },
+        "completedStepIds": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+        "reason": { "type": "string", "minLength": 1 },
+        "error": { "type": "string", "minLength": 1 },
+        "metadata": { "type": "object" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "type": { "const": "checkpoint.updated" } }, "required": ["type"] },
+      "then": { "required": ["checkpoint"] }
+    }
+  ],
+  "additionalProperties": true
+}

@@ -53,6 +53,7 @@
 .research-agent__primary { justify-self: start; padding-inline: 1rem; color: var(--aifk-accent-contrast); background: var(--aifk-accent); border: 0; border-radius: var(--aifk-radius-medium); cursor: pointer; }
 
 .research-agent__work-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(12rem, 0.8fr); gap: var(--aifk-space-3); align-items: start; }
+.research-agent__work-primary { display: grid; gap: var(--aifk-space-3); min-inline-size: 0; }
 .research-agent__tool { display: grid; gap: var(--aifk-space-3); min-inline-size: 0; padding: var(--aifk-space-4); background: var(--aifk-surface); border: 1px solid var(--aifk-border); border-radius: var(--aifk-radius-large); }
 .research-agent__tool header { justify-content: space-between; color: var(--aifk-text-muted); font-size: var(--aifk-type-font-size-xs); text-transform: capitalize; }
 .research-agent__tool strong { overflow-wrap: anywhere; font: 600 var(--aifk-type-font-size-sm)/1.4 ui-monospace, SFMono-Regular, Consolas, monospace; }

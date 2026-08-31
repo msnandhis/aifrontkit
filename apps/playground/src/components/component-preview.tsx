@@ -26,6 +26,7 @@ const playgrounds: Record<ComponentName, LazyExoticComponent<ComponentType>> = {
   "agent-progress": lazyPlayground(async () => (await import("../playground/definitions/agent-progress.playground.js")).agentProgressPlayground as unknown as AnyPlaygroundDefinition),
   "tool-approval": lazyPlayground(async () => (await import("../playground/definitions/tool-approval.playground.js")).toolApprovalPlayground as unknown as AnyPlaygroundDefinition),
   "artifact-review": lazyPlayground(async () => (await import("../playground/definitions/artifact-review.playground.js")).artifactReviewPlayground as unknown as AnyPlaygroundDefinition),
+  "checkpoint-recovery": lazyPlayground(async () => (await import("../playground/definitions/checkpoint-recovery.playground.js")).checkpointRecoveryPlayground as unknown as AnyPlaygroundDefinition),
   "research-agent": lazyPlayground(async () => (await import("../playground/definitions/research-agent.playground.js")).researchAgentPlayground as unknown as AnyPlaygroundDefinition),
 };
 

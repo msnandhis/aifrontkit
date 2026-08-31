@@ -52,6 +52,7 @@
         "primitives/file.md",
         "primitives/tool-call.md",
         "primitives/task.md",
+        "primitives/checkpoint.md",
         "primitives/approval.md",
         "primitives/connection.md",
         "primitives/artifact.md"
@@ -74,6 +75,7 @@
         "patterns/agent-progress.md",
         "patterns/tool-approval.md",
         "patterns/artifact-review.md",
+        "patterns/checkpoint-recovery.md",
         "patterns/research-agent.md"
       ]
     },

@@ -152,9 +152,11 @@ describe("framework-neutral runtime", () => {
     expect(v2).toMatchObject({ schemaVersion: 2, type: "message.part.delta", partId: "text:0" });
   });
 
-  it("migrates v2 part events to the current v3 envelope", () => {
+  it("migrates v2 part events through v3 to the current v4 envelope", () => {
     const current = migrateEventToCurrent({ schemaVersion: 2, id: "v2-current", threadId: "thread-1", timestamp: 1, type: "message.completed", messageId: "m1" });
-    expect(current).toMatchObject({ schemaVersion: 3, type: "message.completed", messageId: "m1" });
+    expect(current).toMatchObject({ schemaVersion: 4, type: "message.completed", messageId: "m1" });
+    const fromV3 = migrateEventToCurrent({ schemaVersion: 3, id: "v3-current", threadId: "thread-1", timestamp: 1, type: "connection.changed", status: "connected" });
+    expect(fromV3).toMatchObject({ schemaVersion: 4, type: "connection.changed", status: "connected" });
   });
 
   it("derives conversation lifecycle separately from message lifecycle", () => {

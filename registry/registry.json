@@ -13,6 +13,7 @@
     { "name": "tool-approval", "type": "registry:block", "title": "Tool approval", "description": "Explicit consequential-action approval pattern.", "targets": [{ "framework": "react", "flavor": "css-modules", "manifest": "registry/react/css/patterns/tool-approval/registry.json" }] },
     { "name": "agent-progress", "type": "registry:block", "title": "Agent progress", "description": "Runtime-bound long-running agent task and step progress.", "targets": [{ "framework": "react", "flavor": "css-modules", "manifest": "registry/react/css/patterns/agent-progress/registry.json" }] },
     { "name": "artifact-review", "type": "registry:block", "title": "Artifact review", "description": "Version-safe review and feedback for generated artifacts.", "targets": [{ "framework": "react", "flavor": "css-modules", "manifest": "registry/react/css/patterns/artifact-review/registry.json" }] },
+    { "name": "checkpoint-recovery", "type": "registry:block", "title": "Checkpoint recovery", "description": "Version-safe recovery and read-only history for long-running agent work.", "targets": [{ "framework": "react", "flavor": "css-modules", "manifest": "registry/react/css/patterns/checkpoint-recovery/registry.json" }] },
     { "name": "research-agent", "type": "registry:block", "title": "Research agent", "description": "Installable end-to-end research workflow covering streaming, approvals, recovery and citations.", "targets": [{ "framework": "react", "flavor": "css-modules", "manifest": "registry/react/css/patterns/research-agent/registry.json" }] }
   ]
 }

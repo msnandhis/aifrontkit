@@ -126,8 +126,8 @@ svg { display: block; fill: none; stroke: currentColor; stroke-linecap: round; s
 .viewport-scroll { display: grid; place-items: start center; min-width: 0; overflow: auto; padding: clamp(0.75rem, 2vw, 1.5rem); background-color: #eeeeef; background-image: linear-gradient(45deg, rgb(0 0 0 / 2%) 25%, transparent 25%), linear-gradient(-45deg, rgb(0 0 0 / 2%) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgb(0 0 0 / 2%) 75%), linear-gradient(-45deg, transparent 75%, rgb(0 0 0 / 2%) 75%); background-position: 0 0, 0 6px, 6px -6px, -6px 0; background-size: 12px 12px; }
 .viewport-frame { flex: 0 0 auto; min-width: 0; min-height: 100%; border: 1px solid rgb(0 0 0 / 10%); border-radius: 0.5rem; overflow: hidden; background: white; box-shadow: 0 8px 28px rgb(0 0 0 / 8%); }
 .viewport-frame[data-preview-mode="dark"] { background: #0d0d0f; }
-.viewport-frame.is-zoomed { overflow: auto; }
-.viewport-frame.is-zoomed .preview-application { width: 50%; min-width: 23.5rem; zoom: 2; }
+.viewport-frame.is-zoomed { overflow-x: hidden; overflow-y: auto; }
+.viewport-frame.is-zoomed .preview-application { width: 50%; min-width: 0; zoom: 2; }
 .preview-application { min-height: 100%; background: var(--aifk-canvas); }
 .preview-application > .aifk-conversation { min-height: min(42rem, calc(100dvh - 17.5rem)); border: 0; border-radius: 0; }
 .registry-fixture-preview { display: grid; place-items: center; min-height: min(42rem, calc(100dvh - 17.5rem)); padding: clamp(1rem, 4vw, 2.5rem); }
@@ -137,6 +137,7 @@ svg { display: block; fill: none; stroke: currentColor; stroke-linecap: round; s
 .registry-fixture-preview [data-fixture-pattern] { inline-size: min(100%, 36rem); }
 .registry-fixture-preview [data-fixture-pattern="artifact-review"] { inline-size: min(100%, 68rem); }
 .registry-fixture-preview [data-fixture-pattern="attachment-composer"] { inline-size: min(100%, 46rem); }
+.registry-fixture-preview [data-fixture-pattern="checkpoint-recovery"] { inline-size: min(100%, 48rem); }
 .aifk-tool-approval-fixture > [data-aifk-approval] { display: grid; grid-template-columns: 1fr auto auto; gap: 0.75rem; align-items: center; padding: 1.25rem; color: var(--aifk-text); background: var(--aifk-surface); border: 1px solid var(--aifk-border); border-radius: var(--aifk-radius-large); }
 .aifk-tool-approval-fixture :is(h2, h3, h4), .aifk-tool-approval-fixture [data-slot="approval-summary"], .aifk-tool-approval-fixture dl, .aifk-tool-approval-fixture p { grid-column: 1 / -1; }
 .aifk-tool-approval-fixture :is(h2, h3, h4), .aifk-tool-approval-fixture p { margin: 0; }

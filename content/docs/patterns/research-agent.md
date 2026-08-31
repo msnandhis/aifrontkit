@@ -18,8 +18,8 @@ frontend-only and every transition is exposed through an application callback.
 | Approval | An external action pauses at a visible decision boundary. |
 | Offline | Confirmed progress remains visible while the transport is unavailable. |
 | Reconnecting | Recovery status is announced without clearing the workspace. |
-| Failed | One failed source can be retried without discarding successful work. |
-| Complete | The answer, generated file, tool result and citations remain inspectable. |
+| Failed | One failed source can be retried without discarding successful work and compatible saved progress remains available. |
+| Complete | The answer, generated file, tool result, citations and read-only checkpoint history remain inspectable. |
 
 ## Adapter boundary
 
@@ -31,9 +31,20 @@ machine with transport commands and confirmed runtime events.
 ```tsx
 <ResearchAgent
   stage={workspace.stage}
+  checkpointRecovery={{
+    currentTaskVersion: workspace.taskVersion,
+    checkpoints: workspace.checkpoints,
+    operation: workspace.checkpointOperation,
+    onRestoreCheckpoint: restoreCheckpoint,
+    onRestartTask: restartTask,
+  }}
   onStageChange={(next, event) => sendInteraction(event, next)}
 />
 ```
+
+Checkpoint recovery appears below task progress in the left work column. The
+workspace connection banner remains the single network notice while the nested
+recovery surface receives the same controlled connection for action gating.
 
 Install the block with its registry dependencies to keep the source editable:
 

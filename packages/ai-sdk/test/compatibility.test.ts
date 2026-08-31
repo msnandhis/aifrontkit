@@ -21,6 +21,7 @@ describe(`AI SDK ${fixture.upstream.version} compatibility`, () => {
       const adapter = createAISDKAdapter({ threadId: "thread-1", messageId: "fallback", now: () => 1 });
       const events = scenario.parts.flatMap((part) => adapter.adapt(part));
       expect(events.map((event) => event.type)).toEqual(scenario.expectedTypes);
+      expect(events.every((event) => event.schemaVersion === 4)).toBe(true);
     });
   }
 });

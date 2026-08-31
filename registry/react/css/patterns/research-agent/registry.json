@@ -3,12 +3,12 @@
   "name": "research-agent",
   "type": "registry:block",
   "title": "Research agent",
-  "description": "A provider-neutral long-running research workflow with streaming, approval, offline recovery, failure handling, attachments and citations.",
+  "description": "A provider-neutral long-running research workflow with streaming, approval, checkpoint recovery, failure handling, attachments and citations.",
   "files": [
     { "path": "registry/react/css/patterns/research-agent/research-agent.tsx", "type": "registry:component" },
     { "path": "registry/react/css/patterns/research-agent/research-agent.module.css", "type": "registry:style" }
   ],
-  "registryDependencies": ["file", "agent-progress", "tool-approval"],
+  "registryDependencies": ["file", "agent-progress", "tool-approval", "checkpoint-recovery"],
   "dependencies": ["@aifrontkit/core@^0.1.0", "@aifrontkit/react@^0.1.0"],
-  "meta": { "version": "0.1.0", "schemaMajor": 1, "aifrontkit": ">=0.1.0 <1", "target": { "framework": "react", "flavor": "css-modules" } }
+  "meta": { "version": "0.2.0", "schemaMajor": 1, "aifrontkit": ">=0.1.0 <1", "target": { "framework": "react", "flavor": "css-modules" } }
 }

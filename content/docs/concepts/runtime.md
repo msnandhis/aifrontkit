@@ -7,7 +7,7 @@ status: experimental
 # Interaction runtime
 
 The runtime reduces normalized events into conversation, message, stream, tool,
-approval, artifact, attachment, task, and error state. Reducers remain pure;
+approval, artifact, attachment, task, checkpoint and error state. Reducers remain pure;
 transports and customer callbacks perform effects.
 
 Applications read narrow selectors and send semantic commands such as submit,
@@ -33,3 +33,10 @@ Connection state is also a projection rather than a network client. Transports
 emit `connection.changed` facts for connected, reconnecting, offline and failed
 states. Applications handle `connection.retry` and decide how backoff, browser
 signals and provider reconnection work.
+
+Checkpoint metadata is scoped to the active thread and reduced separately from
+the task projection. `checkpoint.restore` and `task.restart` commands bind intent
+to checkpoint and task versions. A reducer records confirmed checkpoint events
+but never loads provider state or resumes work. The customer transport verifies
+thread access, compatibility and version expectations before executing either
+intent.

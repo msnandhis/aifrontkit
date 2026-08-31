@@ -6,14 +6,17 @@ import { ConnectionPrimitive } from "@aifrontkit/react";
 import { ToolPrimitive } from "@aifrontkit/react/tool";
 import { File } from "../../components/file/file.js";
 import { AgentProgress } from "../agent-progress/agent-progress.js";
+import { CheckpointRecovery, type CheckpointRecoveryProps } from "../checkpoint-recovery/checkpoint-recovery.js";
 import { ToolApproval } from "../tool-approval/tool-approval.js";
 import styles from "./research-agent.module.css";
 
 export type ResearchAgentStage = "streaming" | "approval" | "offline" | "reconnecting" | "failed" | "complete";
+export type ResearchAgentCheckpointRecovery = Omit<CheckpointRecoveryProps, "task" | "connection" | "showConnectionNotice">;
 
 export interface ResearchAgentProps {
   stage: ResearchAgentStage;
   onStageChange(stage: ResearchAgentStage, event: string): void;
+  checkpointRecovery?: ResearchAgentCheckpointRecovery;
   scenario?: string;
 }
 
@@ -84,7 +87,7 @@ function cx(name: string) {
   return [styles[name], name].filter(Boolean).join(" ");
 }
 
-export function ResearchAgent({ stage, onStageChange, scenario }: ResearchAgentProps) {
+export function ResearchAgent({ stage, onStageChange, checkpointRecovery, scenario }: ResearchAgentProps) {
   const statusRef = useRef<HTMLParagraphElement>(null);
   const previousStage = useRef(stage);
 
@@ -147,7 +150,18 @@ export function ResearchAgent({ stage, onStageChange, scenario }: ResearchAgentP
       </section>
 
       <div className={cx("research-agent__work-grid")}>
-        <AgentProgress task={task} {...(stage === "failed" ? { onResume: () => transition("complete", "task.retry()") } : {})} />
+        <div className={cx("research-agent__work-primary")}>
+          <AgentProgress task={task} {...(stage === "failed" ? { onResume: () => transition("complete", "task.retry()") } : {})} />
+          {checkpointRecovery ? (
+            <CheckpointRecovery
+              {...checkpointRecovery}
+              task={task}
+              connection={connection}
+              showConnectionNotice={false}
+              headingLevel={3}
+            />
+          ) : null}
+        </div>
         <ToolPrimitive.Root tool={tool} className={cx("research-agent__tool")}>
           <header><span>Tool execution</span><ToolPrimitive.Status /></header>
           <strong><ToolPrimitive.Name /></strong>

@@ -10,7 +10,7 @@ describe("AG-UI adapter", () => {
       ...adapter.adapt({ type: "TEXT_MESSAGE_END", messageId: "m1" })
     ];
     expect(events.map((event) => event.type)).toEqual(["message.started", "message.part.added", "message.part.delta", "message.part.status", "message.completed"]);
-    expect(events.every((event) => event.schemaVersion === 3)).toBe(true);
+    expect(events.every((event) => event.schemaVersion === 4)).toBe(true);
   });
 
   it("assembles streamed tool arguments", () => {
@@ -81,5 +81,11 @@ describe("AG-UI adapter", () => {
     const events = adapter.adapt({ type: "RUN_ERROR", message: "upstream unavailable", code: "TEMPORARY" });
     expect(events[0]).toMatchObject({ type: "task.step.updated", step: { title: "Search", status: "failed", error: "upstream unavailable" } });
     expect(events[1]).toMatchObject({ type: "task.updated", status: "failed", error: "upstream unavailable" });
+  });
+
+  it("does not treat AG-UI frontend state synchronization as a durable checkpoint", () => {
+    const adapter = createAGUIAdapter({ threadId: "t1" });
+    expect(adapter.adapt({ type: "STATE_SNAPSHOT", snapshot: { durable: false, private: "state" } })).toEqual([]);
+    expect(adapter.adapt({ type: "STATE_DELTA", delta: [{ op: "replace", path: "/private", value: "state" }] })).toEqual([]);
   });
 });

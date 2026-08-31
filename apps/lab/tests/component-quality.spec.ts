@@ -65,6 +65,7 @@ test("loads every declared scenario through the real registry fixture harness", 
       if (component === "tool-approval") await expect(frame.locator('[data-fixture-pattern="tool-approval"]')).toBeVisible();
       if (component === "artifact-review") await expect(frame.locator('[data-fixture-pattern="artifact-review"]')).toBeVisible();
       if (component === "attachment-composer") await expect(frame.locator('[data-fixture-pattern="attachment-composer"]')).toBeVisible();
+      if (component === "checkpoint-recovery") await expect(frame.locator('[data-fixture-pattern="checkpoint-recovery"]')).toBeVisible();
       if (component === "research-agent") await expect(frame.locator('[data-fixture-pattern="research-agent"]')).toBeVisible();
     }
   }
@@ -253,6 +254,84 @@ test("recovers attachment uploads without losing the composed message", async ({
   expect((await new AxeBuilder({ page }).include('[data-fixture-pattern="attachment-composer"]').analyze()).violations).toEqual([]);
 });
 
+test("restores checkpoint history only through explicit version-bound intent", async ({ page }) => {
+  const componentSwitcher = page.getByRole("group", { name: "Component" });
+  const fixtureNavigation = page.getByRole("complementary", { name: "Component fixtures" });
+  const frame = page.locator(".viewport-frame");
+
+  await componentSwitcher.getByRole("button", { name: /^Checkpoint recovery/ }).click();
+  await fixtureNavigation.getByRole("button", { name: /^Paused latest/ }).click();
+  const recovery = frame.locator('[data-fixture-pattern="checkpoint-recovery"]');
+  await expect(recovery.getByRole("heading", { name: "Saved progress" })).toBeVisible();
+  await recovery.getByRole("button", { name: "Restore latest" }).click();
+  await expect(recovery).toHaveAttribute("data-fixture-restore-count", "1");
+  await fixtureNavigation.getByRole("button", { name: /^Running protected/ }).click();
+  await fixtureNavigation.getByRole("button", { name: /^Paused latest/ }).click();
+  await recovery.getByRole("button", { name: "Show history (2)" }).click();
+  await expect(recovery.getByRole("group", { name: "Saved point history" })).toBeVisible();
+  await recovery.getByRole("radio", { name: "Primary sources collected" }).check();
+  await expect(page.locator("[data-fixture-event]")).toContainText("onSelectedCheckpointChange(older)");
+  await recovery.getByRole("button", { name: "Restore selected" }).click();
+  const olderDialog = recovery.getByRole("alertdialog", { name: "Restore this older saved point?" });
+  await expect(olderDialog).toBeVisible();
+  await expect(olderDialog.getByRole("button", { name: "Cancel" })).toBeFocused();
+  await olderDialog.getByRole("button", { name: "Cancel" }).click();
+  await expect(recovery.getByRole("button", { name: "Restore selected" })).toBeFocused();
+  await recovery.getByRole("button", { name: "Restore selected" }).click();
+  await recovery.getByRole("button", { name: "Restore older point" }).click();
+  await expect(page.locator("[data-fixture-event]")).toContainText("onRestoreCheckpoint(older, 2)");
+  await expect(recovery.getByRole("button", { name: "Restoring" })).toBeDisabled();
+
+  await fixtureNavigation.getByRole("button", { name: /^Restart confirmation/ }).click();
+  const restartDialog = recovery.getByRole("alertdialog", { name: "Start this task again?" });
+  await expect(restartDialog.getByRole("button", { name: "Cancel" })).toBeFocused();
+  await restartDialog.getByRole("button", { name: "Start new run" }).click();
+  await expect(page.locator("[data-fixture-event]")).toContainText("onRestartTask(research-task, 7)");
+});
+
+test("keeps checkpoint recovery safe through connection, failure and history states", async ({ page }) => {
+  const componentSwitcher = page.getByRole("group", { name: "Component" });
+  const fixtureNavigation = page.getByRole("complementary", { name: "Component fixtures" });
+  const frame = page.locator(".viewport-frame");
+
+  await componentSwitcher.getByRole("button", { name: /^Checkpoint recovery/ }).click();
+  const recovery = frame.locator('[data-fixture-pattern="checkpoint-recovery"]');
+
+  await fixtureNavigation.getByRole("button", { name: /^Offline safe/ }).click();
+  await expect(recovery.getByText("You are offline")).toBeVisible();
+  await expect(recovery.getByRole("button", { name: "Resume task" })).toBeDisabled();
+  await expect(recovery.getByRole("button", { name: "Restore latest" })).toBeDisabled();
+
+  await fixtureNavigation.getByRole("button", { name: /^Reconnecting/ }).click();
+  await expect(recovery.getByText("Nothing restores automatically when the connection returns.")).toBeVisible();
+  await expect(recovery.getByRole("button", { name: "Restore latest" })).toBeDisabled();
+  await expect(page.locator("[data-fixture-event]")).not.toContainText("onRestoreCheckpoint");
+
+  await fixtureNavigation.getByRole("button", { name: /^Restore failed/ }).click();
+  const failure = recovery.getByRole("alert");
+  await expect(failure).toContainText("Saved progress was not restored");
+  await expect(failure).toBeFocused();
+  await expect(recovery.getByText("Sources collected and compared")).toBeVisible();
+
+  await fixtureNavigation.getByRole("button", { name: /^Complete history/ }).click();
+  await expect(recovery.getByRole("button", { name: "Restore latest" })).toHaveCount(0);
+  await recovery.getByRole("button", { name: "Show history (2)" }).click();
+  await expect(recovery.getByRole("listitem")).toHaveCount(2);
+
+  await fixtureNavigation.getByRole("button", { name: /^Long history/ }).click();
+  await page.getByRole("group", { name: "Preview viewport" }).getByRole("button", { name: "375" }).click();
+  await expect(recovery.getByRole("listitem")).toHaveCount(6);
+  await expect(recovery.getByText("東京チームの調査結果を統合")).toBeVisible();
+  await expect(recovery.getByText("حفظ قبل مراجعة الأدلة الإقليمية")).toBeVisible();
+  expect(await frame.evaluate((element) => element.scrollWidth <= element.clientWidth + 1)).toBe(true);
+  await page.getByText("200% zoom", { exact: true }).click();
+  await expect(page.getByRole("checkbox", { name: /^200% zoom/ })).toBeChecked();
+  expect(await frame.evaluate((element) => element.scrollWidth <= element.clientWidth + 1)).toBe(true);
+  const disclosureBox = await recovery.getByRole("button", { name: "Hide history" }).boundingBox();
+  expect(disclosureBox?.height ?? 0).toBeGreaterThanOrEqual(44);
+  expect((await new AxeBuilder({ page }).include('[data-fixture-pattern="checkpoint-recovery"]').analyze()).violations).toEqual([]);
+});
+
 test("keeps pattern visual contracts portable across themes and narrow layouts", async ({ page }) => {
   const componentSwitcher = page.getByRole("group", { name: "Component" });
   const fixtureNavigation = page.getByRole("complementary", { name: "Component fixtures" });
@@ -345,6 +424,30 @@ test("captures reviewed attachment composer baselines", async ({ page }) => {
   await viewport.getByRole("button", { name: "1024" }).click();
   await fixtureNavigation.getByRole("button", { name: /^Long batch/ }).click();
   await expect(composer).toHaveScreenshot("attachment-composer-long-batch-contrast.webp");
+});
+
+test("captures reviewed checkpoint recovery baselines", async ({ page }) => {
+  const componentSwitcher = page.getByRole("group", { name: "Component" });
+  const fixtureNavigation = page.getByRole("complementary", { name: "Component fixtures" });
+  const recovery = page.locator('.viewport-frame [data-fixture-pattern="checkpoint-recovery"]');
+  const theme = page.getByRole("group", { name: "Theme" });
+  const viewport = page.getByRole("group", { name: "Preview viewport" });
+
+  await componentSwitcher.getByRole("button", { name: /^Checkpoint recovery/ }).click();
+  await viewport.getByRole("button", { name: "768" }).click();
+  await fixtureNavigation.getByRole("button", { name: /^Paused latest/ }).click();
+  await expect(recovery).toHaveScreenshot("checkpoint-recovery-paused-latest-light.webp");
+
+  await theme.getByRole("button", { name: "Dark" }).click();
+  await viewport.getByRole("button", { name: "375" }).click();
+  await fixtureNavigation.getByRole("button", { name: /^Offline safe/ }).click();
+  await expect(recovery).toHaveScreenshot("checkpoint-recovery-offline-safe-dark-375.webp");
+
+  await theme.getByRole("button", { name: "Contrast" }).click();
+  await page.setViewportSize({ width: 1800, height: 1000 });
+  await viewport.getByRole("button", { name: "1024" }).click();
+  await fixtureNavigation.getByRole("button", { name: /^Stale version/ }).click();
+  await expect(recovery).toHaveScreenshot("checkpoint-recovery-stale-version-contrast.webp");
 });
 
 test("exercises prompt input keyboard, pending, and rejection semantics", async ({ page }) => {

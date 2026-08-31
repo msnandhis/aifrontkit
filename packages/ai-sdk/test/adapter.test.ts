@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createAISDKAdapter } from "../src/index.js";
 
 describe("AI SDK UI stream adapter", () => {
-  it("normalizes official UI message chunks to part-addressed v3 events", () => {
+  it("normalizes official UI message chunks to part-addressed v4 events", () => {
     let id = 0;
     const adapter = createAISDKAdapter({ threadId: "t1", messageId: "m1", now: () => 10, createId: () => String(++id) });
     const events = [
@@ -13,7 +13,7 @@ describe("AI SDK UI stream adapter", () => {
       ...adapter.adapt({ type: "finish" })
     ];
     expect(events.map((event) => event.type)).toEqual(["message.started", "message.part.added", "message.part.delta", "message.part.status", "message.completed"]);
-    expect(events.every((event) => event.schemaVersion === 3)).toBe(true);
+    expect(events.every((event) => event.schemaVersion === 4)).toBe(true);
   });
 
   it("preserves tool identity across input and output parts", () => {

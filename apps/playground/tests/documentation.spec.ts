@@ -47,7 +47,7 @@ test("renders every current component through a typed interactive playground", a
     await expect(page.getByRole("combobox", { name: "Scenario" })).toBeVisible();
   }
 
-  const patterns = ["attachment-composer", "agent-progress", "tool-approval", "artifact-review", "research-agent"] as const;
+  const patterns = ["attachment-composer", "agent-progress", "tool-approval", "artifact-review", "checkpoint-recovery", "research-agent"] as const;
   for (const pattern of patterns) {
     await page.goto(`/docs/patterns/${pattern}`);
     await expect(page.locator(".component-playground")).toBeVisible();
@@ -212,6 +212,35 @@ test("recovers attachment failures and preserves attachment-only or offline draf
   await page.setViewportSize({ width: 375, height: 812 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   expect((await new AxeBuilder({ page }).include('[data-fixture-pattern="attachment-composer"]').analyze()).violations).toEqual([]);
+});
+
+test("explores all checkpoint recovery states without automatic restore", async ({ page }) => {
+  await page.goto("/docs/patterns/checkpoint-recovery");
+  const playground = page.locator('[data-fixture-pattern="checkpoint-recovery"]');
+  const scenario = page.getByRole("combobox", { name: "Scenario" });
+  await expect(scenario.locator("option")).toHaveCount(14);
+  await expect(playground.getByRole("heading", { name: "Saved progress" })).toBeVisible();
+  await playground.getByRole("button", { name: "Show history (2)" }).click();
+  await playground.getByRole("radio", { name: "Primary sources collected" }).check();
+  await playground.getByRole("button", { name: "Restore selected" }).click();
+  await expect(playground.getByRole("alertdialog", { name: "Restore this older saved point?" })).toBeVisible();
+  await playground.getByRole("button", { name: "Cancel" }).click();
+  await expect(playground.getByRole("button", { name: "Restore selected" })).toBeFocused();
+
+  await scenario.selectOption("reconnecting");
+  await expect(playground.getByText("Nothing restores automatically when the connection returns.")).toBeVisible();
+  await expect(playground.getByRole("button", { name: "Restore latest" })).toBeDisabled();
+  await expect(page.getByRole("status").filter({ hasText: "onRestoreCheckpoint" })).toHaveCount(0);
+
+  await scenario.selectOption("restore-failed");
+  await expect(playground.getByRole("alert")).toContainText("Saved progress was not restored");
+  await expect(playground.getByRole("alert")).toBeFocused();
+
+  await scenario.selectOption("long-history");
+  await page.setViewportSize({ width: 375, height: 812 });
+  await expect(playground.getByRole("listitem")).toHaveCount(6);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+  expect((await new AxeBuilder({ page }).include('[data-fixture-pattern="checkpoint-recovery"]').analyze()).violations).toEqual([]);
 });
 
 test("keeps the mobile shell usable and bounded", async ({ page }) => {

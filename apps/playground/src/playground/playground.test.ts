@@ -59,6 +59,14 @@ describe("component playground contract", () => {
     const attachmentOnlyCode = attachmentComposer.generateCode({ ...attachmentComposer.defaults, props: { ...attachmentComposer.defaults.props, scenario: "attachment-only" } });
     expect(attachmentOnlyCode).toContain("initialAttachments");
     expect(attachmentOnlyCode).toContain("onSubmit");
+
+    const checkpointRecovery = playgroundDefinitions["checkpoint-recovery"];
+    expect(checkpointRecovery.scenarios).toHaveLength(14);
+    const staleCheckpointCode = checkpointRecovery.generateCode({ ...checkpointRecovery.defaults, props: { ...checkpointRecovery.defaults.props, scenario: "stale-version" } });
+    expect(staleCheckpointCode).toContain('"sourceTaskVersion": 6');
+    expect(staleCheckpointCode).toContain("onRestoreCheckpoint");
+    const offlineCheckpointCode = checkpointRecovery.generateCode({ ...checkpointRecovery.defaults, props: { ...checkpointRecovery.defaults.props, scenario: "offline-safe" } });
+    expect(offlineCheckpointCode).toContain('"status": "offline"');
   });
 
   it("distinguishes component tags, prop names, and literal values", () => {

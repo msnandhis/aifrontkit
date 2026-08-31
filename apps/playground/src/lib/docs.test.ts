@@ -21,6 +21,7 @@ describe("documentation registry", () => {
       "agent-progress",
       "tool-approval",
       "artifact-review",
+      "checkpoint-recovery",
       "research-agent",
     ]);
   });

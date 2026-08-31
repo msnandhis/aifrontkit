@@ -58,6 +58,7 @@ export type ComponentName =
   | "agent-progress"
   | "tool-approval"
   | "artifact-review"
+  | "checkpoint-recovery"
   | "research-agent";
 export type PlaygroundView = "preview" | "code";
 export type PreviewWidth = PlaygroundEnvironment["viewport"];

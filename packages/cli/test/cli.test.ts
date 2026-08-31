@@ -337,10 +337,11 @@ describe("AIFrontKit CLI", () => {
     const root = await mkdtemp(join(tmpdir(), "aifrontkit-cli-research-agent-"));
     await initProject(root, { registry: repositoryRoot });
     const plan = await addItem(root, "research-agent");
-    expect(plan.items.size).toBe(4);
+    expect(plan.items.size).toBe(5);
     const source = await readFile(join(root, "src/components/aifrontkit/research-agent.tsx"), "utf8");
     expect(source).toContain('from "./file.js"');
     expect(source).toContain('from "./agent-progress.js"');
     expect(source).toContain('from "./tool-approval.js"');
+    expect(source).toContain('from "./checkpoint-recovery.js"');
   });
 });

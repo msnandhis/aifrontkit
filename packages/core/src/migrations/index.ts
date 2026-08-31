@@ -1,4 +1,4 @@
-import { EVENT_SCHEMA_VERSION, PART_EVENT_SCHEMA_VERSION, type AIFrontEvent, type AIFrontEventV1, type AIFrontEventV2, type AIFrontEventV3 } from "../events/index.js";
+import { EVENT_SCHEMA_VERSION, PART_EVENT_SCHEMA_VERSION, TASK_EVENT_SCHEMA_VERSION, type AIFrontEvent, type AIFrontEventV1, type AIFrontEventV2, type AIFrontEventV3, type AIFrontEventV4 } from "../events/index.js";
 
 export interface SchemaMigration<TInput = unknown, TOutput = unknown> {
   from: number;
@@ -17,10 +17,16 @@ export function migrateEventToV2(event: AIFrontEventV1 | AIFrontEventV2): AIFron
   return migrateV1EventToV2(event);
 }
 
-export function migrateEventToCurrent(event: AIFrontEvent): AIFrontEventV3 {
-  if (event.schemaVersion === EVENT_SCHEMA_VERSION) return event;
+export function migrateEventToV3(event: AIFrontEventV1 | AIFrontEventV2 | AIFrontEventV3): AIFrontEventV3 {
+  if (event.schemaVersion === TASK_EVENT_SCHEMA_VERSION) return event;
   const v2 = event.schemaVersion === PART_EVENT_SCHEMA_VERSION ? event : migrateV1EventToV2(event);
   return v2ToV3EventMigration.migrate(v2);
+}
+
+export function migrateEventToCurrent(event: AIFrontEvent): AIFrontEventV4 {
+  if (event.schemaVersion === EVENT_SCHEMA_VERSION) return event;
+  const v3 = event.schemaVersion === TASK_EVENT_SCHEMA_VERSION ? event : migrateEventToV3(event);
+  return v3ToV4EventMigration.migrate(v3);
 }
 
 export const v1ToV2EventMigration = registerMigration<AIFrontEventV1, AIFrontEventV2>({
@@ -32,7 +38,13 @@ export const v1ToV2EventMigration = registerMigration<AIFrontEventV1, AIFrontEve
 export const v2ToV3EventMigration = registerMigration<AIFrontEventV2, AIFrontEventV3>({
   from: 2,
   to: 3,
-  migrate: (event) => ({ ...event, schemaVersion: EVENT_SCHEMA_VERSION }) as AIFrontEventV3
+  migrate: (event) => ({ ...event, schemaVersion: TASK_EVENT_SCHEMA_VERSION }) as AIFrontEventV3
+});
+
+export const v3ToV4EventMigration = registerMigration<AIFrontEventV3, AIFrontEventV4>({
+  from: 3,
+  to: 4,
+  migrate: (event) => ({ ...event, schemaVersion: EVENT_SCHEMA_VERSION }) as AIFrontEventV4
 });
 
 function migrateV1EventToV2(event: AIFrontEventV1): AIFrontEventV2 {

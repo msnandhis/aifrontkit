@@ -93,6 +93,36 @@
       }
     },
     {
+      "name": "checkpoint-recovery",
+      "scenarios": ["running-protected", "paused-latest", "paused-direct-resume", "older-confirmation", "restoring", "restore-failed", "offline-safe", "reconnecting", "stale-version", "expired-only", "incompatible", "restart-confirmation", "complete-history", "long-history"],
+      "evidence": {
+        "accessibility": {
+          "file": "apps/lab/tests/component-quality.spec.ts",
+          "contains": ["keeps checkpoint recovery safe through connection, failure and history states", "AxeBuilder"]
+        },
+        "interaction": {
+          "file": "apps/lab/tests/component-quality.spec.ts",
+          "contains": ["restores checkpoint history only through explicit version-bound intent", "onRestoreCheckpoint(older, 2)", "Nothing restores automatically"]
+        },
+        "documentation": {
+          "file": "content/docs/patterns/checkpoint-recovery.md",
+          "contains": ["CheckpointRecovery", "expectedTaskVersion", "STATE_SNAPSHOT"]
+        },
+        "visualRegression": {
+          "file": "apps/lab/tests/component-quality.spec.ts",
+          "contains": ["checkpoint-recovery-paused-latest-light.webp", "checkpoint-recovery-offline-safe-dark-375.webp", "checkpoint-recovery-stale-version-contrast.webp"],
+          "artifacts": [
+            "apps/lab/tests/__screenshots__/chromium-darwin/checkpoint-recovery-paused-latest-light.webp",
+            "apps/lab/tests/__screenshots__/chromium-darwin/checkpoint-recovery-offline-safe-dark-375.webp",
+            "apps/lab/tests/__screenshots__/chromium-darwin/checkpoint-recovery-stale-version-contrast.webp",
+            "apps/lab/tests/__screenshots__/chromium-linux/checkpoint-recovery-paused-latest-light.webp",
+            "apps/lab/tests/__screenshots__/chromium-linux/checkpoint-recovery-offline-safe-dark-375.webp",
+            "apps/lab/tests/__screenshots__/chromium-linux/checkpoint-recovery-stale-version-contrast.webp"
+          ]
+        }
+      }
+    },
+    {
       "name": "research-agent",
       "scenarios": ["walkthrough", "awaiting-approval", "offline", "failed", "complete"],
       "evidence": {

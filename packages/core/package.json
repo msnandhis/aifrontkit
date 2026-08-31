@@ -16,6 +16,7 @@
     "./model": { "types": "./dist/model/index.d.ts", "import": "./dist/model/index.js" },
     "./content": { "types": "./dist/content/index.d.ts", "import": "./dist/content/index.js" },
     "./attachment": { "types": "./dist/attachment/index.d.ts", "import": "./dist/attachment/index.js" },
+    "./checkpoint": { "types": "./dist/checkpoint/index.d.ts", "import": "./dist/checkpoint/index.js" },
     "./events": { "types": "./dist/events/index.d.ts", "import": "./dist/events/index.js" },
     "./commands": { "types": "./dist/commands/index.d.ts", "import": "./dist/commands/index.js" },
     "./runtime": { "types": "./dist/runtime/index.d.ts", "import": "./dist/runtime/index.js" },
@@ -24,8 +25,10 @@
     "./schemas/v1/command.json": "./schemas/v1/command.schema.json",
     "./schemas/v2/command.json": "./schemas/v2/command.schema.json",
     "./schemas/v3/command.json": "./schemas/v3/command.schema.json",
+    "./schemas/v4/command.json": "./schemas/v4/command.schema.json",
     "./schemas/v2/event.json": "./schemas/v2/event.schema.json",
-    "./schemas/v3/event.json": "./schemas/v3/event.schema.json"
+    "./schemas/v3/event.json": "./schemas/v3/event.schema.json",
+    "./schemas/v4/event.json": "./schemas/v4/event.schema.json"
   },
   "scripts": {
     "prebuild": "node ../../scripts/clean-package-dist.mjs",

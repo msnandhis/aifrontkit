@@ -40,7 +40,7 @@ export function createAISDKAdapter(context: AdapterContext) {
   const toolInput = new Map<string, string>();
   const now = context.now ?? Date.now;
   const createId = context.createId ?? (() => `ai-sdk-${++sequence}`);
-  const envelope = () => ({ schemaVersion: 3 as const, id: createId(), threadId: context.threadId, timestamp: now() });
+  const envelope = () => ({ schemaVersion: 4 as const, id: createId(), threadId: context.threadId, timestamp: now() });
 
   return {
     protocolVersion: AI_SDK_UI_PROTOCOL,

@@ -17,7 +17,12 @@ install it.
 Compatibility fixtures protect mappings as either project evolves. Unsupported
 parts must produce an explicit fallback or diagnostic rather than disappearing.
 
-The adapter emits schema v3 part-addressed events for text, reasoning, sources,
+The adapter emits schema v4 part-addressed events for text, reasoning, sources,
 files, typed data, tool input, tool output, approval requests and errors. This
 preserves stream order and part identity instead of flattening everything into a
 single text field.
+
+AI SDK UI stream parts do not provide a durable checkpoint contract. If the
+application supports resume, load thread-scoped checkpoint metadata through a
+separate trusted endpoint and forward version-bound restore or restart intent to
+that endpoint. Do not infer durable recovery from a reconnected message stream.

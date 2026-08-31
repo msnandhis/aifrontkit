@@ -4,6 +4,10 @@ These redacted snapshots pin the external protocol shapes consumed by the
 structural adapters. Each fixture records the exact upstream package version,
 capture date and canonical documentation source.
 
+The LangGraph checkpoint-history fixture intentionally contains representative
+private StateSnapshot fields. Its adapter tests prove that `values`, `writes`,
+tasks and provider persistence handles never cross the public projection.
+
 Updating a fixture is a deliberate compatibility review. Run both adapter test
 suites and record any mapping or public type changes in a changeset.
 

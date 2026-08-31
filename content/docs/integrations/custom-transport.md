@@ -17,3 +17,9 @@ the client bundle.
 Handle cancellation, disposal, reconnect policy, malformed events, duplicate
 replayable events, and recoverable errors explicitly. Validate data at untrusted
 boundaries before dispatching it to the runtime.
+
+For resumable work, request checkpoint history for one authenticated thread and
+project only normalized checkpoint metadata. Forward restore and restart intents
+with their expected versions. The backend must verify thread ownership and
+compatibility before loading durable state. A reconnect may refresh projections
+but must never automatically restore a selected checkpoint.

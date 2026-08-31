@@ -8,6 +8,7 @@ import { attachmentComposerPlayground } from "./attachment-composer.playground.j
 import { agentProgressPlayground } from "./agent-progress.playground.js";
 import { toolApprovalPlayground } from "./tool-approval.playground.js";
 import { artifactReviewPlayground } from "./artifact-review.playground.js";
+import { checkpointRecoveryPlayground } from "./checkpoint-recovery.playground.js";
 import { researchAgentPlayground } from "./research-agent.playground.js";
 
 export const playgroundDefinitions: Record<ComponentName, AnyPlaygroundDefinition> = {
@@ -20,6 +21,7 @@ export const playgroundDefinitions: Record<ComponentName, AnyPlaygroundDefinitio
   "agent-progress": agentProgressPlayground as unknown as AnyPlaygroundDefinition,
   "tool-approval": toolApprovalPlayground as unknown as AnyPlaygroundDefinition,
   "artifact-review": artifactReviewPlayground as unknown as AnyPlaygroundDefinition,
+  "checkpoint-recovery": checkpointRecoveryPlayground as unknown as AnyPlaygroundDefinition,
   "research-agent": researchAgentPlayground as unknown as AnyPlaygroundDefinition,
 };
 

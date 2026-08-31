@@ -20,6 +20,8 @@ export type AGUIEvent =
   | { type: "REASONING_MESSAGE_CONTENT"; messageId: string; delta: string; timestamp?: number }
   | { type: "REASONING_MESSAGE_END"; messageId: string; timestamp?: number }
   | { type: "REASONING_END"; messageId: string; timestamp?: number }
+  | { type: "STATE_SNAPSHOT"; snapshot: unknown; timestamp?: number }
+  | { type: "STATE_DELTA"; delta: unknown; timestamp?: number }
   | { type: "RUN_ERROR"; message: string; code?: string; timestamp?: number };
 
 export function createAGUIAdapter(options: { threadId: string; createId?: () => string; now?: () => number; taskTitle?: (runId: string) => string }) {
@@ -32,7 +34,7 @@ export function createAGUIAdapter(options: { threadId: string; createId?: () => 
   const stepIds = new Map<string, string>();
   let stepSequence = 0;
   let activeRunId: string | undefined;
-  const envelope = (timestamp: number) => ({ schemaVersion: 3 as const, id: createId(), threadId: options.threadId, timestamp });
+  const envelope = (timestamp: number) => ({ schemaVersion: 4 as const, id: createId(), threadId: options.threadId, timestamp });
 
   return {
     adapt(event: AGUIEvent): AIFrontEvent[] {
@@ -92,6 +94,11 @@ export function createAGUIAdapter(options: { threadId: string; createId?: () => 
           ];
         case "REASONING_START":
         case "REASONING_END":
+          return [];
+        case "STATE_SNAPSHOT":
+        case "STATE_DELTA":
+          // AG-UI state events synchronize frontend state. They are not durable
+          // checkpoint evidence and must never become checkpoint.updated events.
           return [];
         case "TOOL_CALL_START":
           toolNames.set(event.toolCallId, event.toolCallName);

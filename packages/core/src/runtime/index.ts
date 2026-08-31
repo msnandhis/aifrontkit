@@ -1,6 +1,7 @@
-import { assertEvent, type AIFrontEvent, type AIFrontEventV3 } from "../events/index.js";
+import { assertEvent, type AIFrontEvent, type AIFrontEventV4 } from "../events/index.js";
 import { migrateEventToCurrent } from "../migrations/index.js";
 import type { AgentTask, Approval, Artifact, ConnectionState, ContentPart, ConversationStatus, Message, ToolCall, ToolContentPart } from "../model/index.js";
+import type { AgentCheckpoint } from "../checkpoint/index.js";
 
 export interface RuntimeState {
   threadId: string;
@@ -11,6 +12,8 @@ export interface RuntimeState {
   artifacts: Readonly<Record<string, Artifact>>;
   taskOrder: readonly string[];
   tasks: Readonly<Record<string, AgentTask>>;
+  checkpointOrder: readonly string[];
+  checkpoints: Readonly<Record<string, AgentCheckpoint>>;
   connection: ConnectionState;
   processedEventIds: ReadonlySet<string>;
 }
@@ -25,6 +28,8 @@ export function createInitialState(threadId: string): RuntimeState {
     artifacts: {},
     taskOrder: [],
     tasks: {},
+    checkpointOrder: [],
+    checkpoints: {},
     connection: { status: "connected", attempt: 0, updatedAt: 0 },
     processedEventIds: new Set()
   };
@@ -74,7 +79,7 @@ function appendPart(message: Message, partId: string, part: ContentPart): Messag
   return { ...message, parts: [...message.parts, { ...part, id: part.id ?? partId }] };
 }
 
-function mergeToolPart(message: Message, event: Extract<AIFrontEventV3, { type: "tool.updated" }>): Message {
+function mergeToolPart(message: Message, event: Extract<AIFrontEventV4, { type: "tool.updated" }>): Message {
   if (!event.partId) return message;
   const index = partIndex(message.parts, event.partId);
   const part: ToolContentPart = {
@@ -204,6 +209,22 @@ export function reduceEvent(state: RuntimeState, input: AIFrontEvent): RuntimeSt
         if (artifact.updatedAt <= existingUpdatedAt) return { ...state, processedEventIds };
       }
       return { ...state, processedEventIds, artifacts: { ...state.artifacts, [artifact.id]: artifact } };
+    }
+    case "checkpoint.updated": {
+      const checkpoint = event.checkpoint;
+      const existing = state.checkpoints[checkpoint.id];
+      if (existing && checkpoint.sequence !== existing.sequence) throw new Error(`Checkpoint ${checkpoint.id} sequence cannot change.`);
+      if (existing && checkpoint.updatedAt <= existing.updatedAt) return { ...state, processedEventIds };
+      const checkpoints = { ...state.checkpoints, [checkpoint.id]: checkpoint };
+      if (existing) return { ...state, processedEventIds, checkpoints };
+      const insertionIndex = state.checkpointOrder.findIndex((id) => {
+        const current = state.checkpoints[id];
+        return current !== undefined && current.sequence < checkpoint.sequence;
+      });
+      const checkpointOrder = [...state.checkpointOrder];
+      if (insertionIndex < 0) checkpointOrder.push(checkpoint.id);
+      else checkpointOrder.splice(insertionIndex, 0, checkpoint.id);
+      return { ...state, processedEventIds, checkpoints, checkpointOrder };
     }
     case "task.started": {
       const existing = state.tasks[event.taskId];

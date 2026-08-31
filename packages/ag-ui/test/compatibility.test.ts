@@ -21,6 +21,7 @@ describe(`AG-UI ${fixture.upstream.version} compatibility`, () => {
       const adapter = createAGUIAdapter({ threadId: "thread-1", now: () => 1 });
       const events = scenario.events.flatMap((event) => adapter.adapt(event));
       expect(events.map((event) => event.type)).toEqual(scenario.expectedTypes);
+      expect(events.every((event) => event.schemaVersion === 4)).toBe(true);
 
       if (scenario.name.startsWith("repeated step")) {
         const startedSteps = events.filter((event) => event.type === "task.step.updated" && event.step.status === "running");

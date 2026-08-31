@@ -1,0 +1,13 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "checkpoint-recovery",
+  "type": "registry:block",
+  "title": "Checkpoint recovery",
+  "description": "A controlled saved-progress section with version-safe restore, direct resume, confirmed restart and offline-safe history.",
+  "files": [
+    { "path": "registry/react/css/patterns/checkpoint-recovery/checkpoint-recovery.tsx", "type": "registry:component" },
+    { "path": "registry/react/css/patterns/checkpoint-recovery/checkpoint-recovery.module.css", "type": "registry:style" }
+  ],
+  "dependencies": ["@aifrontkit/core@^0.1.0", "@aifrontkit/react@^0.1.0"],
+  "meta": { "version": "0.1.0", "schemaMajor": 1, "aifrontkit": ">=0.1.0 <1", "target": { "framework": "react", "flavor": "css-modules" } }
+}

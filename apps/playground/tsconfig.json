@@ -16,6 +16,7 @@
       "@aifrontkit/react/approval": ["packages/react/src/approval/index.tsx"],
       "@aifrontkit/react/artifact": ["packages/react/src/artifact/index.tsx"],
       "@aifrontkit/react/attachment": ["packages/react/src/attachment/index.tsx"],
+      "@aifrontkit/react/checkpoint": ["packages/react/src/checkpoint/index.tsx"],
       "@aifrontkit/react/connection": ["packages/react/src/connection/index.tsx"],
       "@aifrontkit/testing": ["packages/testing/src/index.ts"]
     }

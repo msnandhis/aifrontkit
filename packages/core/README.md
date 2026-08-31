@@ -10,3 +10,8 @@ runtime.dispatch(event);
 ```
 
 The package has no React, provider or backend dependency. See the [repository documentation](https://github.com/msnandhis/openfrontkit#readme) for contracts and compatibility policy.
+
+Resumable agent checkpoints are exposed as a separate thread-scoped projection
+through `@aifrontkit/core/checkpoint`. A checkpoint's `title` is its stable
+display label. Its opaque identity and metadata must not be interpreted as raw
+provider or persistence state.

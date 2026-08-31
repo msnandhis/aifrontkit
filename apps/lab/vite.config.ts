@@ -15,6 +15,7 @@ export default defineConfig({
       { find: "@aifrontkit/react/approval", replacement: fileURLToPath(new URL("../../packages/react/dist/approval/index.js", import.meta.url)) },
       { find: "@aifrontkit/react/artifact", replacement: fileURLToPath(new URL("../../packages/react/dist/artifact/index.js", import.meta.url)) },
       { find: "@aifrontkit/react/attachment", replacement: fileURLToPath(new URL("../../packages/react/dist/attachment/index.js", import.meta.url)) },
+      { find: "@aifrontkit/react/checkpoint", replacement: fileURLToPath(new URL("../../packages/react/dist/checkpoint/index.js", import.meta.url)) },
       { find: "@aifrontkit/react/connection", replacement: fileURLToPath(new URL("../../packages/react/dist/connection/index.js", import.meta.url)) },
       { find: /^@aifrontkit\/react$/, replacement: fileURLToPath(new URL("../../packages/react/dist/index.js", import.meta.url)) },
       { find: /^@aifrontkit\/core$/, replacement: fileURLToPath(new URL("../../packages/core/dist/index.js", import.meta.url)) },

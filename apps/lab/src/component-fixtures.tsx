@@ -7,9 +7,10 @@ import { AgentProgressFixture, agentProgressQualityScenarios, type AgentProgress
 import { ToolApprovalFixture, toolApprovalQualityScenarios, type ToolApprovalFixtureId } from "../../../registry/react/css/patterns/tool-approval/tool-approval.fixture.js";
 import { ArtifactReviewFixture, artifactReviewQualityScenarios, type ArtifactReviewFixtureId } from "../../../registry/react/css/patterns/artifact-review/artifact-review.fixture.js";
 import { AttachmentComposerFixture, attachmentComposerQualityScenarios, type AttachmentComposerFixtureId } from "../../../registry/react/css/patterns/attachment-composer/attachment-composer.fixture.js";
+import { CheckpointRecoveryFixture, checkpointRecoveryQualityScenarios, type CheckpointRecoveryFixtureId } from "../../../registry/react/css/patterns/checkpoint-recovery/checkpoint-recovery.fixture.js";
 import { ResearchAgentFixture, researchAgentQualityScenarios, type ResearchAgentFixtureId } from "../../../registry/react/css/patterns/research-agent/research-agent.fixture.js";
 
-export type LabComponentId = "conversation" | "message" | "prompt-input" | "tool-call" | "file" | "attachment-composer" | "agent-progress" | "tool-approval" | "artifact-review" | "research-agent";
+export type LabComponentId = "conversation" | "message" | "prompt-input" | "tool-call" | "file" | "attachment-composer" | "agent-progress" | "tool-approval" | "artifact-review" | "checkpoint-recovery" | "research-agent";
 export type LabComponentMaturity = "preview" | "experimental";
 
 export interface LabScenario {
@@ -150,6 +151,13 @@ export const componentFixtureContracts: readonly LabComponentContract[] = [
     scenarios: artifactReviewQualityScenarios.map((scenario) => ({ id: scenario.id, title: scenarioTitle(scenario.id), expectation: scenario.expectation })),
   },
   {
+    id: "checkpoint-recovery",
+    title: "Checkpoint recovery",
+    maturity: "experimental",
+    description: "Version-bound restore, restart, connection gating and durable read-only history.",
+    scenarios: checkpointRecoveryQualityScenarios.map((scenario) => ({ id: scenario.id, title: scenarioTitle(scenario.id), expectation: scenario.expectation })),
+  },
+  {
     id: "research-agent",
     title: "Research agent",
     maturity: "experimental",
@@ -185,6 +193,8 @@ export function renderRegistryFixture(
       return <ArtifactReviewFixture scenario={scenario as ArtifactReviewFixtureId} emit={emit} />;
     case "attachment-composer":
       return <AttachmentComposerFixture scenario={scenario as AttachmentComposerFixtureId} emit={emit} />;
+    case "checkpoint-recovery":
+      return <CheckpointRecoveryFixture scenario={scenario as CheckpointRecoveryFixtureId} emit={emit} />;
     case "research-agent":
       return <ResearchAgentFixture scenario={scenario as ResearchAgentFixtureId} emit={emit} />;
     case "conversation":
