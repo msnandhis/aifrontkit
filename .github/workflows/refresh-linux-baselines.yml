@@ -1,0 +1,35 @@
+name: refresh linux visual baselines
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  refresh:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+        with: { version: 11.19.0 }
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm --filter @aifrontkit/core build
+      - run: pnpm --filter @aifrontkit/tokens build
+      - run: pnpm --filter @aifrontkit/react build
+      - run: pnpm --filter @aifrontkit/testing build
+      - run: pnpm exec playwright test --config apps/lab/playwright.config.ts --update-snapshots
+      - name: Upload reviewed baseline candidates
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: linux-visual-baselines
+          path: apps/lab/tests/__screenshots__/chromium-linux
+          if-no-files-found: error
+          retention-days: 7
