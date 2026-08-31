@@ -40,7 +40,11 @@ for (const packageDirectory of packageDirectories) {
   requireCondition(dryRun.status === 0, `${label} npm publish dry run failed:\n${dryRun.stderr || dryRun.stdout}`);
   requireCondition(!/auto-corrected|invalid and removed/i.test(dryRun.stderr), `${label} requires npm to rewrite its publish manifest:\n${dryRun.stderr}`);
   const jsonStart = dryRun.stdout.lastIndexOf("\n{");
-  const report = JSON.parse(jsonStart >= 0 ? dryRun.stdout.slice(jsonStart + 1) : dryRun.stdout);
+  const parsedReport = JSON.parse(jsonStart >= 0 ? dryRun.stdout.slice(jsonStart + 1) : dryRun.stdout);
+  const report = Array.isArray(parsedReport)
+    ? parsedReport.find((entry) => entry?.name === manifest.name && entry?.version === manifest.version)
+    : parsedReport;
+  requireCondition(report && Array.isArray(report.files), `${label} npm publish dry run returned an unexpected JSON report.`);
   const files = new Map(report.files.map((file) => [file.path, file]));
 
   requireCondition(files.has("package.json"), `${label} tarball is missing package.json.`);
