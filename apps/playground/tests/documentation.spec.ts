@@ -1,6 +1,16 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
+test("presents a product-led entry journey with working quick install", async ({ page }) => {
+  await page.goto("/docs");
+  await expect(page.getByRole("heading", { level: 1, name: "The interface layer for production AI." })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Install AIFrontKit" })).toHaveAttribute("href", "/docs/start/installation");
+  await expect(page.getByRole("link", { name: /Ship agent workflows/ })).toHaveAttribute("href", "/docs/patterns/research-agent");
+  await page.getByRole("button", { name: "Copy install command" }).click();
+  await expect(page.getByRole("button", { name: "Install command copied" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "Production states are part of the component contract." })).toBeVisible();
+});
+
 test("navigates authored MDX with one page title and semantic tables", async ({ page }) => {
   await page.goto("/docs/components/conversation");
   await expect(page.getByRole("heading", { level: 1, name: "Conversation" })).toHaveCount(1);
@@ -36,6 +46,25 @@ test("renders every current component through a typed interactive playground", a
     await expect(page.getByRole("complementary", { name: "Component controls" })).toBeVisible();
     await expect(page.getByRole("combobox", { name: "Scenario" })).toBeVisible();
   }
+
+  const patterns = ["agent-progress", "tool-approval", "research-agent"] as const;
+  for (const pattern of patterns) {
+    await page.goto(`/docs/patterns/${pattern}`);
+    await expect(page.locator(".component-playground")).toBeVisible();
+    await expect(page.getByRole("complementary", { name: "Component controls" })).toBeVisible();
+    await expect(page.getByRole("combobox", { name: "Scenario" })).toBeVisible();
+  }
+});
+
+test("makes the live canvas visually dominant on desktop", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto("/docs/components/conversation");
+  const controlsBox = await page.getByRole("complementary", { name: "Component controls" }).boundingBox();
+  const stageBox = await page.getByRole("region", { name: "Component preview stage" }).boundingBox();
+  expect(controlsBox).not.toBeNull();
+  expect(stageBox).not.toBeNull();
+  expect(stageBox!.width).toBeGreaterThan(controlsBox!.width * 2);
+  await expect(page.getByText("Live canvas", { exact: true })).toBeVisible();
 });
 
 test("keeps the inspector left of a bounded sticky preview on desktop", async ({ page }) => {
@@ -59,8 +88,8 @@ test("keeps the inspector left of a bounded sticky preview on desktop", async ({
   await page.waitForTimeout(200);
   const pinnedBox = await page.locator(".playground-stage-sticky").boundingBox();
   expect(pinnedBox).not.toBeNull();
-  expect(pinnedBox!.y).toBeGreaterThanOrEqual(75);
-  expect(pinnedBox!.y).toBeLessThanOrEqual(77);
+  expect(pinnedBox!.y).toBeGreaterThanOrEqual(79);
+  expect(pinnedBox!.y).toBeLessThanOrEqual(81);
   await expect(page.getByRole("button", { name: "Copy code" })).toBeVisible();
 });
 
@@ -118,6 +147,22 @@ test("updates code when a scenario changes and exposes working callback feedback
   await expect(page.getByRole("status").filter({ hasText: 'onSubmit("Inspect this callback")' })).toBeVisible();
 });
 
+test("walks the flagship pattern through approval, offline recovery and completion", async ({ page }) => {
+  await page.goto("/docs/patterns/research-agent");
+  await page.getByRole("button", { name: "Continue research" }).click();
+  await expect(page.getByRole("group", { name: "Approval required" })).toBeVisible();
+  await page.getByRole("button", { name: "Approve" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Paused offline" }).first()).toBeVisible();
+  await page.getByRole("button", { name: "Retry" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Reconnecting" }).first()).toBeVisible();
+  await page.getByRole("button", { name: "Attempt restore" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Recovery available" }).first()).toBeVisible();
+  await page.getByRole("button", { name: "Resume" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Complete" }).first()).toBeVisible();
+  await expect(page.getByText("market-signal-brief.pdf")).toBeVisible();
+  await expect(page.getByRole("heading", { level: 3, name: "Sources" })).toBeVisible();
+});
+
 test("keeps the mobile shell usable and bounded", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto("/docs/components/prompt-input");
@@ -133,6 +178,11 @@ test("keeps the mobile shell usable and bounded", async ({ page }) => {
   await expect(customize).toHaveAttribute("aria-expanded", "true");
   await expect(page.locator(".playground-inspector-body").getByRole("combobox", { name: "Scenario" })).toBeVisible();
   expect(await page.locator(".playground-stage-sticky").evaluate((node) => getComputedStyle(node).position)).toBe("static");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+
+  await page.goto("/docs/patterns/research-agent");
+  await expect(page.getByRole("button", { name: /Customize/ })).toHaveAttribute("aria-expanded", "false");
+  await expect(page.getByRole("heading", { level: 2, name: "AI interface market brief" })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
 });
 

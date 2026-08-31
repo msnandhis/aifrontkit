@@ -22,6 +22,9 @@ const playgrounds: Record<ComponentName, LazyExoticComponent<ComponentType>> = {
   "prompt-input": lazyPlayground(async () => (await import("../playground/definitions/prompt-input.playground.js")).promptInputPlayground as unknown as AnyPlaygroundDefinition),
   file: lazyPlayground(async () => (await import("../playground/definitions/file.playground.js")).filePlayground as unknown as AnyPlaygroundDefinition),
   "tool-call": lazyPlayground(async () => (await import("../playground/definitions/tool-call.playground.js")).toolCallPlayground as unknown as AnyPlaygroundDefinition),
+  "agent-progress": lazyPlayground(async () => (await import("../playground/definitions/agent-progress.playground.js")).agentProgressPlayground as unknown as AnyPlaygroundDefinition),
+  "tool-approval": lazyPlayground(async () => (await import("../playground/definitions/tool-approval.playground.js")).toolApprovalPlayground as unknown as AnyPlaygroundDefinition),
+  "research-agent": lazyPlayground(async () => (await import("../playground/definitions/research-agent.playground.js")).researchAgentPlayground as unknown as AnyPlaygroundDefinition),
 };
 
 export function ComponentPreview({ component }: { component: ComponentName }) {

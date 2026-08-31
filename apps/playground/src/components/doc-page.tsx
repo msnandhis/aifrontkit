@@ -2,6 +2,7 @@ import { MDXProvider } from "@mdx-js/react";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { adjacentDocs, type DocPage } from "../lib/docs.js";
+import { DocsOverview } from "./docs-overview.js";
 import { Icon } from "./icons.js";
 import { mdxComponents } from "./mdx-components.js";
 
@@ -51,6 +52,14 @@ export function DocumentationPage({ doc, onOutline }: { doc: DocPage; onOutline(
     await navigator.clipboard.writeText(window.location.href);
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1600);
+  }
+
+  if (doc.file === "index.md") {
+    return (
+      <article className="doc-page docs-home-page" ref={articleRef}>
+        <DocsOverview />
+      </article>
+    );
   }
 
   return (

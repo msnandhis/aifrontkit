@@ -4,7 +4,10 @@
   "type": "registry:block",
   "title": "Tool approval",
   "description": "An explicit approve/reject boundary for consequential customer actions.",
-  "files": [{ "path": "registry/react/css/patterns/tool-approval/tool-approval.tsx", "type": "registry:component" }],
+  "files": [
+    { "path": "registry/react/css/patterns/tool-approval/tool-approval.tsx", "type": "registry:component" },
+    { "path": "registry/react/css/patterns/tool-approval/tool-approval.module.css", "type": "registry:style" }
+  ],
   "dependencies": ["@aifrontkit/core@^0.1.0", "@aifrontkit/react@^0.1.0"],
   "meta": { "version": "0.1.0", "schemaMajor": 1, "aifrontkit": ">=0.1.0 <1", "target": { "framework": "react", "flavor": "css-modules" } }
 }

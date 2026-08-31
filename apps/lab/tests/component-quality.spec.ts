@@ -77,7 +77,7 @@ test("walks the flagship research agent through production recovery states", asy
   await expect(workflow).toHaveAttribute("data-stage", "streaming");
   await expect(workflow.getByLabel("Response streaming")).toBeVisible();
   await expect(workflow.locator('[data-aifk-tool][data-status="running"]')).toBeVisible();
-  await expect(workflow.locator('[data-slot="file"]')).toContainText("market-signal-brief.pdf");
+  await expect(workflow.locator('[data-slot="file"]')).toHaveCount(0);
 
   await workflow.getByRole("button", { name: "Continue research" }).click();
   await expect(workflow).toHaveAttribute("data-stage", "approval");
@@ -93,7 +93,7 @@ test("walks the flagship research agent through production recovery states", asy
   await expect(workflow).toHaveAttribute("data-stage", "reconnecting");
   await expect(transitionStatus).toBeFocused();
   await expect(transitionStatus).toContainText("Reconnecting");
-  await workflow.getByRole("button", { name: "Restore session" }).click();
+  await workflow.getByRole("button", { name: "Attempt restore" }).click();
   await expect(workflow).toHaveAttribute("data-stage", "failed");
   await expect(transitionStatus).toBeFocused();
   await expect(transitionStatus).toContainText("Recovery available");
@@ -104,6 +104,7 @@ test("walks the flagship research agent through production recovery states", asy
   await expect(transitionStatus).toBeFocused();
   await expect(transitionStatus).toContainText("Complete");
   await expect(workflow.getByRole("heading", { name: "Sources" })).toBeVisible();
+  await expect(workflow.locator('[data-slot="file"]')).toContainText("market-signal-brief.pdf");
   await expect(workflow.getByRole("link", { name: "AI SDK documentation" })).toBeVisible();
   await page.getByRole("group", { name: "Preview viewport" }).getByRole("button", { name: "375" }).click();
   await expect(frame).toHaveCSS("width", "375px");

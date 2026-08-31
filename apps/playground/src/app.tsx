@@ -76,7 +76,7 @@ function DocumentationShell() {
         </div>
       </header>
 
-      <div className={`docs-frame${doc?.component ? " docs-frame-component" : ""}`}>
+      <div className={`docs-frame${doc?.component ? " docs-frame-component" : ""}${doc?.file === "index.md" ? " docs-frame-home" : ""}`}>
         <aside id="docs-navigation" className={`docs-sidebar ${navigationOpen ? "is-open" : ""}`} aria-label="Documentation navigation">
           <button className="sidebar-search" type="button" onClick={openSearch}><Icon name="search" /><span>Search documentation</span></button>
           <DocumentationNavigation />

@@ -48,7 +48,15 @@ export {
   type TextPlaygroundControl as TextControl,
 };
 
-export type ComponentName = "conversation" | "message" | "prompt-input" | "file" | "tool-call";
+export type ComponentName =
+  | "conversation"
+  | "message"
+  | "prompt-input"
+  | "file"
+  | "tool-call"
+  | "agent-progress"
+  | "tool-approval"
+  | "research-agent";
 export type PlaygroundView = "preview" | "code";
 export type PreviewWidth = PlaygroundEnvironment["viewport"];
 export type PlaygroundFramework = PlaygroundEnvironment["framework"];

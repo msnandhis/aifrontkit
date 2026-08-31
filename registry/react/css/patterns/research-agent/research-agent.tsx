@@ -114,19 +114,20 @@ export function ResearchAgent({ stage, onStageChange, scenario }: ResearchAgentP
         Research workflow status: {completeLabel(stage)}.
       </p>
 
-      <ConnectionPrimitive.Root connection={connection} onRetry={() => transition("reconnecting", "connection.retry()")} className={cx("research-agent__connection")}>
-        <span className={cx("research-agent__connection-dot")} aria-hidden="true" />
-        <div><ConnectionPrimitive.Status />{stage === "offline" || stage === "reconnecting" ? <ConnectionPrimitive.Message /> : null}</div>
-        <ConnectionPrimitive.Retry />
-        {stage === "reconnecting" ? <button type="button" onClick={() => transition("failed", "connection.restored()")}>Restore session</button> : null}
-      </ConnectionPrimitive.Root>
+      {stage === "offline" || stage === "reconnecting" ? (
+        <ConnectionPrimitive.Root connection={connection} onRetry={() => transition("reconnecting", "connection.retry()")} className={cx("research-agent__connection")}>
+          <span className={cx("research-agent__connection-dot")} aria-hidden="true" />
+          <div><ConnectionPrimitive.Status /><ConnectionPrimitive.Message /></div>
+          <ConnectionPrimitive.Retry />
+          {stage === "reconnecting" ? <button type="button" onClick={() => transition("failed", "connection.restoreFailed()")}>Attempt restore</button> : null}
+        </ConnectionPrimitive.Root>
+      ) : null}
 
       <section className={cx("research-agent__brief")} aria-labelledby="research-question">
         <span className={cx("research-agent__avatar")} aria-hidden="true">N</span>
         <div>
           <h3 id="research-question">Research request</h3>
           <p>Compare the production UX patterns emerging across modern AI interface frameworks. Prioritize durable evidence and cite every conclusion.</p>
-          <File file={report} variant="muted" size="sm" />
         </div>
       </section>
 
@@ -141,6 +142,7 @@ export function ResearchAgent({ stage, onStageChange, scenario }: ResearchAgentP
             : "The evidence points toward provider-neutral state, explicit tool boundaries and recoverable long-running work"}
           {stage === "streaming" ? <span className={cx("research-agent__cursor")} aria-label="Response streaming">▍</span> : "."}
         </p>
+        {stage === "complete" ? <File file={report} variant="muted" size="sm" /> : null}
         {stage === "streaming" ? <button type="button" className={cx("research-agent__primary")} onClick={() => transition("approval", "stream.complete()")}>Continue research</button> : null}
       </section>
 

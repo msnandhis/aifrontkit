@@ -65,6 +65,15 @@
       ]
     },
     {
+      "id": "patterns",
+      "title": "Production patterns",
+      "pages": [
+        "patterns/agent-progress.md",
+        "patterns/tool-approval.md",
+        "patterns/research-agent.md"
+      ]
+    },
+    {
       "id": "reference",
       "title": "Reference",
       "pages": [

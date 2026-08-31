@@ -10,13 +10,16 @@ describe("documentation registry", () => {
     expect(docSections.flatMap((section) => section.pages)).toHaveLength(docs.length);
   });
 
-  it("publishes an interactive page for every current registry component", () => {
+  it("publishes an interactive page for every documented component and pattern", () => {
     expect(docs.filter((doc) => doc.component).map((doc) => doc.component)).toEqual([
       "conversation",
       "message",
       "prompt-input",
       "file",
       "tool-call",
+      "agent-progress",
+      "tool-approval",
+      "research-agent",
     ]);
   });
 

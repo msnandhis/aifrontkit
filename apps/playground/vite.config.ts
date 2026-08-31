@@ -76,6 +76,8 @@ export default defineConfig({
       { find: "@aifrontkit/react/composer", replacement: fileURLToPath(new URL("../../packages/react/dist/composer/index.js", import.meta.url)) },
       { find: "@aifrontkit/react/message", replacement: fileURLToPath(new URL("../../packages/react/dist/message/index.js", import.meta.url)) },
       { find: "@aifrontkit/react/tool", replacement: fileURLToPath(new URL("../../packages/react/dist/tool/index.js", import.meta.url)) },
+      { find: "@aifrontkit/react/task", replacement: fileURLToPath(new URL("../../packages/react/dist/task/index.js", import.meta.url)) },
+      { find: "@aifrontkit/react/approval", replacement: fileURLToPath(new URL("../../packages/react/dist/approval/index.js", import.meta.url)) },
       { find: /^@aifrontkit\/testing$/, replacement: fileURLToPath(new URL("../../packages/testing/dist/index.js", import.meta.url)) },
       { find: /^@aifrontkit\/react$/, replacement: fileURLToPath(new URL("../../packages/react/dist/index.js", import.meta.url)) },
       { find: /^@aifrontkit\/core$/, replacement: fileURLToPath(new URL("../../packages/core/dist/index.js", import.meta.url)) }

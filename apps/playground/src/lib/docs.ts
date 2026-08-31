@@ -18,7 +18,7 @@ export interface DocPage extends DocFrontmatter {
   path: string;
   sectionId: string;
   sectionTitle: string;
-  component?: "conversation" | "message" | "prompt-input" | "file" | "tool-call";
+  component?: "conversation" | "message" | "prompt-input" | "file" | "tool-call" | "agent-progress" | "tool-approval" | "research-agent";
   load(): Promise<DocModule>;
 }
 
@@ -38,9 +38,9 @@ export function fileToPath(file: string) {
 }
 
 function componentFromFile(file: string): DocPage["component"] {
-  if (!file.startsWith("primitives/")) return undefined;
-  const value = file.replace("primitives/", "").replace(/\.md$/, "");
-  if (["conversation", "message", "prompt-input", "file", "tool-call"].includes(value)) {
+  if (!file.startsWith("primitives/") && !file.startsWith("patterns/")) return undefined;
+  const value = file.replace(/^primitives\//, "").replace(/^patterns\//, "").replace(/\.md$/, "");
+  if (["conversation", "message", "prompt-input", "file", "tool-call", "agent-progress", "tool-approval", "research-agent"].includes(value)) {
     return value as NonNullable<DocPage["component"]>;
   }
   return undefined;
