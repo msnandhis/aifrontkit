@@ -1,6 +1,6 @@
 {
   "name": "@aifrontkit/ai-sdk",
-  "version": "0.1.0",
+  "version": "0.2.0-next.0",
   "description": "Structural adapter from the AI SDK UI message stream protocol to AIFrontKit events",
   "type": "module",
   "sideEffects": false,

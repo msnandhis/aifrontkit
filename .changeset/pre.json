@@ -1,0 +1,30 @@
+{
+  "mode": "pre",
+  "tag": "next",
+  "initialVersions": {
+    "@aifrontkit/lab": "0.0.0",
+    "@aifrontkit/playground": "0.0.0",
+    "@aifrontkit/fixture-astro-react-island": "0.0.0",
+    "@aifrontkit/fixture-next-app-router": "0.0.0",
+    "@aifrontkit/fixture-next-pages-router": "0.0.0",
+    "@aifrontkit/fixture-react-router-spa": "0.0.0",
+    "@aifrontkit/fixture-react-vite": "0.0.0",
+    "@aifrontkit/ag-ui": "0.1.0",
+    "@aifrontkit/ai-sdk": "0.1.0",
+    "aifrontkit": "0.1.0",
+    "@aifrontkit/core": "0.1.0",
+    "@aifrontkit/react": "0.1.0",
+    "@aifrontkit/testing": "0.1.0",
+    "@aifrontkit/tokens": "0.1.0"
+  },
+  "changesets": [
+    "agent-task-contracts",
+    "artifact-review",
+    "attachment-recovery",
+    "clean-source-contracts",
+    "preview-release-readiness",
+    "quiet-responses-stop",
+    "resumable-agent-checkpoints",
+    "tailwind-pattern-parity"
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "name": "@aifrontkit/testing",
-  "version": "0.1.0",
+  "version": "0.2.0-next.0",
   "description": "Deterministic normalized fixtures for AIFrontKit consumers",
   "type": "module",
   "sideEffects": false,

@@ -1,6 +1,6 @@
 {
   "name": "@aifrontkit/react",
-  "version": "0.1.0",
+  "version": "0.2.0-next.0",
   "description": "React providers, hooks, and headless primitives for AIFrontKit",
   "type": "module",
   "sideEffects": false,
