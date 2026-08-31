@@ -43,8 +43,11 @@ for (const packageDirectory of packageDirectories) {
   const parsedReport = JSON.parse(jsonStart >= 0 ? dryRun.stdout.slice(jsonStart + 1) : dryRun.stdout);
   const report = Array.isArray(parsedReport)
     ? parsedReport.find((entry) => entry?.name === manifest.name && entry?.version === manifest.version)
-    : parsedReport;
+    : Array.isArray(parsedReport?.files)
+      ? parsedReport
+      : parsedReport?.[manifest.name];
   requireCondition(report && Array.isArray(report.files), `${label} npm publish dry run returned an unexpected JSON report.`);
+  requireCondition(report.name === manifest.name && report.version === manifest.version, `${label} npm publish dry run reported a different package.`);
   const files = new Map(report.files.map((file) => [file.path, file]));
 
   requireCondition(files.has("package.json"), `${label} tarball is missing package.json.`);
