@@ -21,3 +21,7 @@ still handled by the async `onSubmit` callback; a rejected promise preserves
 the controlled draft and exposes the configured error message.
 
 The component supports theme, density, radius, focus, disabled, touch, and reduced-motion tokens. Consumers can edit its copied source or replace individual slots without adding a runtime platform dependency.
+
+Pass `canSubmit` when valid host-owned context can make an empty text value
+submittable. Attachment composers use this to permit attachment-only messages
+only after every retained attachment is ready.

@@ -17,6 +17,7 @@ describe("documentation registry", () => {
       "prompt-input",
       "file",
       "tool-call",
+      "attachment-composer",
       "agent-progress",
       "tool-approval",
       "artifact-review",

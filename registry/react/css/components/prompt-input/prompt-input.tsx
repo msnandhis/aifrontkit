@@ -10,6 +10,8 @@ function slot(name: string, ...values: Array<string | undefined>) {
 
 export interface PromptInputProps {
   onSubmit(value: string): void | Promise<void>;
+  /** Override trimmed-text validation, for example when ready attachments permit an empty message. */
+  canSubmit?(value: string): boolean;
   /** Controlled draft value. Pair with `onValueChange` when the host owns the field state. */
   value?: string;
   /** Initial draft for an uncontrolled composer. */
@@ -28,10 +30,11 @@ export interface PromptInputProps {
   className?: string;
 }
 
-export function PromptInput({ onSubmit, value, defaultValue, onValueChange, label = "Message", labelDisplay = "sr-only", placeholder = "Ask a question", hint = "Enter to send", leading, toolbarStart, submitLabel = "Send message", showSubmitLabel = false, submitErrorMessage = "Message could not be sent. Try again.", className }: PromptInputProps) {
+export function PromptInput({ onSubmit, canSubmit, value, defaultValue, onValueChange, label = "Message", labelDisplay = "sr-only", placeholder = "Ask a question", hint = "Enter to send", leading, toolbarStart, submitLabel = "Send message", showSubmitLabel = false, submitErrorMessage = "Message could not be sent. Try again.", className }: PromptInputProps) {
   return (
     <ComposerPrimitive.Root
       onSubmit={onSubmit}
+      {...(canSubmit === undefined ? {} : { canSubmit })}
       {...(value === undefined ? {} : { value })}
       {...(defaultValue === undefined ? {} : { defaultValue })}
       {...(onValueChange === undefined ? {} : { onValueChange })}

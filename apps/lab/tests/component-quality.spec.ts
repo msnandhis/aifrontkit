@@ -64,6 +64,7 @@ test("loads every declared scenario through the real registry fixture harness", 
       if (component === "agent-progress") await expect(frame.locator('[data-fixture-pattern="agent-progress"]')).toBeVisible();
       if (component === "tool-approval") await expect(frame.locator('[data-fixture-pattern="tool-approval"]')).toBeVisible();
       if (component === "artifact-review") await expect(frame.locator('[data-fixture-pattern="artifact-review"]')).toBeVisible();
+      if (component === "attachment-composer") await expect(frame.locator('[data-fixture-pattern="attachment-composer"]')).toBeVisible();
       if (component === "research-agent") await expect(frame.locator('[data-fixture-pattern="research-agent"]')).toBeVisible();
     }
   }
@@ -199,6 +200,59 @@ test("reviews an artifact version with keyboard feedback and stale-version safet
   expect((await new AxeBuilder({ page }).include('[data-fixture-pattern="artifact-review"]').analyze()).violations).toEqual([]);
 });
 
+test("recovers attachment uploads without losing the composed message", async ({ page }) => {
+  const componentSwitcher = page.getByRole("group", { name: "Component" });
+  const fixtureNavigation = page.getByRole("complementary", { name: "Component fixtures" });
+  const frame = page.locator(".viewport-frame");
+
+  await componentSwitcher.getByRole("button", { name: /^Attachment composer/ }).click();
+  await fixtureNavigation.getByRole("button", { name: /^Partial failure/ }).click();
+  const composer = frame.locator('[data-fixture-pattern="attachment-composer"]');
+  await expect(composer.getByRole("listitem")).toHaveCount(3);
+  await expect(composer.getByRole("button", { name: "Send message and attachments" })).toBeDisabled();
+  await expect(composer.getByText("product-brief.pdf")).toBeVisible();
+  await expect(composer.getByText("customer-journey.pdf")).toBeVisible();
+  await composer.getByRole("button", { name: "Retry upload customer-interviews.pdf" }).click();
+  await expect(page.locator("[data-fixture-event]")).toContainText("onRetry(interviews)");
+  await expect(composer.locator('[data-aifk-attachment][data-status="retrying"]')).toBeVisible();
+
+  await fixtureNavigation.getByRole("button", { name: /^Ready/ }).click();
+  await composer.getByRole("button", { name: "Remove risk-review.pdf" }).click();
+  await expect(composer.getByRole("listitem", { name: /delivery-plan.csv/ })).toBeFocused();
+
+  await fixtureNavigation.getByRole("button", { name: /^Replace required/ }).click();
+  const chooserPromise = page.waitForEvent("filechooser");
+  await composer.getByRole("button", { name: "Choose another file for encrypted-export.pdf" }).click();
+  const chooser = await chooserPromise;
+  await chooser.setFiles({ name: "readable-export.pdf", mimeType: "application/pdf", buffer: Buffer.from("replacement") });
+  await expect(page.locator("[data-fixture-event]")).toContainText("onReplaceFile(encrypted-export, readable-export.pdf)");
+  await expect(composer.getByRole("listitem", { name: /readable-export.pdf/ })).toBeVisible();
+  await expect(composer.locator('[data-aifk-attachment][data-status="queued"]')).toBeVisible();
+
+  await fixtureNavigation.getByRole("button", { name: /^Attachment only/ }).click();
+  await expect(composer.getByRole("textbox", { name: "Message" })).toHaveValue("");
+  await expect(composer.getByRole("button", { name: "Send message and attachments" })).toBeEnabled();
+  await composer.getByRole("button", { name: "Send message and attachments" }).click();
+  await expect(page.locator("[data-fixture-event]")).toContainText('onSubmit("", invoice)');
+
+  await fixtureNavigation.getByRole("button", { name: /^Offline paused/ }).click();
+  await expect(composer.getByRole("textbox", { name: "Message" })).toHaveValue("Keep this draft while I reconnect.");
+  await expect(composer.getByRole("region", { name: "Connection status" })).toHaveCount(1);
+  await expect(composer.getByText("Paused offline · 46%", { exact: true })).toBeVisible();
+  await expect(composer.getByRole("progressbar", { name: "Upload progress for field-notes.pdf" })).toHaveAttribute("value", "46");
+  await expect(composer.getByRole("button", { name: "Attach files" })).toBeDisabled();
+  await expect(composer.getByRole("button", { name: "Send message and attachments" })).toBeDisabled();
+
+  await page.getByRole("group", { name: "Preview viewport" }).getByRole("button", { name: "375" }).click();
+  expect(await frame.evaluate((element) => element.scrollWidth <= element.clientWidth + 1)).toBe(true);
+  const cancelBox = await composer.getByRole("button", { name: "Cancel upload field-notes.pdf" }).boundingBox();
+  expect(cancelBox?.height ?? 0).toBeGreaterThanOrEqual(44);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const transitionDuration = await composer.getByRole("button", { name: "Cancel upload field-notes.pdf" }).evaluate((element) => Number.parseFloat(getComputedStyle(element).transitionDuration));
+  expect(transitionDuration).toBeLessThanOrEqual(0.001);
+  expect((await new AxeBuilder({ page }).include('[data-fixture-pattern="attachment-composer"]').analyze()).violations).toEqual([]);
+});
+
 test("keeps pattern visual contracts portable across themes and narrow layouts", async ({ page }) => {
   const componentSwitcher = page.getByRole("group", { name: "Component" });
   const fixtureNavigation = page.getByRole("complementary", { name: "Component fixtures" });
@@ -266,6 +320,31 @@ test("captures reviewed artifact review baselines", async ({ page }) => {
   await viewport.getByRole("button", { name: "375" }).click();
   await fixtureNavigation.getByRole("button", { name: /^Conflict/ }).click();
   await expect(frame).toHaveScreenshot("artifact-review-conflict-dark-375.webp");
+});
+
+test("captures reviewed attachment composer baselines", async ({ page }) => {
+  const componentSwitcher = page.getByRole("group", { name: "Component" });
+  const fixtureNavigation = page.getByRole("complementary", { name: "Component fixtures" });
+  const frame = page.locator(".viewport-frame");
+  const composer = frame.locator('[data-fixture-pattern="attachment-composer"]');
+  const theme = page.getByRole("group", { name: "Theme" });
+  const viewport = page.getByRole("group", { name: "Preview viewport" });
+
+  await componentSwitcher.getByRole("button", { name: /^Attachment composer/ }).click();
+  await viewport.getByRole("button", { name: "768" }).click();
+  await fixtureNavigation.getByRole("button", { name: /^Partial failure/ }).click();
+  await expect(composer).toHaveScreenshot("attachment-composer-partial-failure-light.webp");
+
+  await theme.getByRole("button", { name: "Dark" }).click();
+  await viewport.getByRole("button", { name: "375" }).click();
+  await fixtureNavigation.getByRole("button", { name: /^Offline paused/ }).click();
+  await expect(composer).toHaveScreenshot("attachment-composer-offline-paused-dark-375.webp");
+
+  await theme.getByRole("button", { name: "Contrast" }).click();
+  await page.setViewportSize({ width: 1800, height: 1000 });
+  await viewport.getByRole("button", { name: "1024" }).click();
+  await fixtureNavigation.getByRole("button", { name: /^Long batch/ }).click();
+  await expect(composer).toHaveScreenshot("attachment-composer-long-batch-contrast.webp");
 });
 
 test("exercises prompt input keyboard, pending, and rejection semantics", async ({ page }) => {

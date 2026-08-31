@@ -54,6 +54,7 @@ export type ComponentName =
   | "prompt-input"
   | "file"
   | "tool-call"
+  | "attachment-composer"
   | "agent-progress"
   | "tool-approval"
   | "artifact-review"

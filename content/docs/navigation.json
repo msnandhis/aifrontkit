@@ -48,6 +48,7 @@
         "primitives/conversation.md",
         "primitives/message.md",
         "primitives/prompt-input.md",
+        "primitives/attachment.md",
         "primitives/file.md",
         "primitives/tool-call.md",
         "primitives/task.md",
@@ -69,6 +70,7 @@
       "id": "patterns",
       "title": "Production patterns",
       "pages": [
+        "patterns/attachment-composer.md",
         "patterns/agent-progress.md",
         "patterns/tool-approval.md",
         "patterns/artifact-review.md",

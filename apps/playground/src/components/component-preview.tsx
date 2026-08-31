@@ -22,6 +22,7 @@ const playgrounds: Record<ComponentName, LazyExoticComponent<ComponentType>> = {
   "prompt-input": lazyPlayground(async () => (await import("../playground/definitions/prompt-input.playground.js")).promptInputPlayground as unknown as AnyPlaygroundDefinition),
   file: lazyPlayground(async () => (await import("../playground/definitions/file.playground.js")).filePlayground as unknown as AnyPlaygroundDefinition),
   "tool-call": lazyPlayground(async () => (await import("../playground/definitions/tool-call.playground.js")).toolCallPlayground as unknown as AnyPlaygroundDefinition),
+  "attachment-composer": lazyPlayground(async () => (await import("../playground/definitions/attachment-composer.playground.js")).attachmentComposerPlayground as unknown as AnyPlaygroundDefinition),
   "agent-progress": lazyPlayground(async () => (await import("../playground/definitions/agent-progress.playground.js")).agentProgressPlayground as unknown as AnyPlaygroundDefinition),
   "tool-approval": lazyPlayground(async () => (await import("../playground/definitions/tool-approval.playground.js")).toolApprovalPlayground as unknown as AnyPlaygroundDefinition),
   "artifact-review": lazyPlayground(async () => (await import("../playground/definitions/artifact-review.playground.js")).artifactReviewPlayground as unknown as AnyPlaygroundDefinition),

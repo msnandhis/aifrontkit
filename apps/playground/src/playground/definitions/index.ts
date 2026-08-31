@@ -4,6 +4,7 @@ import { filePlayground } from "./file.playground.js";
 import { messagePlayground } from "./message.playground.js";
 import { promptInputPlayground } from "./prompt-input.playground.js";
 import { toolCallPlayground } from "./tool-call.playground.js";
+import { attachmentComposerPlayground } from "./attachment-composer.playground.js";
 import { agentProgressPlayground } from "./agent-progress.playground.js";
 import { toolApprovalPlayground } from "./tool-approval.playground.js";
 import { artifactReviewPlayground } from "./artifact-review.playground.js";
@@ -15,6 +16,7 @@ export const playgroundDefinitions: Record<ComponentName, AnyPlaygroundDefinitio
   "prompt-input": promptInputPlayground as unknown as AnyPlaygroundDefinition,
   file: filePlayground as unknown as AnyPlaygroundDefinition,
   "tool-call": toolCallPlayground as unknown as AnyPlaygroundDefinition,
+  "attachment-composer": attachmentComposerPlayground as unknown as AnyPlaygroundDefinition,
   "agent-progress": agentProgressPlayground as unknown as AnyPlaygroundDefinition,
   "tool-approval": toolApprovalPlayground as unknown as AnyPlaygroundDefinition,
   "artifact-review": artifactReviewPlayground as unknown as AnyPlaygroundDefinition,

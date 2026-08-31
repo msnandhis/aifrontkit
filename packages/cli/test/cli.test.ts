@@ -256,6 +256,18 @@ describe("AIFrontKit CLI", () => {
     expect(await readFile(join(root, "src/components/aifrontkit/tool-approval.tsx"), "utf8")).toContain("ToolApproval");
   });
 
+  it("installs the attachment composer with flattened source dependencies", async () => {
+    const root = await mkdtemp(join(tmpdir(), "aifrontkit-cli-attachments-"));
+    await initProject(root, { registry: repositoryRoot });
+    const plan = await addItem(root, "attachment-composer");
+    expect([...plan.manifestPaths.keys()]).toEqual(expect.arrayContaining(["attachment-composer", "file", "prompt-input"]));
+    const source = await readFile(join(root, "src/components/aifrontkit/attachment-composer.tsx"), "utf8");
+    expect(source).toContain('from "./file.js"');
+    expect(source).toContain('from "./prompt-input.js"');
+    const provenance = JSON.parse(await readFile(join(root, ".aifrontkit/installed.json"), "utf8"));
+    expect(Object.keys(provenance.items)).toEqual(expect.arrayContaining(["attachment-composer", "file", "prompt-input"]));
+  });
+
   it("reads and explicitly migrates the legacy v1 config and provenance", async () => {
     const root = await mkdtemp(join(tmpdir(), "aifrontkit-cli-migrate-"));
     await writeFile(join(root, "aifrontkit.json"), `${JSON.stringify({

@@ -47,7 +47,7 @@ test("renders every current component through a typed interactive playground", a
     await expect(page.getByRole("combobox", { name: "Scenario" })).toBeVisible();
   }
 
-  const patterns = ["agent-progress", "tool-approval", "artifact-review", "research-agent"] as const;
+  const patterns = ["attachment-composer", "agent-progress", "tool-approval", "artifact-review", "research-agent"] as const;
   for (const pattern of patterns) {
     await page.goto(`/docs/patterns/${pattern}`);
     await expect(page.locator(".component-playground")).toBeVisible();
@@ -188,6 +188,30 @@ test("reviews an artifact with feedback, conflict safety and offline recovery", 
 
   await page.setViewportSize({ width: 375, height: 812 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+});
+
+test("recovers attachment failures and preserves attachment-only or offline drafts", async ({ page }) => {
+  await page.goto("/docs/patterns/attachment-composer");
+  const playground = page.locator(".component-playground");
+  await expect(playground.getByRole("listitem")).toHaveCount(3);
+  await expect(playground.getByRole("button", { name: "Send message and attachments" })).toBeDisabled();
+  await playground.getByRole("button", { name: "Retry upload customer-interviews.pdf" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "onRetry(interviews)" })).toBeVisible();
+
+  await page.getByRole("combobox", { name: "Scenario" }).selectOption("attachment-only");
+  await expect(playground.getByRole("textbox", { name: "Message" })).toHaveValue("");
+  await expect(playground.getByRole("button", { name: "Send message and attachments" })).toBeEnabled();
+  await playground.getByRole("button", { name: "Send message and attachments" }).click();
+  await expect(page.getByRole("status").filter({ hasText: 'onSubmit("", invoice)' })).toBeVisible();
+
+  await page.getByRole("combobox", { name: "Scenario" }).selectOption("offline-paused");
+  await expect(playground.getByRole("textbox", { name: "Message" })).toHaveValue("Keep this draft while I reconnect.");
+  await expect(playground.getByText("Paused offline · 46%", { exact: true })).toBeVisible();
+  await expect(playground.getByRole("button", { name: "Send message and attachments" })).toBeDisabled();
+
+  await page.setViewportSize({ width: 375, height: 812 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+  expect((await new AxeBuilder({ page }).include('[data-fixture-pattern="attachment-composer"]').analyze()).violations).toEqual([]);
 });
 
 test("keeps the mobile shell usable and bounded", async ({ page }) => {

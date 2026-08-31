@@ -48,6 +48,17 @@ describe("component playground contract", () => {
     expect(conflictCode).toContain('"version": 4');
     expect(conflictCode).toContain('"version": 3');
     expect(conflictCode).toContain("onRequestChanges");
+
+    const attachmentComposer = playgroundDefinitions["attachment-composer"];
+    const failureCode = attachmentComposer.generateCode({ ...attachmentComposer.defaults, props: { ...attachmentComposer.defaults.props, scenario: "partial-failure" } });
+    expect(failureCode).toContain('"status": "failed"');
+    expect(failureCode).toContain("onRetry");
+    const offlineCode = attachmentComposer.generateCode({ ...attachmentComposer.defaults, props: { ...attachmentComposer.defaults.props, scenario: "offline-paused" } });
+    expect(offlineCode).toContain('"status": "offline"');
+    expect(offlineCode).toContain("Keep this draft while I reconnect.");
+    const attachmentOnlyCode = attachmentComposer.generateCode({ ...attachmentComposer.defaults, props: { ...attachmentComposer.defaults.props, scenario: "attachment-only" } });
+    expect(attachmentOnlyCode).toContain("initialAttachments");
+    expect(attachmentOnlyCode).toContain("onSubmit");
   });
 
   it("distinguishes component tags, prop names, and literal values", () => {

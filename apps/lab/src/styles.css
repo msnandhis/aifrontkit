@@ -136,6 +136,7 @@ svg { display: block; fill: none; stroke: currentColor; stroke-linecap: round; s
 .registry-fixture-preview [data-fixture-submit-count] { display: block; min-block-size: 1.25rem; margin-block-start: 0.5rem; color: var(--aifk-text-muted, GrayText); font-size: 0.75rem; }
 .registry-fixture-preview [data-fixture-pattern] { inline-size: min(100%, 36rem); }
 .registry-fixture-preview [data-fixture-pattern="artifact-review"] { inline-size: min(100%, 68rem); }
+.registry-fixture-preview [data-fixture-pattern="attachment-composer"] { inline-size: min(100%, 46rem); }
 .aifk-tool-approval-fixture > [data-aifk-approval] { display: grid; grid-template-columns: 1fr auto auto; gap: 0.75rem; align-items: center; padding: 1.25rem; color: var(--aifk-text); background: var(--aifk-surface); border: 1px solid var(--aifk-border); border-radius: var(--aifk-radius-large); }
 .aifk-tool-approval-fixture :is(h2, h3, h4), .aifk-tool-approval-fixture [data-slot="approval-summary"], .aifk-tool-approval-fixture dl, .aifk-tool-approval-fixture p { grid-column: 1 / -1; }
 .aifk-tool-approval-fixture :is(h2, h3, h4), .aifk-tool-approval-fixture p { margin: 0; }

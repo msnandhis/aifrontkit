@@ -8,3 +8,4 @@ export * from "./task/index.js";
 export * from "./approval/index.js";
 export * from "./connection/index.js";
 export * from "./artifact/index.js";
+export * from "./attachment/index.js";

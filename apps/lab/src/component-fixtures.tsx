@@ -6,9 +6,10 @@ import { fileExample, type FileExampleState } from "../../../registry/react/css/
 import { AgentProgressFixture, agentProgressQualityScenarios, type AgentProgressFixtureId } from "../../../registry/react/css/patterns/agent-progress/agent-progress.fixture.js";
 import { ToolApprovalFixture, toolApprovalQualityScenarios, type ToolApprovalFixtureId } from "../../../registry/react/css/patterns/tool-approval/tool-approval.fixture.js";
 import { ArtifactReviewFixture, artifactReviewQualityScenarios, type ArtifactReviewFixtureId } from "../../../registry/react/css/patterns/artifact-review/artifact-review.fixture.js";
+import { AttachmentComposerFixture, attachmentComposerQualityScenarios, type AttachmentComposerFixtureId } from "../../../registry/react/css/patterns/attachment-composer/attachment-composer.fixture.js";
 import { ResearchAgentFixture, researchAgentQualityScenarios, type ResearchAgentFixtureId } from "../../../registry/react/css/patterns/research-agent/research-agent.fixture.js";
 
-export type LabComponentId = "conversation" | "message" | "prompt-input" | "tool-call" | "file" | "agent-progress" | "tool-approval" | "artifact-review" | "research-agent";
+export type LabComponentId = "conversation" | "message" | "prompt-input" | "tool-call" | "file" | "attachment-composer" | "agent-progress" | "tool-approval" | "artifact-review" | "research-agent";
 export type LabComponentMaturity = "preview" | "experimental";
 
 export interface LabScenario {
@@ -121,6 +122,13 @@ export const componentFixtureContracts: readonly LabComponentContract[] = [
     scenarios: toolCallQualityScenarios.map((scenario) => ({ id: scenario.id, title: scenarioTitle(scenario.id), expectation: scenario.expectation })),
   },
   {
+    id: "attachment-composer",
+    title: "Attachment composer",
+    maturity: "experimental",
+    description: "Ordered upload composition, partial-failure recovery and connection-safe submission.",
+    scenarios: attachmentComposerQualityScenarios.map((scenario) => ({ id: scenario.id, title: scenarioTitle(scenario.id), expectation: scenario.expectation })),
+  },
+  {
     id: "agent-progress",
     title: "Agent progress",
     maturity: "experimental",
@@ -175,6 +183,8 @@ export function renderRegistryFixture(
       return <ToolApprovalFixture scenario={scenario as ToolApprovalFixtureId} emit={emit} />;
     case "artifact-review":
       return <ArtifactReviewFixture scenario={scenario as ArtifactReviewFixtureId} emit={emit} />;
+    case "attachment-composer":
+      return <AttachmentComposerFixture scenario={scenario as AttachmentComposerFixtureId} emit={emit} />;
     case "research-agent":
       return <ResearchAgentFixture scenario={scenario as ResearchAgentFixtureId} emit={emit} />;
     case "conversation":

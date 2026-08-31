@@ -18,6 +18,7 @@ interface ComposerContextValue {
   setValue(value: string): void;
   submitting: boolean;
   error: string | null;
+  canSubmit: boolean;
 }
 const ComposerContext = createContext<ComposerContextValue | null>(null);
 
@@ -29,9 +30,11 @@ export interface ComposerRootProps extends Omit<ComponentPropsWithoutRef<"form">
   onValueChange?(value: string): void;
   /** Safe, user-facing feedback retained beside the composer when submission rejects. */
   submitErrorMessage?: string;
+  /** Override the default trimmed-text requirement, for example when ready attachments make an empty-text submission valid. */
+  canSubmit?(value: string): boolean;
 }
 
-function Root({ onSubmit, value: controlledValue, defaultValue = "", onValueChange, submitErrorMessage = "Message could not be sent. Try again.", children, ...props }: ComposerRootProps) {
+function Root({ onSubmit, value: controlledValue, defaultValue = "", onValueChange, submitErrorMessage = "Message could not be sent. Try again.", canSubmit: canSubmitPredicate, children, ...props }: ComposerRootProps) {
   const [uncontrolledValue, setUncontrolledValue] = useState(defaultValue);
   const value = controlledValue ?? uncontrolledValue;
   const setValue = (nextValue: string) => {
@@ -39,11 +42,14 @@ function Root({ onSubmit, value: controlledValue, defaultValue = "", onValueChan
     onValueChange?.(nextValue);
   };
   const [submitting, setSubmitting] = useState(false);
+  const submittingRef = useRef(false);
   const [error, setError] = useState<string | null>(null);
+  const canSubmit = canSubmitPredicate ? canSubmitPredicate(value) : Boolean(value.trim());
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmed = value.trim();
-    if (!trimmed || submitting) return;
+    if (!canSubmit || submittingRef.current) return;
+    submittingRef.current = true;
     setSubmitting(true);
     setError(null);
     try {
@@ -52,11 +58,12 @@ function Root({ onSubmit, value: controlledValue, defaultValue = "", onValueChan
     } catch {
       setError(submitErrorMessage);
     } finally {
+      submittingRef.current = false;
       setSubmitting(false);
     }
   }
   return (
-    <ComposerContext.Provider value={{ value, setValue: (nextValue) => { setValue(nextValue); setError(null); }, submitting, error }}>
+    <ComposerContext.Provider value={{ value, setValue: (nextValue) => { setValue(nextValue); setError(null); }, submitting, error, canSubmit }}>
       <form data-submitting={submitting ? "true" : "false"} data-error={error ? "true" : "false"} onSubmit={handleSubmit} {...props}>{children}</form>
     </ComposerContext.Provider>
   );
@@ -120,7 +127,7 @@ function Submit({ children, submittingLabel = "Sending message", submittingChild
     <button
       {...props}
       type="submit"
-      disabled={Boolean(disabled) || context.submitting || !context.value.trim()}
+      disabled={Boolean(disabled) || context.submitting || !context.canSubmit}
       aria-label={context.submitting ? submittingLabel : ariaLabel}
       aria-busy={context.submitting ? "true" : undefined}
     >

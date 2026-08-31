@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
-import { assertCommand, COMMAND_SCHEMA_VERSION, createCommandDispatcher, InvalidCommandError, LEGACY_COMMAND_SCHEMA_VERSION, type AIFrontCommand } from "../src/index.js";
+import { assertCommand, COMMAND_SCHEMA_VERSION, createCommandDispatcher, InvalidCommandError, LEGACY_COMMAND_SCHEMA_VERSION, PREVIOUS_COMMAND_SCHEMA_VERSION, type AIFrontCommand, type AttachmentUpload } from "../src/index.js";
 
 const command: AIFrontCommand = {
   schemaVersion: 1,
@@ -41,9 +41,11 @@ describe("frontend command contract", () => {
 
   it("keeps every v1 command available after advancing the current schema", () => {
     expect(LEGACY_COMMAND_SCHEMA_VERSION).toBe(1);
-    expect(COMMAND_SCHEMA_VERSION).toBe(2);
+    expect(PREVIOUS_COMMAND_SCHEMA_VERSION).toBe(2);
+    expect(COMMAND_SCHEMA_VERSION).toBe(3);
     expect(() => assertCommand(command)).not.toThrow();
     expect(() => assertCommand({ ...command, schemaVersion: 2 })).not.toThrow();
+    expect(() => assertCommand({ ...command, schemaVersion: 3 })).not.toThrow();
   });
 
   it("validates a version-bound artifact review resolution", () => {
@@ -59,7 +61,8 @@ describe("frontend command contract", () => {
       comment: "Add source citations"
     };
     expect(() => assertCommand(reviewCommand)).not.toThrow();
-    expect(() => assertCommand({ ...reviewCommand, schemaVersion: 1 })).toThrow(/requires command schema version 2/);
+    expect(() => assertCommand({ ...reviewCommand, schemaVersion: 1 })).toThrow(/requires command schema version 2 or newer/);
+    expect(() => assertCommand({ ...reviewCommand, schemaVersion: 3 })).not.toThrow();
     expect(() => assertCommand({ ...reviewCommand, version: 0 })).toThrow(/positive integer/);
     expect(() => assertCommand({ ...reviewCommand, resolution: "rejected" })).toThrow(/resolution is invalid/);
     expect(() => assertCommand({ ...reviewCommand, comment: " " })).toThrow(/non-empty string/);
@@ -70,5 +73,43 @@ describe("frontend command contract", () => {
     const schema = JSON.parse(readFileSync(schemaUrl, "utf8")) as { properties: { type: { enum: string[] } }; allOf: unknown[] };
     expect(schema.properties.type.enum).toContain("artifact.review.resolve");
     expect(schema.allOf).toHaveLength(1);
+  });
+
+  it("adds retry and cancel attachment intent only in command schema v3", () => {
+    const retryCommand: AIFrontCommand = {
+      schemaVersion: 3,
+      id: "attachment-retry-1",
+      threadId: "thread-1",
+      timestamp: 5,
+      type: "attachment.retry",
+      attachmentId: "attachment-1"
+    };
+    expect(() => assertCommand(retryCommand)).not.toThrow();
+    expect(() => assertCommand({ ...retryCommand, type: "attachment.cancel" })).not.toThrow();
+    expect(() => assertCommand({ ...retryCommand, schemaVersion: 2 })).toThrow(/requires command schema version 3/);
+    expect(() => assertCommand({ ...retryCommand, schemaVersion: 1 })).toThrow(/requires command schema version 3/);
+    expect(() => assertCommand({ ...retryCommand, attachmentId: "" })).toThrow(/non-empty string/);
+    expect(() => assertCommand({ ...retryCommand, attachmentId: "   " })).toThrow(/non-empty string/);
+
+    const schemaUrl = new URL("../schemas/v3/command.schema.json", import.meta.url);
+    const schema = JSON.parse(readFileSync(schemaUrl, "utf8")) as { properties: { schemaVersion: { const: number }; type: { enum: string[] } }; allOf: unknown[] };
+    expect(schema.properties.schemaVersion.const).toBe(3);
+    expect(schema.properties.type.enum).toContain("attachment.retry");
+    expect(schema.properties.type.enum).toContain("attachment.cancel");
+    expect(schema.allOf).toHaveLength(2);
+  });
+
+  it("models composer-local transfer state separately from transcript file status", () => {
+    const upload: AttachmentUpload = {
+      id: "attachment-1",
+      file: { type: "file", name: "brief.pdf", mediaType: "application/pdf", size: 1200 },
+      status: "failed",
+      progress: { current: 600, total: 1200 },
+      error: { message: "Upload interrupted.", code: "NETWORK", recovery: "retry" },
+      attempt: 1
+    };
+    expect(upload.file).not.toHaveProperty("status");
+    expect(upload.status).toBe("failed");
+    expect(upload.error?.recovery).toBe("retry");
   });
 });

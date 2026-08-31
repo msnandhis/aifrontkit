@@ -38,7 +38,9 @@ import { PromptInput } from "@/components/aifrontkit/prompt-input";
 />
 ```
 
-`onSubmit` receives a trimmed, non-empty value. The field clears only after the
+`onSubmit` receives a trimmed value that passes `canSubmit`. By default this is
+a non-empty value. A host can provide `canSubmit` when ready attachments make
+an empty text message valid. The field clears only after the
 callback resolves. If it rejects, the draft remains and `submitErrorMessage` is
 shown beside the form.
 
@@ -69,6 +71,7 @@ button exposes busy meaning.
 | Prop | Type | Default | Purpose |
 | --- | --- | --- | --- |
 | `onSubmit` | `(value: string) => void \| Promise<void>` | Required | Host submission callback. |
+| `canSubmit` | `(value: string) => boolean` | Trimmed text must be non-empty | Host-owned validity predicate for composed context such as ready attachments. |
 | `placeholder` | `string` | `"Ask a question"` | Input hint; not the accessible label. |
 | `hint` | `ReactNode` | `"Enter to send"` | Visible keyboard or product guidance. |
 | `leading` | `ReactNode` | — | Context above the field. |
@@ -116,5 +119,5 @@ tab order, visible focus, RTL, narrow layouts, and reduced motion.
 
 ## Compatibility
 
-Registry version `0.3.0`; React `>=18.3 <20`; UI contract schema major `1`;
+Registry version `0.4.0`; React `>=18.3 <20`; UI contract schema major `1`;
 `@aifrontkit/react >=0.1.0 <1`. No platform runtime is required.

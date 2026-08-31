@@ -3,9 +3,9 @@
   "schemaVersion": 1,
   "name": "prompt-input",
   "title": "Prompt input",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "maturity": "preview",
-  "purpose": "Provide an accessible, source-owned message composer with clear empty, ready, multiline, submitting, and rejected-submission behavior plus optional context and toolbar composition without connecting to an AI service.",
+  "purpose": "Provide an accessible, source-owned message composer with clear empty, ready, multiline, submitting and rejected-submission behavior plus optional host-defined validity, context and toolbar composition without connecting to an AI service.",
   "anatomy": [
     { "name": "root", "description": "Semantic form and async submission boundary." },
     { "name": "leading", "description": "Optional context, selection, attachment, or mode summary." },

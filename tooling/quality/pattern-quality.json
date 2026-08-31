@@ -3,6 +3,36 @@
   "schemaVersion": 1,
   "patterns": [
     {
+      "name": "attachment-composer",
+      "scenarios": ["ready", "uploading-batch", "partial-failure", "retrying", "offline-paused", "reconnecting", "replace-required", "cancelling", "attachment-only", "long-batch", "connection-failed"],
+      "evidence": {
+        "accessibility": {
+          "file": "apps/lab/tests/component-quality.spec.ts",
+          "contains": ["recovers attachment uploads without losing the composed message", "AxeBuilder"]
+        },
+        "interaction": {
+          "file": "apps/lab/tests/component-quality.spec.ts",
+          "contains": ["attachment-composer", "onRetry(interviews)", "onSubmit"]
+        },
+        "documentation": {
+          "file": "content/docs/patterns/attachment-composer.md",
+          "contains": ["AttachmentComposer"]
+        },
+        "visualRegression": {
+          "file": "apps/lab/tests/component-quality.spec.ts",
+          "contains": ["attachment-composer-partial-failure-light.webp", "attachment-composer-offline-paused-dark-375.webp", "attachment-composer-long-batch-contrast.webp"],
+          "artifacts": [
+            "apps/lab/tests/__screenshots__/chromium-darwin/attachment-composer-partial-failure-light.webp",
+            "apps/lab/tests/__screenshots__/chromium-darwin/attachment-composer-offline-paused-dark-375.webp",
+            "apps/lab/tests/__screenshots__/chromium-darwin/attachment-composer-long-batch-contrast.webp",
+            "apps/lab/tests/__screenshots__/chromium-linux/attachment-composer-partial-failure-light.webp",
+            "apps/lab/tests/__screenshots__/chromium-linux/attachment-composer-offline-paused-dark-375.webp",
+            "apps/lab/tests/__screenshots__/chromium-linux/attachment-composer-long-batch-contrast.webp"
+          ]
+        }
+      }
+    },
+    {
       "name": "agent-progress",
       "scenarios": ["running", "awaiting-approval", "paused", "complete", "failed"],
       "evidence": {

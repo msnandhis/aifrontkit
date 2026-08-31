@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { createRuntime, type Artifact, type Message } from "@aifrontkit/core";
-import { AIFrontKitProvider, ApprovalPrimitive, ArtifactPrimitive, ComposerPrimitive, ConnectionPrimitive, ConversationPrimitive, MessagePrimitive, TaskPrimitive, ThemeProvider, ToolPrimitive } from "../src/index.js";
+import { createRuntime, type Artifact, type AttachmentUpload, type Message } from "@aifrontkit/core";
+import { AIFrontKitProvider, ApprovalPrimitive, ArtifactPrimitive, AttachmentPrimitive, ComposerPrimitive, ConnectionPrimitive, ConversationPrimitive, MessagePrimitive, TaskPrimitive, ThemeProvider, ToolPrimitive } from "../src/index.js";
 
 describe("React primitives", () => {
   it("renders normalized runtime state without owning visual styling", () => {
@@ -199,6 +199,134 @@ describe("React primitives", () => {
     const html = renderToStaticMarkup(<ComposerPrimitive.Root onSubmit={() => undefined}><ComposerPrimitive.Input /><ComposerPrimitive.Submit /></ComposerPrimitive.Root>);
     expect(html).toContain('aria-label="Message"');
     expect(html).toContain('type="submit"');
+  });
+
+  it("supports attachment-only composer submission through a host predicate", () => {
+    const defaultComposer = renderToStaticMarkup(<ComposerPrimitive.Root onSubmit={() => undefined}><ComposerPrimitive.Submit /></ComposerPrimitive.Root>);
+    const attachmentComposer = renderToStaticMarkup(<ComposerPrimitive.Root canSubmit={() => true} onSubmit={() => undefined}><ComposerPrimitive.Submit /></ComposerPrimitive.Root>);
+    expect(defaultComposer).toContain('disabled=""');
+    expect(attachmentComposer).not.toContain('disabled=""');
+  });
+
+  it("renders attachment progress with native determinate and indeterminate semantics", () => {
+    const determinate: AttachmentUpload = {
+      id: "attachment-1",
+      file: { type: "file", name: "brief.pdf" },
+      status: "uploading",
+      progress: { current: 35, total: 100 }
+    };
+    const determinateHtml = renderToStaticMarkup(
+      <AttachmentPrimitive.Root attachment={determinate} onCancel={() => undefined}>
+        <AttachmentPrimitive.Status />
+        <AttachmentPrimitive.Progress />
+        <AttachmentPrimitive.Cancel />
+      </AttachmentPrimitive.Root>
+    );
+    const indeterminateHtml = renderToStaticMarkup(
+      <AttachmentPrimitive.Root attachment={{ ...determinate, progress: { current: 35 } }}>
+        <AttachmentPrimitive.Progress />
+      </AttachmentPrimitive.Root>
+    );
+    expect(determinateHtml).toContain('aria-label="Attachment: brief.pdf"');
+    expect(determinateHtml).toContain('aria-busy="true"');
+    expect(determinateHtml).toContain('value="35"');
+    expect(determinateHtml).toContain('max="100"');
+    expect(determinateHtml).toContain('aria-label="Cancel upload brief.pdf"');
+    expect(indeterminateHtml).toContain("<progress");
+    expect(indeterminateHtml).not.toContain("value=");
+    expect(indeterminateHtml).not.toContain("max=");
+  });
+
+  it("derives a paused attachment meaning while preserving controlled upload state", () => {
+    const attachment: AttachmentUpload = {
+      id: "attachment-1",
+      file: { type: "file", name: "brief.pdf" },
+      status: "uploading",
+      progress: { current: 35, total: 100 }
+    };
+    const html = renderToStaticMarkup(
+      <AttachmentPrimitive.Root
+        attachment={attachment}
+        connection={{ status: "offline", attempt: 1, updatedAt: 1 }}
+        onCancel={() => undefined}
+        onRetry={() => undefined}
+      >
+        <AttachmentPrimitive.Status />
+        <AttachmentPrimitive.Retry />
+        <AttachmentPrimitive.Cancel />
+      </AttachmentPrimitive.Root>
+    );
+    expect(html).toContain('data-status="uploading"');
+    expect(html).toContain('data-effective-status="paused"');
+    expect(html).toContain("Upload paused");
+    expect(html).not.toContain('aria-busy="true"');
+    expect(html).toMatch(/aria-label="Retry upload brief.pdf"[^>]*disabled=""/);
+    expect(html).toMatch(/aria-label="Cancel upload brief.pdf"/);
+  });
+
+  it("gates attachment recovery actions by normalized capability", () => {
+    const failed: AttachmentUpload = {
+      id: "attachment-1",
+      file: { type: "file", name: "brief.pdf" },
+      status: "failed",
+      error: { message: "Upload interrupted.", recovery: "retry" }
+    };
+    const html = renderToStaticMarkup(
+      <AttachmentPrimitive.Root attachment={failed} onRetry={() => undefined} onReplace={() => undefined} onRemove={() => undefined}>
+        <AttachmentPrimitive.Error />
+        <AttachmentPrimitive.Retry />
+        <AttachmentPrimitive.Replace />
+        <AttachmentPrimitive.Remove />
+      </AttachmentPrimitive.Root>
+    );
+    expect(html).toContain('data-recovery="retry"');
+    expect(html).toContain('role="alert"');
+    expect(html).toContain("Upload interrupted.");
+    expect(html).toMatch(/aria-label="Retry upload brief.pdf"(?![^>]*disabled)/);
+    expect(html).toMatch(/aria-label="Choose another file for brief.pdf"[^>]*disabled=""/);
+    expect(html).toMatch(/aria-label="Remove brief.pdf"(?![^>]*disabled)/);
+  });
+
+  it("keeps local draft removal available only in safe transfer states", () => {
+    const base: AttachmentUpload = {
+      id: "attachment-1",
+      file: { type: "file", name: "brief.pdf" },
+      status: "queued"
+    };
+    const queued = renderToStaticMarkup(
+      <AttachmentPrimitive.Root attachment={base} onRemove={() => undefined}>
+        <AttachmentPrimitive.Remove />
+      </AttachmentPrimitive.Root>
+    );
+    const uploading = renderToStaticMarkup(
+      <AttachmentPrimitive.Root attachment={{ ...base, status: "uploading" }} onRemove={() => undefined}>
+        <AttachmentPrimitive.Remove />
+      </AttachmentPrimitive.Root>
+    );
+    expect(queued).toMatch(/aria-label="Remove brief.pdf"(?![^>]*disabled)/);
+    expect(uploading).toMatch(/aria-label="Remove brief.pdf"[^>]*disabled=""/);
+  });
+
+  it("blocks provider recovery while offline and marks reconnecting roots busy", () => {
+    const failed: AttachmentUpload = {
+      id: "attachment-1",
+      file: { type: "file", name: "brief.pdf" },
+      status: "failed",
+      error: { message: "Choose another file.", recovery: "replace" }
+    };
+    const offline = renderToStaticMarkup(
+      <AttachmentPrimitive.Root attachment={failed} connection={{ status: "offline", attempt: 1, updatedAt: 1 }} onReplace={() => undefined}>
+        <AttachmentPrimitive.Replace />
+      </AttachmentPrimitive.Root>
+    );
+    const reconnecting = renderToStaticMarkup(
+      <AttachmentPrimitive.Root attachment={{ ...failed, status: "uploading" }} connection={{ status: "reconnecting", attempt: 2, updatedAt: 2 }}>
+        <AttachmentPrimitive.Status />
+      </AttachmentPrimitive.Root>
+    );
+    expect(offline).toMatch(/aria-label="Choose another file for brief.pdf"[^>]*disabled=""/);
+    expect(reconnecting).toContain('aria-busy="true"');
+    expect(reconnecting).toContain('data-effective-status="paused"');
   });
 
   it("labels tool regions and renders actionable failures", () => {

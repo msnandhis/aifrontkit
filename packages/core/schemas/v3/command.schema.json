@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aifrontkit.dev/schemas/commands/v3.json",
+  "title": "AIFrontKit frontend command envelope v3",
+  "type": "object",
+  "required": ["schemaVersion", "id", "threadId", "timestamp", "type"],
+  "properties": {
+    "schemaVersion": { "const": 3 },
+    "id": { "type": "string", "minLength": 1 },
+    "threadId": { "type": "string", "minLength": 1 },
+    "timestamp": { "type": "number" },
+    "type": {
+      "enum": ["message.send", "message.retry", "connection.retry", "task.stop", "task.resume", "approval.resolve", "artifact.review.resolve", "attachment.remove", "attachment.retry", "attachment.cancel", "error.dismiss"]
+    },
+    "attachmentId": { "type": "string", "minLength": 1, "pattern": "\\S" },
+    "artifactId": { "type": "string", "minLength": 1 },
+    "version": { "type": "integer", "minimum": 1 },
+    "resolution": { "enum": ["approved", "rejected", "accepted", "changes-requested"] },
+    "comment": { "type": "string", "minLength": 1 }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "type": { "enum": ["attachment.remove", "attachment.retry", "attachment.cancel"] } }, "required": ["type"] },
+      "then": { "required": ["attachmentId"] }
+    },
+    {
+      "if": { "properties": { "type": { "const": "artifact.review.resolve" } }, "required": ["type"] },
+      "then": {
+        "properties": { "resolution": { "enum": ["accepted", "changes-requested"] } },
+        "required": ["artifactId", "version", "resolution"]
+      }
+    }
+  ],
+  "additionalProperties": true
+}
