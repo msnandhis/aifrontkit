@@ -52,3 +52,14 @@ Docs, the component lab, and tests consume the same example specifications and r
 ## Quality use
 
 Each stable registry item has a recommended scenario, failure scenario, long-content scenario, narrow viewport, light/dark/high-contrast coverage, keyboard path, and reduced-motion path. Evidence records the component, example-spec version, scenario, styling flavor, theme, viewport, and browser project. Release checks fail when required coordinates are missing.
+
+## Buildable framework consumers
+
+Framework integration claims are exercised by production builds in `compatibility/fixtures`:
+
+- React with Vite verifies direct registry consumption.
+- Next.js verifies both App Router and Pages Router rendering constraints.
+- React Router verifies a lazy application route and a provider-neutral event transport feeding the canonical runtime.
+- Astro verifies a static page with a hydrated React island consuming the public core and React packages.
+
+These fixtures intentionally stop at the frontend boundary. Hosts own routing, transport lifecycle, credentials and backend execution while AIFrontKit receives canonical events.

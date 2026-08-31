@@ -10,6 +10,7 @@ interface CompatibilityFixture {
 }
 
 const fixture = JSON.parse(readFileSync(new URL("../../../compatibility/fixtures/adapters/langgraph-1.4.13/stream-modes.json", import.meta.url), "utf8")) as CompatibilityFixture;
+const minimumFixture = JSON.parse(readFileSync(new URL("../../../compatibility/fixtures/adapters/langgraph-1.0.0/stream-modes.json", import.meta.url), "utf8")) as CompatibilityFixture;
 
 interface CheckpointHistoryFixture {
   fixtureSchemaVersion: number;
@@ -189,5 +190,15 @@ describe(`LangGraph ${fixture.upstream.version} reference adapter`, () => {
       threadId: "thread-1",
       candidates: [{ ...candidate, decision: { compatibility: "compatible", status: "superseded", restorable: true } }]
     })).toThrow("superseded checkpoint as non-restorable");
+  });
+});
+
+describe(`LangGraph ${minimumFixture.upstream.version} compatibility floor`, () => {
+  it("maps the pinned minimum stream tuple shapes", () => {
+    expect(minimumFixture).toMatchObject({ fixtureSchemaVersion: 1, upstream: { package: "@langchain/langgraph", version: "1.0.0", protocol: "streamMode tuples" } });
+    const adapter = createLangGraphAdapter({ threadId: "thread-min", runId: "run-min", now: () => 10 });
+    const events = [...adapter.start(), ...minimumFixture.chunks.flatMap((chunk) => adapter.adapt(chunk)), ...adapter.finish()];
+    expect(events.map((event) => event.type)).toEqual(minimumFixture.expectedTypes);
+    expect(events.every((event) => event.schemaVersion === 4)).toBe(true);
   });
 });

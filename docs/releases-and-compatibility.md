@@ -12,6 +12,19 @@ Package versions, schema versions, registry item versions, and documentation ver
 - Registry items declare package, schema, and peer dependency ranges.
 - Platform/Studio records supported public schema ranges independently.
 
+## Upstream adapter matrix
+
+Structural adapters do not install their upstream runtimes. Compatibility is
+proved with redacted protocol fixtures plus isolated exact-version installation
+probes. The current matrix covers AI SDK 6 and 7, AG-UI core `0.0.50` and
+`0.0.59` and LangGraph `1.0.0` and `1.4.13`.
+
+Current releases track npm `latest`. AI SDK 6 tracks its maintained `ai-v6`
+dist-tag. Minimum support releases remain deliberately pinned and do not create
+false drift failures. The weekly read-only workflow reports dist-tag drift,
+runs adapter projection tests and compiles then executes provider-owned UI
+stream, event and state boundary probes for every matrix entry.
+
 ## Release groups
 
 Tightly coupled packages may release as a coordinated group, while adapters, themes, and registry items can release independently. A changeset records user-visible change, affected surfaces, migration, source-owned upgrade notes, and security/accessibility impact.
@@ -27,4 +40,3 @@ Deprecations include replacement, warning mechanism, earliest removal version, a
 ## Pre-1.0 discipline
 
 Pre-1.0 does not mean arbitrary breakage. Experimental APIs are labeled; stable capability contracts receive migrations and changelog notes. Schema stability is prioritized because both repositories and customer source depend on it.
-

@@ -1,0 +1,19 @@
+---
+import { AgentIsland } from "../components/AgentIsland.js";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>AIFrontKit Astro fixture</title>
+  </head>
+  <body>
+    <main>
+      <h1>Astro consumer</h1>
+      <p>The page remains static while the agent surface hydrates as a React island.</p>
+      <AgentIsland client:load />
+    </main>
+  </body>
+</html>

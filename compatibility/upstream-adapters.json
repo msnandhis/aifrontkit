@@ -1,18 +1,46 @@
 {
   "$schema": "./upstream-adapters.schema.json",
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "adapters": [
     {
-      "id": "ai-sdk",
-      "fixture": "fixtures/adapters/ai-sdk-7.0.85/ui-message-stream.json"
+      "id": "ai-sdk-v6",
+      "fixture": "fixtures/adapters/ai-sdk-6.0.272/ui-message-stream.json",
+      "releaseRole": "previous-major",
+      "distTag": "ai-v6",
+      "runtimeExports": ["streamText"]
     },
     {
-      "id": "ag-ui",
-      "fixture": "fixtures/adapters/ag-ui-core-0.0.59/events.json"
+      "id": "ai-sdk-v7",
+      "fixture": "fixtures/adapters/ai-sdk-7.0.85/ui-message-stream.json",
+      "releaseRole": "current",
+      "distTag": "latest",
+      "runtimeExports": ["streamText"]
     },
     {
-      "id": "langgraph",
-      "fixture": "fixtures/adapters/langgraph-1.4.13/stream-modes.json"
+      "id": "ag-ui-minimum",
+      "fixture": "fixtures/adapters/ag-ui-core-0.0.50/events.json",
+      "releaseRole": "minimum",
+      "runtimeExports": ["EventType"]
+    },
+    {
+      "id": "ag-ui-current",
+      "fixture": "fixtures/adapters/ag-ui-core-0.0.59/events.json",
+      "releaseRole": "current",
+      "distTag": "latest",
+      "runtimeExports": ["EventType"]
+    },
+    {
+      "id": "langgraph-minimum",
+      "fixture": "fixtures/adapters/langgraph-1.0.0/stream-modes.json",
+      "releaseRole": "minimum",
+      "runtimeExports": ["StateGraph"]
+    },
+    {
+      "id": "langgraph-current",
+      "fixture": "fixtures/adapters/langgraph-1.4.13/stream-modes.json",
+      "releaseRole": "current",
+      "distTag": "latest",
+      "runtimeExports": ["StateGraph"]
     }
   ]
 }

@@ -8,6 +8,11 @@ on:
         required: true
         type: boolean
         default: false
+      bootstrap:
+        description: Use the one-time npm bootstrap token before trusted publishers exist
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -21,14 +26,14 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v4
         with: { version: 11.19.0 }
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
-          cache: pnpm
           registry-url: https://registry.npmjs.org
+          package-manager-cache: false
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm release:check
@@ -43,18 +48,26 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v4
         with: { version: 11.19.0 }
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
-          cache: pnpm
           registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      - name: Pin trusted-publishing npm CLI
+        run: npm install --global npm@12.0.2
       - run: pnpm install --frozen-lockfile
       - name: Confirm prerelease mode
         run: node -e 'const pre = require("./.changeset/pre.json"); if (pre.mode !== "pre" || pre.tag !== "next") process.exit(1)'
+      - name: Confirm one-time bootstrap credential
+        if: inputs.bootstrap
+        env:
+          NPM_BOOTSTRAP_TOKEN: ${{ secrets.NPM_BOOTSTRAP_TOKEN }}
+        run: test -n "$NPM_BOOTSTRAP_TOKEN"
       - name: Publish preview packages
         run: pnpm exec changeset publish --tag next
         env:
           NPM_CONFIG_PROVENANCE: true
+          NODE_AUTH_TOKEN: ${{ inputs.bootstrap && secrets.NPM_BOOTSTRAP_TOKEN || '' }}

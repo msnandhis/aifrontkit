@@ -59,6 +59,9 @@ function documentationSearchPlugin(): Plugin {
 }
 
 export default defineConfig({
+  build: {
+    manifest: true,
+  },
   plugins: [
     documentationSearchPlugin(),
     mdx({

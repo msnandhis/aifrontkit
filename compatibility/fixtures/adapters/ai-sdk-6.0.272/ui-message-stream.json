@@ -1,0 +1,36 @@
+{
+  "fixtureSchemaVersion": 1,
+  "upstream": {
+    "package": "ai",
+    "version": "6.0.272",
+    "protocol": "UI message stream v1",
+    "capturedAt": "2026-08-31",
+    "source": "https://v6.ai-sdk.dev/docs/ai-sdk-ui/stream-protocol"
+  },
+  "scenarios": [
+    {
+      "name": "text stream with source and attachment",
+      "parts": [
+        { "type": "start", "messageId": "message-v6" },
+        { "type": "text-start", "id": "text-v6" },
+        { "type": "text-delta", "id": "text-v6", "delta": "Reviewed" },
+        { "type": "source-url", "sourceId": "source-v6", "url": "https://example.test/source", "title": "Source" },
+        { "type": "file", "id": "file-v6", "url": "https://example.test/report.pdf", "mediaType": "application/pdf", "filename": "report.pdf" },
+        { "type": "text-end", "id": "text-v6" },
+        { "type": "finish" }
+      ],
+      "expectedTypes": ["message.started", "message.part.added", "message.part.delta", "message.part.added", "message.part.added", "message.part.status", "message.completed"]
+    },
+    {
+      "name": "tool output failure",
+      "parts": [
+        { "type": "start", "messageId": "message-tool-v6" },
+        { "type": "tool-input-start", "toolCallId": "call-v6", "toolName": "fetch" },
+        { "type": "tool-input-available", "toolCallId": "call-v6", "toolName": "fetch", "input": { "url": "https://example.test" } },
+        { "type": "tool-output-error", "toolCallId": "call-v6", "errorText": "gateway unavailable" },
+        { "type": "finish" }
+      ],
+      "expectedTypes": ["message.started", "tool.updated", "tool.updated", "tool.updated", "message.completed"]
+    }
+  ]
+}

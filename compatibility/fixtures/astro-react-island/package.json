@@ -1,0 +1,25 @@
+{
+  "name": "@aifrontkit/fixture-astro-react-island",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "astro build",
+    "typecheck": "astro check",
+    "test": "pnpm build && node verify-build.mjs"
+  },
+  "dependencies": {
+    "@aifrontkit/core": "workspace:^",
+    "@aifrontkit/react": "workspace:^",
+    "@astrojs/react": "^6.0.4",
+    "astro": "^7.2.9",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
+    "typescript": "^5.9.2"
+  }
+}

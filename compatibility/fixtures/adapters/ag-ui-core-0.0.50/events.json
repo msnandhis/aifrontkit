@@ -1,0 +1,27 @@
+{
+  "fixtureSchemaVersion": 1,
+  "upstream": {
+    "package": "@ag-ui/core",
+    "version": "0.0.50",
+    "protocol": "AG-UI event stream",
+    "capturedAt": "2026-08-31",
+    "source": "https://docs.ag-ui.com/sdk/js/core/events"
+  },
+  "scenarios": [
+    {
+      "name": "minimum supported text and tool lifecycle",
+      "events": [
+        { "type": "RUN_STARTED", "threadId": "thread-min", "runId": "run-min", "timestamp": 100 },
+        { "type": "TEXT_MESSAGE_START", "messageId": "message-min", "role": "assistant", "timestamp": 101 },
+        { "type": "TEXT_MESSAGE_CONTENT", "messageId": "message-min", "delta": "Working", "timestamp": 102 },
+        { "type": "TEXT_MESSAGE_END", "messageId": "message-min", "timestamp": 103 },
+        { "type": "TOOL_CALL_START", "toolCallId": "tool-min", "toolCallName": "search", "parentMessageId": "message-min", "timestamp": 104 },
+        { "type": "TOOL_CALL_ARGS", "toolCallId": "tool-min", "delta": "{\"query\":\"compatibility\"}", "timestamp": 105 },
+        { "type": "TOOL_CALL_END", "toolCallId": "tool-min", "timestamp": 106 },
+        { "type": "TOOL_CALL_RESULT", "toolCallId": "tool-min", "content": { "matches": 2 }, "timestamp": 107 },
+        { "type": "RUN_FINISHED", "threadId": "thread-min", "runId": "run-min", "timestamp": 108 }
+      ],
+      "expectedTypes": ["task.started", "message.started", "message.part.added", "message.part.delta", "message.part.status", "message.completed", "tool.updated", "tool.updated", "tool.updated", "tool.updated", "task.updated"]
+    }
+  ]
+}

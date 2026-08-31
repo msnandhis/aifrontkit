@@ -8,20 +8,21 @@ interface CompatibilityFixture {
   scenarios: Array<{ name: string; parts: AISDKUIStreamPart[]; expectedTypes: string[] }>;
 }
 
-const fixture = JSON.parse(readFileSync(new URL("../../../compatibility/fixtures/adapters/ai-sdk-7.0.85/ui-message-stream.json", import.meta.url), "utf8")) as CompatibilityFixture;
+const fixtures = ["6.0.272", "7.0.85"].map((version) => JSON.parse(readFileSync(new URL(`../../../compatibility/fixtures/adapters/ai-sdk-${version}/ui-message-stream.json`, import.meta.url), "utf8")) as CompatibilityFixture);
 
-describe(`AI SDK ${fixture.upstream.version} compatibility`, () => {
-  it("pins the reviewed package and protocol", () => {
-    expect(fixture).toMatchObject({ fixtureSchemaVersion: 1 });
-    expect(fixture.upstream).toEqual({ package: "ai", version: "7.0.85", protocol: "UI message stream v1", capturedAt: "2026-08-30", source: "https://ai-sdk.dev/docs/ai-sdk-ui/stream-protocol" });
-  });
-
-  for (const scenario of fixture.scenarios) {
-    it(scenario.name, () => {
-      const adapter = createAISDKAdapter({ threadId: "thread-1", messageId: "fallback", now: () => 1 });
-      const events = scenario.parts.flatMap((part) => adapter.adapt(part));
-      expect(events.map((event) => event.type)).toEqual(scenario.expectedTypes);
-      expect(events.every((event) => event.schemaVersion === 4)).toBe(true);
+for (const fixture of fixtures) {
+  describe(`AI SDK ${fixture.upstream.version} compatibility`, () => {
+    it("pins the reviewed package and protocol", () => {
+      expect(fixture).toMatchObject({ fixtureSchemaVersion: 1, upstream: { package: "ai", protocol: "UI message stream v1" } });
     });
-  }
-});
+
+    for (const scenario of fixture.scenarios) {
+      it(scenario.name, () => {
+        const adapter = createAISDKAdapter({ threadId: "thread-1", messageId: "fallback", now: () => 1 });
+        const events = scenario.parts.flatMap((part) => adapter.adapt(part));
+        expect(events.map((event) => event.type)).toEqual(scenario.expectedTypes);
+        expect(events.every((event) => event.schemaVersion === 4)).toBe(true);
+      });
+    }
+  });
+}

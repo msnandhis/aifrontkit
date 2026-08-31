@@ -1,0 +1,17 @@
+{
+  "$schema": "./budgets.schema.json",
+  "playground": {
+    "distDirectory": "apps/playground/dist",
+    "manifest": ".vite/manifest.json",
+    "routeSourcePrefix": "../../content/docs/",
+    "minimumRouteChunks": 48,
+    "budgets": {
+      "initialJavaScript": { "rawBytes": 307200, "gzipBytes": 98304 },
+      "initialStyles": { "rawBytes": 81920, "gzipBytes": 12288 },
+      "initialTotal": { "gzipBytes": 112640 },
+      "routeChunk": { "rawBytes": 24576, "gzipBytes": 6144 },
+      "allRouteChunks": { "gzipBytes": 81920 },
+      "onDemandChunk": { "rawBytes": 131072, "gzipBytes": 40960 }
+    }
+  }
+}

@@ -32,16 +32,16 @@ function fixtureVersionFromDirectory(path) {
 
 export async function loadPins(configPath = defaultConfig) {
   const config = JSON.parse(await readFile(configPath, "utf8"));
-  if (config.schemaVersion !== 1 || !Array.isArray(config.adapters) || config.adapters.length === 0) {
-    throw new Error("Compatibility configuration must contain at least one schema version 1 adapter");
+  if (config.schemaVersion !== 2 || !Array.isArray(config.adapters) || config.adapters.length === 0) {
+    throw new Error("Compatibility configuration must contain at least one schema version 2 adapter");
   }
 
   const configRoot = dirname(configPath);
   const ids = new Set();
   const pins = [];
   for (const entry of config.adapters) {
-    if (!entry || typeof entry.id !== "string" || typeof entry.fixture !== "string") {
-      throw new Error("Every compatibility adapter requires string id and fixture fields");
+    if (!entry || typeof entry.id !== "string" || typeof entry.fixture !== "string" || !["minimum", "previous-major", "current"].includes(entry.releaseRole) || !Array.isArray(entry.runtimeExports) || entry.runtimeExports.length === 0) {
+      throw new Error("Every compatibility adapter requires id, fixture, releaseRole and runtimeExports fields");
     }
     if (!/^[a-z0-9-]+$/.test(entry.id)) throw new Error(`Invalid compatibility adapter id: ${entry.id}`);
     const fixtureSegments = entry.fixture.split("/");
@@ -71,28 +71,45 @@ export async function loadPins(configPath = defaultConfig) {
     if (directoryVersion !== upstream.version) {
       throw new Error(`${entry.fixture} pins ${upstream.version} but its directory pins ${directoryVersion ?? "no version"}`);
     }
-    pins.push({ id: entry.id, fixture: entry.fixture, package: upstream.package, pinned: upstream.version, source: upstream.source, capturedAt: upstream.capturedAt });
+    if (entry.distTag !== undefined && (typeof entry.distTag !== "string" || !/^[a-z0-9-]+$/.test(entry.distTag))) {
+      throw new Error(`${entry.id} distTag must use lowercase npm dist-tag characters`);
+    }
+    if (entry.runtimeExports.some((value) => typeof value !== "string" || value.length === 0)) {
+      throw new Error(`${entry.id} runtimeExports must contain non-empty strings`);
+    }
+    pins.push({
+      id: entry.id,
+      fixture: entry.fixture,
+      package: upstream.package,
+      pinned: upstream.version,
+      source: upstream.source,
+      capturedAt: upstream.capturedAt,
+      releaseRole: entry.releaseRole,
+      distTag: entry.distTag,
+      runtimeExports: entry.runtimeExports
+    });
   }
   return pins;
 }
 
-export async function fetchLatestVersion(packageName, fetcher = fetch) {
+export async function fetchDistTagVersion(packageName, distTag = "latest", fetcher = fetch) {
   const response = await fetcher(`${registryBase}/${encodeURIComponent(packageName)}`, {
     headers: { accept: "application/vnd.npm.install-v1+json", "user-agent": "aifrontkit-compatibility-monitor/1" },
     signal: AbortSignal.timeout(15_000)
   });
   if (!response.ok) throw new Error(`npm registry returned HTTP ${response.status}`);
   const metadata = await response.json();
-  const latest = metadata?.["dist-tags"]?.latest;
-  if (typeof latest !== "string") throw new Error("npm registry response has no latest dist-tag");
-  parseVersion(latest);
-  return latest;
+  const version = metadata?.["dist-tags"]?.[distTag];
+  if (typeof version !== "string") throw new Error(`npm registry response has no ${distTag} dist-tag`);
+  parseVersion(version);
+  return version;
 }
 
 export async function inspectCompatibility(pins, fetcher = fetch) {
   return Promise.all(pins.map(async (pin) => {
+    if (!pin.distTag) return { ...pin, latest: null, status: "pinned" };
     try {
-      const latest = await fetchLatestVersion(pin.package, fetcher);
+      const latest = await fetchDistTagVersion(pin.package, pin.distTag, fetcher);
       const comparison = compareVersions(pin.pinned, latest);
       return { ...pin, latest, status: comparison === 0 ? "current" : comparison < 0 ? "behind" : "ahead" };
     } catch (error) {
@@ -102,15 +119,15 @@ export async function inspectCompatibility(pins, fetcher = fetch) {
 }
 
 export function markdownReport(results) {
-  const symbols = { current: "OK", behind: "DRIFT", ahead: "AHEAD", unavailable: "ERROR" };
+  const symbols = { current: "OK", behind: "DRIFT", ahead: "AHEAD", unavailable: "ERROR", pinned: "PINNED" };
   const lines = [
     "# Upstream adapter compatibility",
     "",
     "This report is read-only. Fixture updates require a deliberate compatibility review.",
     "",
-    "| Adapter | Package | Pinned | npm latest | Status |",
-    "| --- | --- | --- | --- | --- |",
-    ...results.map((result) => `| ${result.id} | \`${result.package}\` | \`${result.pinned}\` | ${result.latest ? `\`${result.latest}\`` : "unavailable"} | ${symbols[result.status]} |`)
+    "| Adapter | Role | Package | Pinned | Tracked dist-tag | Registry version | Status |",
+    "| --- | --- | --- | --- | --- | --- | --- |",
+    ...results.map((result) => `| ${result.id} | ${result.releaseRole} | \`${result.package}\` | \`${result.pinned}\` | ${result.distTag ? `\`${result.distTag}\`` : "none"} | ${result.latest ? `\`${result.latest}\`` : result.distTag ? "unavailable" : "not tracked"} | ${symbols[result.status]} |`)
   ];
   const errors = results.filter((result) => result.error);
   if (errors.length) {

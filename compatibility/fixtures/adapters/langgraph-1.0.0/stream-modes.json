@@ -1,0 +1,17 @@
+{
+  "fixtureSchemaVersion": 1,
+  "upstream": {
+    "package": "@langchain/langgraph",
+    "version": "1.0.0",
+    "protocol": "streamMode tuples",
+    "capturedAt": "2026-08-31",
+    "source": "https://docs.langchain.com/oss/javascript/langgraph/streaming"
+  },
+  "chunks": [
+    ["messages", [{ "id": "message-min", "content": "Research complete" }, { "langgraph_node": "research" }]],
+    ["updates", { "research": { "sources": 3 } }],
+    ["tools", { "event": "on_tool_start", "name": "fetch", "toolCallId": "tool-min", "input": { "url": "https://example.test" } }],
+    ["tools", { "event": "on_tool_end", "name": "fetch", "toolCallId": "tool-min", "output": { "status": 200 } }]
+  ],
+  "expectedTypes": ["task.started", "message.started", "message.part.added", "task.step.updated", "message.part.delta", "task.step.updated", "tool.updated", "tool.updated", "message.part.status", "message.completed", "task.updated"]
+}

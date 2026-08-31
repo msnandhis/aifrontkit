@@ -13,10 +13,13 @@ test("compares stable and prerelease semantic versions", () => {
 
 test("loads the checked-in fixture pins", async () => {
   const pins = await loadPins();
-  assert.deepEqual(pins.map(({ package: packageName, pinned }) => [packageName, pinned]), [
-    ["ai", "7.0.85"],
-    ["@ag-ui/core", "0.0.59"],
-    ["@langchain/langgraph", "1.4.13"]
+  assert.deepEqual(pins.map(({ id, package: packageName, pinned, releaseRole, distTag }) => [id, packageName, pinned, releaseRole, distTag]), [
+    ["ai-sdk-v6", "ai", "6.0.272", "previous-major", "ai-v6"],
+    ["ai-sdk-v7", "ai", "7.0.85", "current", "latest"],
+    ["ag-ui-minimum", "@ag-ui/core", "0.0.50", "minimum", undefined],
+    ["ag-ui-current", "@ag-ui/core", "0.0.59", "current", "latest"],
+    ["langgraph-minimum", "@langchain/langgraph", "1.0.0", "minimum", undefined],
+    ["langgraph-current", "@langchain/langgraph", "1.4.13", "current", "latest"]
   ]);
 });
 
@@ -27,31 +30,32 @@ test("rejects fixture paths whose version disagrees with metadata", async () => 
     fixtureSchemaVersion: 1,
     upstream: { package: "example", version: "2.0.0", source: "https://example.test/docs", capturedAt: "2026-08-30" }
   }));
-  await writeFile(join(root, "config.json"), JSON.stringify({ schemaVersion: 1, adapters: [{ id: "example", fixture: "fixtures/adapters/example-1.0.0/events.json" }] }));
+  await writeFile(join(root, "config.json"), JSON.stringify({ schemaVersion: 2, adapters: [{ id: "example", fixture: "fixtures/adapters/example-1.0.0/events.json", releaseRole: "current", runtimeExports: ["example"] }] }));
   await assert.rejects(loadPins(join(root, "config.json")), /pins 2\.0\.0 but its directory pins 1\.0\.0/);
 });
 
 test("confines configured fixtures to the adapter fixture directory", async () => {
   const root = await mkdtemp(join(tmpdir(), "aifrontkit-compat-"));
-  await writeFile(join(root, "config.json"), JSON.stringify({ schemaVersion: 1, adapters: [{ id: "escape", fixture: "fixtures/adapters/../../package.json" }] }));
+  await writeFile(join(root, "config.json"), JSON.stringify({ schemaVersion: 2, adapters: [{ id: "escape", fixture: "fixtures/adapters/../../package.json", releaseRole: "current", runtimeExports: ["example"] }] }));
   await assert.rejects(loadPins(join(root, "config.json")), /must be a JSON file under fixtures\/adapters/);
 });
 
 test("classifies drift without mutating fixture metadata", async () => {
   const pins = [
-    { id: "old", package: "old", pinned: "1.0.0" },
-    { id: "same", package: "same", pinned: "2.0.0" },
-    { id: "ahead", package: "ahead", pinned: "4.0.0" }
+    { id: "old", package: "old", pinned: "1.0.0", distTag: "latest" },
+    { id: "same", package: "same", pinned: "2.0.0", distTag: "latest" },
+    { id: "ahead", package: "ahead", pinned: "4.0.0", distTag: "latest" },
+    { id: "floor", package: "floor", pinned: "1.0.0" }
   ];
   const versions = { old: "1.1.0", same: "2.0.0", ahead: "3.0.0" };
   const fetcher = async (url) => ({ ok: true, json: async () => ({ "dist-tags": { latest: versions[decodeURIComponent(url.split("/").at(-1))] } }) });
   const results = await inspectCompatibility(pins, fetcher);
-  assert.deepEqual(results.map(({ status }) => status), ["behind", "current", "ahead"]);
+  assert.deepEqual(results.map(({ status }) => status), ["behind", "current", "ahead", "pinned"]);
   assert.equal(pins[0].latest, undefined);
 });
 
 test("reports registry failures and drift in markdown", async () => {
-  const results = await inspectCompatibility([{ id: "broken", package: "broken", pinned: "1.0.0" }], async () => ({ ok: false, status: 503 }));
+  const results = await inspectCompatibility([{ id: "broken", package: "broken", pinned: "1.0.0", distTag: "latest" }], async () => ({ ok: false, status: 503 }));
   const report = markdownReport(results);
   assert.match(report, /\| broken .* ERROR \|/);
   assert.match(report, /HTTP 503/);

@@ -15,6 +15,17 @@ React peer range, and registry-item versions. A supported combination must pass
 external-consumer builds and deterministic event fixtures. The repository currently
 production-builds React/Vite, Next.js App Router, and Next.js Pages Router fixtures.
 
+The adapter release matrix currently verifies AI SDK 6 and 7, AG-UI core from
+the reviewed `0.0.50` floor through `0.0.59` and LangGraph from the reviewed
+`1.0.0` floor through `1.4.13`. Exact package installations run in temporary
+projects, assert the expected public runtime exports and are then removed. The
+upstream packages do not become dependencies of the structural adapters.
+
+Tracked current and maintained-major pins are checked against explicit npm
+dist-tags each week. Minimum support pins stay fixed until a deliberate support
+policy change. Fixture projection tests and exact package probes must both pass
+before the matrix is updated.
+
 Documentation is released from the same tagged source and records exact provenance.
 The current major is available at `/docs`; maintained older majors may be served at
 `/docs/v{major}` from tagged or release-branch artifacts. Source code itself does

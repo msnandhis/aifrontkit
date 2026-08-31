@@ -9,6 +9,30 @@ permissions:
   contents: read
 
 jobs:
+  published-release-matrix:
+    name: verify ${{ matrix.release }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        release:
+          - ai-sdk-v6
+          - ai-sdk-v7
+          - ag-ui-minimum
+          - ag-ui-current
+          - langgraph-minimum
+          - langgraph-current
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 11.19.0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: Verify pinned published release
+        run: pnpm compatibility:verify --id "${{ matrix.release }}"
+
   adapter-fixtures:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -19,6 +43,11 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: pnpm }
       - run: pnpm install --frozen-lockfile
+      - name: Test fixture configuration and adapter projections
+        run: |
+          pnpm compatibility:test
+          pnpm --filter @aifrontkit/ai-sdk test
+          pnpm --filter @aifrontkit/ag-ui test
       - name: Compare pinned fixtures with npm releases
         shell: bash
         run: |
