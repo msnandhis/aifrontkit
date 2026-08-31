@@ -1,0 +1,13 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "attachment-composer",
+  "type": "registry:block",
+  "title": "Attachment composer",
+  "description": "A controlled message composer with ordered uploads, partial-failure recovery, shared connection states and attachment-only submission.",
+  "files": [
+    { "path": "registry/react/tailwind/patterns/attachment-composer/attachment-composer.tsx", "type": "registry:component" }
+  ],
+  "registryDependencies": ["file", "prompt-input"],
+  "dependencies": ["@aifrontkit/core@^0.1.0", "@aifrontkit/react@^0.1.0", "tailwindcss@^4.0.0"],
+  "meta": { "version": "0.1.0", "schemaMajor": 1, "aifrontkit": ">=0.1.0 <1", "target": { "framework": "react", "flavor": "tailwind" } }
+}

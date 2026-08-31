@@ -51,9 +51,9 @@ test("rejects catalog paths that disagree with their targeted manifest", async (
 
 test("rejects unadvertised public target manifests", async () => {
   const root = await fixture();
-  const manifestPath = join(root, "registry/react/tailwind/components/file/registry.json");
-  const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
-  delete manifest.meta.releaseStatus;
-  await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+  await editCatalog(root, (catalog) => {
+    const file = catalog.items.find((item) => item.name === "file");
+    file.targets = file.targets.filter((target) => target.flavor !== "tailwind");
+  });
   assert.match(await validate(root), /missing public item react\/tailwind\/file/);
 });

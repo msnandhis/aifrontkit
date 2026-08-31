@@ -1,0 +1,13 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "research-agent",
+  "type": "registry:block",
+  "title": "Research agent",
+  "description": "A provider-neutral long-running research workflow with streaming, approval, checkpoint recovery, failure handling, attachments and citations.",
+  "files": [
+    { "path": "registry/react/tailwind/patterns/research-agent/research-agent.tsx", "type": "registry:component" }
+  ],
+  "registryDependencies": ["file", "agent-progress", "tool-approval", "checkpoint-recovery"],
+  "dependencies": ["@aifrontkit/core@^0.1.0", "@aifrontkit/react@^0.1.0", "tailwindcss@^4"],
+  "meta": { "version": "0.2.0", "schemaMajor": 1, "aifrontkit": ">=0.1.0 <1", "target": { "framework": "react", "flavor": "tailwind" } }
+}

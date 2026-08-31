@@ -1,8 +1,9 @@
-import { lazy, Suspense, useCallback, useEffect, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { BrowserRouter, Link, Navigate, NavLink, Route, Routes, useLocation } from "react-router-dom";
 import { DocumentationPage, type OutlineItem } from "./components/doc-page.js";
+import { DocsNavigation } from "./components/docs-navigation.js";
 import { Icon } from "./components/icons.js";
-import { docSections, docsByPath } from "./lib/docs.js";
+import { docsByPath } from "./lib/docs.js";
 
 const SearchDialog = lazy(async () => {
   const module = await import("./components/search-dialog.js");
@@ -30,6 +31,8 @@ function DocumentationShell() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [navigationOpen, setNavigationOpen] = useState(false);
   const [outline, setOutline] = useState<OutlineItem[]>([]);
+  const navigationRef = useRef<HTMLElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const updateOutline = useCallback((items: OutlineItem[]) => setOutline(items), []);
   const openSearch = useCallback(() => setSearchOpen(true), []);
   const closeSearch = useCallback(() => setSearchOpen(false), []);
@@ -43,6 +46,40 @@ function DocumentationShell() {
     setNavigationOpen(false);
     window.scrollTo({ top: 0, behavior: "instant" });
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (!navigationOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    requestAnimationFrame(() => navigationRef.current?.querySelector<HTMLElement>("a, button, summary")?.focus());
+
+    function onNavigationKeyDown(event: globalThis.KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setNavigationOpen(false);
+        requestAnimationFrame(() => menuButtonRef.current?.focus());
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const focusable = Array.from(navigationRef.current?.querySelectorAll<HTMLElement>("a[href], button, summary") ?? []).filter((element) => !element.hasAttribute("disabled"));
+      if (!focusable.length) return;
+      const first = focusable[0]!;
+      const last = focusable[focusable.length - 1]!;
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    document.addEventListener("keydown", onNavigationKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onNavigationKeyDown);
+    };
+  }, [navigationOpen]);
 
   useEffect(() => {
     function onShortcut(event: KeyboardEvent) {
@@ -72,14 +109,13 @@ function DocumentationShell() {
           <button className="search-trigger" type="button" aria-label="Search documentation" onClick={openSearch}><Icon name="search" /><span>Search docs</span><kbd>⌘K</kbd></button>
           <button className="header-icon-button" type="button" onClick={() => setTheme(theme === "light" ? "dark" : "light")} aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}><Icon name={theme === "light" ? "moon" : "sun"} /></button>
           <a className="header-icon-button" href="https://github.com/msnandhis/openfrontkit" aria-label="Open AIFrontKit on GitHub"><Icon name="github" /></a>
-          <button className="mobile-menu-button" type="button" aria-expanded={navigationOpen} aria-controls="docs-navigation" onClick={() => setNavigationOpen((value) => !value)}><Icon name={navigationOpen ? "close" : "menu"} /><span className="sr-only">Toggle documentation navigation</span></button>
+          <button ref={menuButtonRef} className="mobile-menu-button" type="button" aria-expanded={navigationOpen} aria-controls="docs-navigation" onClick={() => setNavigationOpen((value) => !value)}><Icon name={navigationOpen ? "close" : "menu"} /><span className="sr-only">Toggle documentation navigation</span></button>
         </div>
       </header>
 
       <div className={`docs-frame${doc?.component ? " docs-frame-component" : ""}${doc?.file === "index.md" ? " docs-frame-home" : ""}`}>
-        <aside id="docs-navigation" className={`docs-sidebar ${navigationOpen ? "is-open" : ""}`} aria-label="Documentation navigation">
-          <button className="sidebar-search" type="button" onClick={openSearch}><Icon name="search" /><span>Search documentation</span></button>
-          <DocumentationNavigation />
+        <aside ref={navigationRef} id="docs-navigation" className={`docs-sidebar ${navigationOpen ? "is-open" : ""}`} aria-label="Documentation navigation">
+          <DocsNavigation />
           <div className="sidebar-footer"><span>Community registry</span><strong>v0.1 · Schema v1</strong></div>
         </aside>
         {navigationOpen ? <button className="navigation-scrim" type="button" aria-label="Close navigation" onClick={() => setNavigationOpen(false)} /> : null}
@@ -100,21 +136,6 @@ function DocumentationShell() {
         </Suspense>
       ) : null}
     </div>
-  );
-}
-
-function DocumentationNavigation() {
-  return (
-    <nav className="sidebar-navigation" aria-label="Documentation pages">
-      {docSections.map((section) => (
-        <section key={section.id}>
-          <h2>{section.title}</h2>
-          {section.pages.map((page) => (
-            <NavLink key={page.path} to={page.path} end={page.path === "/docs"}>{page.title}</NavLink>
-          ))}
-        </section>
-      ))}
-    </nav>
   );
 }
 

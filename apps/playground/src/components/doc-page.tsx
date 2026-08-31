@@ -64,16 +64,18 @@ export function DocumentationPage({ doc, onOutline }: { doc: DocPage; onOutline(
 
   return (
     <article className={`doc-page${doc.component ? " doc-page-component" : ""}`} ref={articleRef}>
-      <nav className="breadcrumbs" aria-label="Breadcrumb">
-        <Link to="/docs">Docs</Link><span>/</span><span>{doc.sectionTitle}</span>
-      </nav>
-      <header className="doc-header">
-        <div className="doc-heading-line">
-          <h1 id="page-title" tabIndex={-1}>{doc.title}</h1>
+      <div className="doc-kicker">
+        <nav className="breadcrumbs" aria-label="Breadcrumb">
+          <Link to="/docs">Docs</Link><span>/</span><span>{doc.sectionTitle}</span>
+        </nav>
+        <div className="doc-actions">
           {doc.status ? <span className="status-label">{doc.status}</span> : null}
+          <button className="copy-link" type="button" onClick={copyLink}><Icon name={copied ? "check" : "copy"} />{copied ? "Copied" : "Copy link"}</button>
         </div>
+      </div>
+      <header className="doc-header">
+        <h1 id="page-title" tabIndex={-1}>{doc.title}</h1>
         <p>{doc.description}</p>
-        <button className="copy-link" type="button" onClick={copyLink}><Icon name={copied ? "check" : "copy"} />{copied ? "Copied" : "Copy link"}</button>
       </header>
       {doc.component ? (
         <Suspense fallback={<div className="component-preview-loading" role="status">Loading interactive preview…</div>}>

@@ -4,7 +4,7 @@ import pixelmatch from "pixelmatch";
 import { PNG } from "pngjs";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("/");
+  await page.goto(process.env.AIFRONTKIT_LAB_URL ?? "/");
   await expect(page.getByRole("heading", { name: "Conversation" })).toBeVisible();
 });
 
@@ -26,6 +26,36 @@ test("keeps CSS Modules and Tailwind File visually equivalent", async ({ page })
   expect({ width: tailwindImage.width, height: tailwindImage.height }).toEqual({ width: cssImage.width, height: cssImage.height });
   const mismatchedPixels = pixelmatch(cssImage.data, tailwindImage.data, undefined, cssImage.width, cssImage.height, { threshold: 0.1 });
   expect(mismatchedPixels / (cssImage.width * cssImage.height)).toBeLessThanOrEqual(0.01);
+});
+
+test("keeps every production pattern visually equivalent across registry flavors", async ({ page }) => {
+  await page.goto(`${process.env.AIFRONTKIT_LAB_URL ?? ""}/?parity=patterns`);
+  const fixture = page.locator('[data-flavor-parity="patterns"]');
+  await expect(fixture.getByRole("heading", { name: "Production pattern flavor parity" })).toBeVisible();
+
+  const patternIds = ["agent-progress", "tool-approval", "artifact-review", "checkpoint-recovery", "attachment-composer", "research-agent"];
+  for (const patternId of patternIds) {
+    const pair = fixture.locator(`[data-pattern-pair="${patternId}"]`);
+    const css = pair.locator('[data-pattern-flavor="css-modules"] [data-pattern-render-root] > :first-child');
+    const tailwind = pair.locator('[data-pattern-flavor="tailwind"] [data-pattern-render-root] > :first-child');
+    await expect(css).toBeVisible();
+    await expect(tailwind).toBeVisible();
+
+    const [cssBox, tailwindBox] = await Promise.all([css.boundingBox(), tailwind.boundingBox()]);
+    expect(cssBox, `${patternId} CSS Modules geometry`).not.toBeNull();
+    expect(tailwindBox, `${patternId} Tailwind geometry`).not.toBeNull();
+    expect.soft(Math.abs((cssBox?.width ?? 0) - (tailwindBox?.width ?? 0)), `${patternId} width drift`).toBeLessThanOrEqual(2);
+    expect.soft(Math.abs((cssBox?.height ?? 0) - (tailwindBox?.height ?? 0)), `${patternId} height drift`).toBeLessThanOrEqual(2);
+    expect.soft(await css.evaluate((element) => element.scrollWidth <= element.clientWidth + 1), `${patternId} CSS Modules overflow`).toBe(true);
+    expect.soft(await tailwind.evaluate((element) => element.scrollWidth <= element.clientWidth + 1), `${patternId} Tailwind overflow`).toBe(true);
+  }
+
+  expect(await fixture.evaluate((element) => element.scrollWidth <= element.clientWidth + 1)).toBe(true);
+  const accessibility = await new AxeBuilder({ page })
+    .include('[data-flavor-parity="patterns"]')
+    .disableRules(["landmark-unique"])
+    .analyze();
+  expect(accessibility.violations).toEqual([]);
 });
 
 test("renders the contract fixture matrix and accessible component anatomy", async ({ page }) => {
@@ -609,7 +639,7 @@ test("enforces File lifecycle, safe download, keyboard, and unavailable-source s
 test("keeps touch actions at least 44px in a coarse-pointer browser", async ({ browser }) => {
   const context = await browser.newContext({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
   const page = await context.newPage();
-  await page.goto("http://127.0.0.1:5174/");
+  await page.goto(process.env.AIFRONTKIT_LAB_URL ?? "http://127.0.0.1:5174/");
   const action = page.getByRole("button", { name: "Add attachment" });
   await expect(action).toBeVisible();
   const box = await action.boundingBox();

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "prompt-input",
+  "type": "registry:component",
+  "title": "Prompt input",
+  "description": "A neutral accessible Tailwind composer with visible focus, submit feedback and source-owned presentation.",
+  "files": [
+    { "path": "registry/react/tailwind/components/prompt-input/prompt-input.tsx", "type": "registry:component" }
+  ],
+  "dependencies": ["@aifrontkit/react@^0.1.0", "tailwindcss@^4"],
+  "meta": { "version": "0.1.0", "schemaMajor": 1, "aifrontkit": ">=0.1.0 <1", "target": { "framework": "react", "flavor": "tailwind" } }
+}

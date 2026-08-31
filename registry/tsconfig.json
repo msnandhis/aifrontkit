@@ -15,5 +15,5 @@
     },
     "types": ["react", "react-dom"]
   },
-  "include": ["react/css/**/*.d.ts", "react/css/components/**/*.ts", "react/css/components/**/*.tsx", "react/css/examples/**/*.ts", "react/css/examples/**/*.tsx", "react/css/patterns/**/*.ts", "react/css/patterns/**/*.tsx", "react/tailwind/components/**/*.ts", "react/tailwind/components/**/*.tsx"]
+  "include": ["react/css/**/*.d.ts", "react/css/components/**/*.ts", "react/css/components/**/*.tsx", "react/css/examples/**/*.ts", "react/css/examples/**/*.tsx", "react/css/patterns/**/*.ts", "react/css/patterns/**/*.tsx", "react/tailwind/components/**/*.ts", "react/tailwind/components/**/*.tsx", "react/tailwind/patterns/**/*.ts", "react/tailwind/patterns/**/*.tsx"]
 }

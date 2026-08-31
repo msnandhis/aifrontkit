@@ -25,6 +25,7 @@ packages/
   cli/                source installer, aliases, provenance, and diffs
 registry/
   react/css/          default React implementation with CSS Modules
+  react/tailwind/     parity-verified Tailwind components and patterns
   themes/             installable theme source
 contracts/ui/         framework-neutral component contracts
 compatibility/        cross-version fixtures

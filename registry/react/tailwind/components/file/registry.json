@@ -7,6 +7,6 @@
   "files": [
     { "path": "registry/react/tailwind/components/file/file.tsx", "type": "registry:component" }
   ],
-  "dependencies": ["@aifrontkit/core@^0.1.0"],
-  "meta": { "version": "0.1.0", "schemaMajor": 1, "aifrontkit": ">=0.1.0 <1", "releaseStatus": "candidate", "target": { "framework": "react", "flavor": "tailwind" } }
+  "dependencies": ["@aifrontkit/core@^0.1.0", "tailwindcss@^4"],
+  "meta": { "version": "0.1.0", "schemaMajor": 1, "aifrontkit": ">=0.1.0 <1", "target": { "framework": "react", "flavor": "tailwind" } }
 }

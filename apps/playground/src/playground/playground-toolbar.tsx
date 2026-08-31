@@ -6,6 +6,8 @@ export function PlaygroundToolbar({
   view,
   viewport,
   copied,
+  scenarios,
+  activeScenario,
   tabBaseId,
   previewId,
   codeId,
@@ -13,6 +15,7 @@ export function PlaygroundToolbar({
   onSelectView,
   onTabKeyDown,
   onViewportChange,
+  onApplyScenario,
   onCopyCode,
   onCopyLink,
   onReset,
@@ -20,6 +23,8 @@ export function PlaygroundToolbar({
   view: PlaygroundView;
   viewport: PreviewWidth;
   copied: "code" | "link" | null;
+  scenarios: readonly { id: string; label: string }[];
+  activeScenario: string;
   tabBaseId: string;
   previewId: string;
   codeId: string;
@@ -27,6 +32,7 @@ export function PlaygroundToolbar({
   onSelectView(view: PlaygroundView): void;
   onTabKeyDown(event: KeyboardEvent<HTMLButtonElement>, index: number): void;
   onViewportChange(viewport: PreviewWidth): void;
+  onApplyScenario(id: string): void;
   onCopyCode(): void;
   onCopyLink(): void;
   onReset(): void;
@@ -51,6 +57,14 @@ export function PlaygroundToolbar({
           </button>
         ))}
       </div>
+
+      <label className="playground-scenario">
+        <span>Scenario</span>
+        <select value={activeScenario} onChange={(event) => onApplyScenario(event.currentTarget.value)}>
+          {activeScenario === "custom" ? <option value="custom">Custom</option> : null}
+          {scenarios.map((scenario) => <option key={scenario.id} value={scenario.id}>{scenario.label}</option>)}
+        </select>
+      </label>
 
       <div className="playground-widths" role="group" aria-label="Preview width">
         {([
@@ -78,7 +92,7 @@ export function PlaygroundToolbar({
         <button className="playground-action playground-share" type="button" aria-label={copied === "link" ? "Link copied" : "Share playground"} onClick={onCopyLink}>
           <Icon name={copied === "link" ? "check" : "share"} /><span>{copied === "link" ? "Copied" : "Share"}</span>
         </button>
-        <button className="playground-action playground-copy-code" type="button" onClick={onCopyCode}>
+        <button className="playground-action playground-copy-code" type="button" onClick={onCopyCode} data-prominent={view === "code" || undefined}>
           <Icon name={copied === "code" ? "check" : "copy"} /><span>{copied === "code" ? "Copied" : "Copy code"}</span>
         </button>
       </div>

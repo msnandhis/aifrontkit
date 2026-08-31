@@ -62,11 +62,11 @@ specifiers. A TypeScript alias is never treated as a directory:
 is the specifier used in generated examples and dependency imports.
 
 `target.framework`, `target.flavor`, and the requested item name select one exact
-catalog target. The catalog—not a hard-coded folder convention—provides its
-manifest. File is currently an internal Tailwind candidate, not an advertised
-target; Tailwind installs therefore fail with a clear availability message until
-its complete parity matrix passes. Dependencies never cross
-from one styling flavor into another.
+catalog target. The catalog, rather than a hard-coded folder convention, provides its
+manifest. File, Prompt Input and all six production patterns are available for
+both CSS Modules and Tailwind. Set `target.flavor` to `tailwind` before adding
+them. Dependencies never cross from one styling flavor into another and the CLI
+refuses to overwrite source installed for a different flavor.
 
 `.aifrontkit/installed.json` separately records immutable registry and source
 digests, item and schema versions, compatibility ranges, resolved target paths,

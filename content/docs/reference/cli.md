@@ -38,10 +38,10 @@ compares current local source with its registry source.
 
 The catalog resolves the exact `(framework, flavor, name)` target and records its
 real manifest path. It never guesses folders or falls back across styling
-flavors. Tailwind File is currently an internal parity candidate, not an
-advertised install target. Components remain CSS Modules-only until their full
-parity evidence is complete. Switching the
-configured flavor cannot overwrite an item installed for another flavor.
+flavors. File, Prompt Input and all six production patterns can be installed for
+either CSS Modules or Tailwind. Other components remain explicitly unavailable
+for Tailwind until their parity evidence is complete. Switching the configured
+flavor cannot overwrite an item installed for another flavor.
 
 Use `--dry-run`, `--cwd=path`, and `--registry=path-or-url` in automation and local
 registry development.

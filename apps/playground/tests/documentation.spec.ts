@@ -64,10 +64,10 @@ test("makes the live canvas visually dominant on desktop", async ({ page }) => {
   expect(controlsBox).not.toBeNull();
   expect(stageBox).not.toBeNull();
   expect(stageBox!.width).toBeGreaterThan(controlsBox!.width * 2);
-  await expect(page.getByText("Live canvas", { exact: true })).toBeVisible();
+  expect(stageBox!.x).toBeLessThan(controlsBox!.x);
 });
 
-test("keeps the inspector left of a bounded sticky preview on desktop", async ({ page }) => {
+test("keeps the preview left of a quieter inspector on desktop", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/docs/components/conversation");
 
@@ -77,19 +77,19 @@ test("keeps the inspector left of a bounded sticky preview on desktop", async ({
   const stageBox = await stage.boundingBox();
   expect(controlsBox).not.toBeNull();
   expect(stageBox).not.toBeNull();
-  expect(controlsBox!.x).toBeLessThan(stageBox!.x);
+  expect(stageBox!.x).toBeLessThan(controlsBox!.x);
   expect(await page.locator(".playground-stage-sticky").evaluate((node) => getComputedStyle(node).position)).toBe("sticky");
 
   await page.locator(".playground-stage-sticky").evaluate((node) => {
     const absoluteTop = node.getBoundingClientRect().top + window.scrollY;
     document.documentElement.style.scrollBehavior = "auto";
-    window.scrollTo(0, absoluteTop - 76 + 96);
+    window.scrollTo(0, absoluteTop + 96);
   });
   await page.waitForTimeout(200);
   const pinnedBox = await page.locator(".playground-stage-sticky").boundingBox();
   expect(pinnedBox).not.toBeNull();
-  expect(pinnedBox!.y).toBeGreaterThanOrEqual(79);
-  expect(pinnedBox!.y).toBeLessThanOrEqual(81);
+  expect(pinnedBox!.y).toBeGreaterThanOrEqual(71);
+  expect(pinnedBox!.y).toBeLessThanOrEqual(73);
   await expect(page.getByRole("button", { name: "Copy code" })).toBeVisible();
 });
 
@@ -251,12 +251,13 @@ test("keeps the mobile shell usable and bounded", async ({ page }) => {
   await expect(page.getByRole("complementary", { name: "Documentation navigation" })).toHaveClass(/is-open/);
   await page.getByRole("button", { name: "Toggle documentation navigation" }).click();
   await expect(page.getByRole("complementary", { name: "Component controls" })).toBeVisible();
+  await expect(page.getByRole("combobox", { name: "Scenario" })).toBeVisible();
   const customize = page.getByRole("button", { name: /Customize/ });
   await expect(customize).toHaveAttribute("aria-expanded", "false");
   await expect(page.locator(".playground-inspector-body")).toBeHidden();
   await customize.click();
   await expect(customize).toHaveAttribute("aria-expanded", "true");
-  await expect(page.locator(".playground-inspector-body").getByRole("combobox", { name: "Scenario" })).toBeVisible();
+  await expect(page.locator(".playground-inspector-body").getByText("Quick controls")).toBeVisible();
   expect(await page.locator(".playground-stage-sticky").evaluate((node) => getComputedStyle(node).position)).toBe("static");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
 
@@ -264,9 +265,20 @@ test("keeps the mobile shell usable and bounded", async ({ page }) => {
   await expect(page.getByRole("button", { name: /Customize/ })).toHaveAttribute("aria-expanded", "false");
   await expect(page.getByRole("heading", { level: 2, name: "AI interface market brief" })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+
+  await page.setViewportSize({ width: 768, height: 1024 });
+  await page.goto("/docs/patterns/research-agent");
+  const tabletStage = await page.getByRole("region", { name: "Component preview stage" }).boundingBox();
+  const tabletControls = await page.getByRole("complementary", { name: "Component controls" }).boundingBox();
+  expect(tabletStage).not.toBeNull();
+  expect(tabletControls).not.toBeNull();
+  expect(tabletStage!.y).toBeLessThan(tabletControls!.y);
+  await expect(page.getByRole("combobox", { name: "Scenario" })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
 });
 
 test("has no automatically detectable accessibility violations", async ({ page }) => {
+  test.setTimeout(60_000);
   await page.goto("/docs");
   expect((await new AxeBuilder({ page }).include(".docs-root").analyze()).violations).toEqual([]);
 

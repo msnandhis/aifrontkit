@@ -69,6 +69,7 @@ CSS Modules and Tailwind are two source representations of the same component
 contract, not separate design systems. They consume the same semantic tokens and
 must preserve public props, compound anatomy, DOM semantics, interaction states,
 accessibility behavior, and reviewed visual output. A flavor is advertised only
-after its compiled output passes those parity gates. File is the first internal
-Tailwind candidate; the public catalog stays CSS Modules-only until each
-component meets the same bar.
+after its compiled output passes those parity gates. File, Prompt Input and the
+six production patterns now meet that bar in the public catalog. Remaining
+components stay CSS Modules-only until they pass the same contract and visual
+checks.

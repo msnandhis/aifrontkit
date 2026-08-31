@@ -24,10 +24,6 @@ export function PlaygroundStage({
   return (
     <section className="playground-stage" aria-label="Component preview stage">
       <div className="playground-stage-sticky">
-        <div className="playground-stage-meta" aria-hidden="true">
-          <span>Live canvas</span>
-          <span>{environment.theme} · {environment.viewport === "responsive" ? "desktop" : environment.viewport}</span>
-        </div>
         <div className="playground-canvas" data-view={view}>
           {view === "preview" ? (
             <div

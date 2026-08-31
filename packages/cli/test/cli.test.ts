@@ -98,7 +98,15 @@ describe("AIFrontKit CLI", () => {
     config.target.flavor = "tailwind";
     await writeFile(configPath, `${JSON.stringify(config, null, 2)}\n`);
 
-    await expect(addItem(root, "file")).rejects.toThrow(/not available for react\/tailwind/);
+    await addItem(root, "file");
+    await addItem(root, "attachment-composer");
+    await addItem(root, "research-agent");
+    expect(await readFile(join(root, "src/components/aifrontkit/file.tsx"), "utf8")).toContain("const rootClass");
+    expect(await readFile(join(root, "src/components/aifrontkit/prompt-input.tsx"), "utf8")).toContain("aifk-prompt-input");
+    expect(await readFile(join(root, "src/components/aifrontkit/attachment-composer.tsx"), "utf8")).toContain("AttachmentComposer");
+    expect(await readFile(join(root, "src/components/aifrontkit/research-agent.tsx"), "utf8")).toContain("ResearchAgent");
+    const provenance = JSON.parse(await readFile(join(root, ".aifrontkit/installed.json"), "utf8"));
+    expect(provenance.items["research-agent"].target.flavor).toBe("tailwind");
   });
 
   it("exposes deterministic registry discovery for agents and MCP bridges", async () => {
@@ -224,7 +232,7 @@ describe("AIFrontKit CLI", () => {
     await writeFile(configPath, `${JSON.stringify(config, null, 2)}\n`);
 
     await expect(planAdd(root, "conversation")).rejects.toThrow(/not available for react\/tailwind.*react\/css-modules/);
-    await expect(addItem(root, "file", { force: true })).rejects.toThrow(/not available for react\/tailwind/);
+    await expect(addItem(root, "file", { force: true })).rejects.toThrow(/was installed for react\/css-modules.*before installing react\/tailwind/);
     expect(await readFile(installedPath, "utf8")).toBe(cssSource);
   });
 

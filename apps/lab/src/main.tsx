@@ -6,6 +6,7 @@ import "@aifrontkit/tokens/css";
 import { File as CssFile } from "../../../registry/react/css/components/file/file.js";
 import { File as TailwindFile } from "../../../registry/react/tailwind/components/file/file.js";
 import { componentFixtureContracts, componentFixtureMap, renderRegistryFixture, type LabComponentId } from "./component-fixtures.js";
+import { PatternFlavorParity } from "./pattern-flavor-parity.js";
 import "./styles.css";
 
 type ViewportWidth = 375 | 768 | 1024 | 1440;
@@ -241,4 +242,8 @@ function Lab() {
 }
 
 const parityTarget = new URLSearchParams(window.location.search).get("parity");
-createRoot(document.getElementById("root")!).render(<StrictMode>{parityTarget === "file" ? <FileFlavorParity /> : <Lab />}</StrictMode>);
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    {parityTarget === "file" ? <FileFlavorParity /> : parityTarget === "patterns" ? <PatternFlavorParity /> : <Lab />}
+  </StrictMode>,
+);

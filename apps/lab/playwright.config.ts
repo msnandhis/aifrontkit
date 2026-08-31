@@ -1,5 +1,8 @@
 import { defineConfig } from "@playwright/test";
 
+const labUrl = process.env.AIFRONTKIT_LAB_URL ?? "http://127.0.0.1:5174";
+const labPort = new URL(labUrl).port || "5174";
+
 export default defineConfig({
   testDir: "./tests",
   outputDir: "./test-results",
@@ -13,7 +16,7 @@ export default defineConfig({
     toHaveScreenshot: { animations: "disabled", maxDiffPixelRatio: 0.01, threshold: 0.2 }
   },
   use: {
-    baseURL: "http://127.0.0.1:5174",
+    baseURL: labUrl,
     browserName: "chromium",
     colorScheme: "light",
     reducedMotion: "reduce",
@@ -22,8 +25,8 @@ export default defineConfig({
     viewport: { width: 1440, height: 1000 }
   },
   webServer: {
-    command: "pnpm --filter @aifrontkit/lab dev --host 127.0.0.1",
-    url: "http://127.0.0.1:5174",
+    command: `pnpm --filter @aifrontkit/lab dev --host 127.0.0.1 --port ${labPort}`,
+    url: labUrl,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000
   },

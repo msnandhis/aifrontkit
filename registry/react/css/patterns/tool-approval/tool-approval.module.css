@@ -4,10 +4,8 @@
   inline-size: 100%;
   padding: clamp(1rem, 3vw, 1.5rem);
   color: var(--aifk-text);
-  background: var(--aifk-surface);
-  border: 1px solid var(--aifk-border-strong);
-  border-radius: var(--aifk-radius-large);
-  box-shadow: 0 12px 34px color-mix(in srgb, var(--aifk-text) 7%, transparent);
+  background: transparent;
+  border-block: 1px solid var(--aifk-border-strong);
 }
 
 .aifk-tool-approval :is(h2, h3, h4, p, dl) { margin: 0; }
@@ -15,8 +13,8 @@
 .aifk-tool-approval__header > div { display: grid; gap: var(--aifk-space-2); }
 .aifk-tool-approval__header :is(h2, h3, h4) { font-size: clamp(1.15rem, 3vw, 1.4rem); line-height: 1.2; letter-spacing: -0.025em; }
 .aifk-tool-approval__eyebrow { color: var(--aifk-accent); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: var(--aifk-type-font-size-xs); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
-.aifk-tool-approval__status { flex: 0 0 auto; padding: 0.35rem 0.55rem; color: var(--aifk-text-muted); background: var(--aifk-surface-subtle); border: 1px solid var(--aifk-border); border-radius: var(--aifk-radius-pill); font-size: var(--aifk-type-font-size-xs); font-weight: 600; text-transform: capitalize; }
-.aifk-tool-approval[data-status="requested"] .aifk-tool-approval__status { color: var(--aifk-accent); background: var(--aifk-accent-muted); border-color: color-mix(in srgb, var(--aifk-accent) 35%, var(--aifk-border)); }
+.aifk-tool-approval__status { flex: 0 0 auto; padding: 0.35rem 0; color: var(--aifk-text-muted); font-size: var(--aifk-type-font-size-xs); font-weight: 600; text-transform: capitalize; }
+.aifk-tool-approval[data-status="requested"] .aifk-tool-approval__status { padding-inline: 0.55rem; color: var(--aifk-accent); background: var(--aifk-accent-muted); border: 1px solid color-mix(in srgb, var(--aifk-accent) 35%, var(--aifk-border)); border-radius: var(--aifk-radius-pill); }
 .aifk-tool-approval__summary { max-inline-size: 42rem; color: var(--aifk-text-muted); font-size: var(--aifk-type-font-size-sm); line-height: 1.6; }
 .aifk-tool-approval__details { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(8rem, 0.6fr); border-block: 1px solid var(--aifk-border); }
 .aifk-tool-approval__details > div { display: grid; gap: 0.3rem; padding: var(--aifk-space-3) 0; }

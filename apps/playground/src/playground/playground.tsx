@@ -79,6 +79,8 @@ export function ComponentPlayground<Props extends PlaygroundRecord, Environment 
         view={view}
         viewport={state.environment.viewport}
         copied={copied}
+        scenarios={definition.scenarios}
+        activeScenario={activeScenario}
         tabBaseId={tabBaseId}
         previewId={previewId}
         codeId={codeId}
@@ -86,21 +88,13 @@ export function ComponentPlayground<Props extends PlaygroundRecord, Environment 
         onSelectView={selectView}
         onTabKeyDown={onTabKeyDown}
         onViewportChange={(viewport) => change("environment", "viewport", viewport)}
+        onApplyScenario={applyScenario}
         onCopyCode={() => void copy("code")}
         onCopyLink={() => void copy("link")}
         onReset={reset}
       />
 
       <div className="playground-workspace">
-        <PlaygroundInspector
-          definition={definition}
-          state={state}
-          activeScenario={activeScenario}
-          mobileOpen={mobileControlsOpen}
-          onMobileToggle={() => setMobileControlsOpen((current) => !current)}
-          onApplyScenario={applyScenario}
-          onChange={change}
-        />
         <PlaygroundStage
           view={view}
           environment={state.environment}
@@ -112,6 +106,14 @@ export function ComponentPlayground<Props extends PlaygroundRecord, Environment 
         >
           {definition.render(state, { emit: setEvent, setProp: (key, value) => change("props", key, value) })}
         </PlaygroundStage>
+        <PlaygroundInspector
+          definition={definition}
+          state={state}
+          activeScenario={activeScenario}
+          mobileOpen={mobileControlsOpen}
+          onMobileToggle={() => setMobileControlsOpen((current) => !current)}
+          onChange={change}
+        />
       </div>
       <PlaygroundEvents event={event} />
       <p className="playground-status sr-only" aria-live="polite">{copied ? `${humanize(copied)} copied` : ""}</p>

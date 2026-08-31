@@ -7,9 +7,8 @@
   min-inline-size: 0;
   padding: clamp(var(--aifk-space-4), 3cqi, var(--aifk-space-6));
   color: var(--aifk-text);
-  background: var(--aifk-surface);
-  border: 1px solid var(--aifk-border-strong);
-  border-radius: var(--aifk-radius-large);
+  background: transparent;
+  border-block: 1px solid var(--aifk-border-strong);
   font-family: var(--aifk-type-font-family-sans);
 }
 
@@ -29,7 +28,7 @@
 .aifk-artifact-review__meta-label { margin-inline-end: var(--aifk-space-1); color: var(--aifk-text-subtle); }
 .aifk-artifact-review__statuses { display: flex; flex: 0 0 auto; flex-wrap: wrap; justify-content: flex-end; gap: var(--aifk-space-2); }
 .aifk-artifact-review__status,
-.aifk-artifact-review__review-status { min-block-size: 1.75rem; padding: var(--aifk-space-1) var(--aifk-space-2); color: var(--aifk-text-muted); background: var(--aifk-surface-subtle); border: 1px solid var(--aifk-border); border-radius: var(--aifk-radius-pill); font-size: var(--aifk-type-font-size-xs); font-weight: var(--aifk-type-font-weight-semibold); text-transform: capitalize; }
+.aifk-artifact-review__review-status { min-block-size: 1.75rem; padding: var(--aifk-space-1) 0; color: var(--aifk-text-muted); font-size: var(--aifk-type-font-size-xs); font-weight: var(--aifk-type-font-weight-semibold); text-transform: capitalize; }
 
 .aifk-artifact-review__notice {
   display: flex;
@@ -104,7 +103,7 @@
 .aifk-artifact-review__deletion-summary { color: var(--aifk-destructive) !important; }
 
 .aifk-artifact-review__content { display: grid; min-inline-size: 0; gap: var(--aifk-space-4); }
-.aifk-artifact-review__file { min-inline-size: 0; overflow: hidden; border: 1px solid var(--aifk-border); border-radius: var(--aifk-radius-medium); }
+.aifk-artifact-review__file { min-inline-size: 0; overflow: hidden; border-block: 1px solid var(--aifk-border); }
 .aifk-artifact-review__file > header { display: flex; align-items: center; justify-content: space-between; gap: var(--aifk-space-3); min-inline-size: 0; padding: var(--aifk-space-3); background: var(--aifk-surface-subtle); border-block-end: 1px solid var(--aifk-border); font-size: var(--aifk-type-font-size-xs); }
 .aifk-artifact-review__file > header code { min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .aifk-artifact-review__file > header > span { flex: 0 0 auto; font-family: var(--aifk-type-font-family-mono); }
@@ -119,11 +118,11 @@
 .aifk-artifact-review__line[data-kind="addition"] .aifk-artifact-review__line-label { color: var(--aifk-success); }
 .aifk-artifact-review__line[data-kind="deletion"] .aifk-artifact-review__line-label { color: var(--aifk-destructive); }
 .aifk-artifact-review__line code { display: block; min-inline-size: 0; padding: var(--aifk-space-1) var(--aifk-space-3); color: var(--aifk-text); white-space: pre; }
-.aifk-artifact-review__empty { padding: var(--aifk-space-6); color: var(--aifk-text-muted); background: var(--aifk-surface-subtle); border: 1px dashed var(--aifk-border-strong); border-radius: var(--aifk-radius-medium); text-align: center; }
+.aifk-artifact-review__empty { padding: var(--aifk-space-6); color: var(--aifk-text-muted); border-block: 1px dashed var(--aifk-border-strong); text-align: center; }
 
 .aifk-artifact-review__resolution { color: var(--aifk-text-muted); font-size: var(--aifk-type-font-size-sm); line-height: var(--aifk-type-line-height-relaxed); }
 .aifk-artifact-review__resolution:empty { display: none; }
-.aifk-artifact-review__feedback { display: grid; gap: var(--aifk-space-3); padding: var(--aifk-space-4); background: var(--aifk-surface-subtle); border: 1px solid var(--aifk-border-strong); border-radius: var(--aifk-radius-medium); }
+.aifk-artifact-review__feedback { display: grid; gap: var(--aifk-space-3); padding-block: var(--aifk-space-4); background: transparent; border-block: 1px solid var(--aifk-border); }
 .aifk-artifact-review__feedback > div:first-child { display: grid; gap: var(--aifk-space-1); }
 .aifk-artifact-review__feedback h3 { font-size: var(--aifk-type-font-size-md); }
 .aifk-artifact-review__feedback p,

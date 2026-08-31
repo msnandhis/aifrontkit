@@ -7,7 +7,6 @@ export function PlaygroundInspector<Props extends PlaygroundRecord, Environment 
   activeScenario,
   mobileOpen,
   onMobileToggle,
-  onApplyScenario,
   onChange,
 }: {
   definition: PlaygroundDefinition<Props, Environment>;
@@ -15,7 +14,6 @@ export function PlaygroundInspector<Props extends PlaygroundRecord, Environment 
   activeScenario: string;
   mobileOpen: boolean;
   onMobileToggle(): void;
-  onApplyScenario(id: string): void;
   onChange(scope: "props" | "environment", key: string, value: PlaygroundRecord[string]): void;
 }) {
   const activeDescription = definition.scenarios.find((scenario) => scenario.id === activeScenario)?.description
@@ -37,14 +35,9 @@ export function PlaygroundInspector<Props extends PlaygroundRecord, Environment 
       <div className="playground-inspector-body" id={`${definition.id}-playground-controls`}>
         <div className="playground-controls-heading">
           <div className="playground-controls-title">
-            <strong>Controls</strong>
+            <strong>Customize</strong>
             <span>{definition.controls.length} options</span>
           </div>
-          <label htmlFor={`${definition.id}-scenario`}>Scenario</label>
-          <select id={`${definition.id}-scenario`} value={activeScenario} onChange={(event) => onApplyScenario(event.currentTarget.value)}>
-            {activeScenario === "custom" ? <option value="custom">Custom</option> : null}
-            {definition.scenarios.map((scenario) => <option key={scenario.id} value={scenario.id} data-playground-scenario={scenario.id}>{scenario.label}</option>)}
-          </select>
           <p>{activeDescription}</p>
         </div>
 

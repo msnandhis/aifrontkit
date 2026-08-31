@@ -301,8 +301,7 @@
   min-inline-size: 0;
   padding: var(--aifk-space-4, 1rem);
   background: var(--aifk-surface-subtle, Canvas);
-  border: 1px solid var(--aifk-border-strong, ButtonBorder);
-  border-radius: var(--aifk-radius-medium, 0.625rem);
+  border-inline-start: 0.1875rem solid var(--aifk-warning, CanvasText);
 }
 
 .aifk-checkpoint-recovery__confirmation > div:first-child {
