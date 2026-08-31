@@ -72,6 +72,65 @@ describe("framework-neutral runtime", () => {
     });
   });
 
+  it("normalizes legacy artifact timestamps and never replaces a newer artifact version", () => {
+    const events: AIFrontEvent[] = [
+      { ...base, id: "artifact-v1", timestamp: 10, type: "artifact.updated", artifact: { id: "report", title: "Report", kind: "document", version: 1, status: "streaming" } },
+      { schemaVersion: 3, id: "artifact-v2", threadId: "thread-1", timestamp: 20, type: "artifact.updated", artifact: { id: "report", title: "Report", kind: "document", version: 2, status: "ready", content: "Current", updatedAt: 20 } },
+      { ...base, id: "artifact-stale", timestamp: 30, type: "artifact.updated", artifact: { id: "report", title: "Old report", kind: "document", version: 1, status: "ready", content: "Stale" } }
+    ];
+    const state = events.reduce(reduceEvent, createInitialState("thread-1"));
+    expect(state.artifacts.report).toMatchObject({ version: 2, content: "Current", updatedAt: 20 });
+    expect(state.processedEventIds.has("artifact-stale")).toBe(true);
+  });
+
+  it("uses updatedAt to resolve same-version artifact snapshots and retains the first exact tie", () => {
+    const events: AIFrontEvent[] = [
+      { schemaVersion: 3, id: "artifact-current", threadId: "thread-1", timestamp: 1, type: "artifact.updated", artifact: { id: "report", title: "Report", kind: "document", version: 2, status: "ready", content: "First", updatedAt: 20 } },
+      { schemaVersion: 3, id: "artifact-older", threadId: "thread-1", timestamp: 2, type: "artifact.updated", artifact: { id: "report", title: "Report", kind: "document", version: 2, status: "ready", content: "Older", updatedAt: 19 } },
+      { schemaVersion: 3, id: "artifact-tie", threadId: "thread-1", timestamp: 3, type: "artifact.updated", artifact: { id: "report", title: "Report", kind: "document", version: 2, status: "ready", content: "Tie", updatedAt: 20 } },
+      { schemaVersion: 3, id: "artifact-later", threadId: "thread-1", timestamp: 4, type: "artifact.updated", artifact: { id: "report", title: "Report", kind: "document", version: 2, status: "ready", content: "Later", updatedAt: 21 } }
+    ];
+    const state = events.reduce(reduceEvent, createInitialState("thread-1"));
+    expect(state.artifacts.report).toMatchObject({ content: "Later", updatedAt: 21 });
+    const tied = events.slice(0, 3).reduce(reduceEvent, createInitialState("thread-1"));
+    expect(tied.artifacts.report).toMatchObject({ content: "First", updatedAt: 20 });
+  });
+
+  it("keeps an older review version as stale context and rejects a future review version", () => {
+    const stale = reduceEvent(createInitialState("thread-1"), {
+      schemaVersion: 3,
+      id: "artifact-review-stale",
+      threadId: "thread-1",
+      timestamp: 1,
+      type: "artifact.updated",
+      artifact: {
+        id: "report",
+        title: "Report",
+        kind: "document",
+        version: 2,
+        status: "ready",
+        review: { version: 1, status: "requested", updatedAt: 1 }
+      }
+    });
+    expect(stale.artifacts.report?.review).toMatchObject({ version: 1, status: "requested" });
+
+    expect(() => reduceEvent(createInitialState("thread-1"), {
+      schemaVersion: 3,
+      id: "artifact-review-mismatch",
+      threadId: "thread-1",
+      timestamp: 1,
+      type: "artifact.updated",
+      artifact: {
+        id: "report",
+        title: "Report",
+        kind: "document",
+        version: 2,
+        status: "ready",
+        review: { version: 3, status: "requested", updatedAt: 1 }
+      }
+    })).toThrow(/cannot be newer/);
+  });
+
   it("addresses ordered v2 parts without losing their transcript position", () => {
     const events: AIFrontEvent[] = [
       { schemaVersion: 2, id: "v2-1", threadId: "thread-1", timestamp: 1, type: "message.started", messageId: "m-v2", role: "assistant" },

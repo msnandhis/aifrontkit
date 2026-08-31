@@ -19,6 +19,7 @@ describe("documentation registry", () => {
       "tool-call",
       "agent-progress",
       "tool-approval",
+      "artifact-review",
       "research-agent",
     ]);
   });

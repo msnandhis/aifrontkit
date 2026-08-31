@@ -26,7 +26,7 @@
     "docs:validate": "node tooling/docs/validate-docs.mjs",
     "docs:test": "node --test tooling/docs/*.test.mjs",
     "quality:validate": "node tooling/quality/component-quality.mjs",
-    "quality:test": "node --test tooling/quality/component-quality.test.mjs",
+    "quality:test": "node --test tooling/quality/*.test.mjs",
     "quality:browser": "pnpm --filter @aifrontkit/core build && pnpm --filter @aifrontkit/tokens build && pnpm --filter @aifrontkit/react build && pnpm --filter @aifrontkit/testing build && playwright test --config apps/lab/playwright.config.ts",
     "docs:browser": "playwright test --config apps/playground/playwright.config.ts",
     "check:browser": "pnpm quality:browser && pnpm docs:browser",

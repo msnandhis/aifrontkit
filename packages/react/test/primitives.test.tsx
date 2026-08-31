@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { createRuntime, type Message } from "@aifrontkit/core";
-import { AIFrontKitProvider, ApprovalPrimitive, ComposerPrimitive, ConnectionPrimitive, ConversationPrimitive, MessagePrimitive, TaskPrimitive, ThemeProvider, ToolPrimitive } from "../src/index.js";
+import { createRuntime, type Artifact, type Message } from "@aifrontkit/core";
+import { AIFrontKitProvider, ApprovalPrimitive, ArtifactPrimitive, ComposerPrimitive, ConnectionPrimitive, ConversationPrimitive, MessagePrimitive, TaskPrimitive, ThemeProvider, ToolPrimitive } from "../src/index.js";
 
 describe("React primitives", () => {
   it("renders normalized runtime state without owning visual styling", () => {
@@ -325,6 +325,114 @@ describe("React primitives", () => {
     );
     expect(html).toContain("Retry connection");
     expect(html).not.toContain("disabled");
+  });
+
+  it("renders a controlled artifact review with stable semantic hooks", () => {
+    const artifact: Artifact = {
+      id: "artifact-1",
+      title: "Market report",
+      kind: "document",
+      version: 3,
+      status: "ready",
+      content: { sections: 4 },
+      updatedAt: 20,
+      review: { version: 3, status: "requested", updatedAt: 20 }
+    };
+    const html = renderToStaticMarkup(
+      <ArtifactPrimitive.Root artifact={artifact} onAccept={() => undefined} onRequestChanges={() => undefined}>
+        <ArtifactPrimitive.Title />
+        <ArtifactPrimitive.Kind />
+        <ArtifactPrimitive.Version />
+        <ArtifactPrimitive.Status />
+        <ArtifactPrimitive.ReviewStatus />
+        <ArtifactPrimitive.Content>{(content) => <pre>{JSON.stringify(content)}</pre>}</ArtifactPrimitive.Content>
+        <ArtifactPrimitive.Accept />
+        <ArtifactPrimitive.RequestChanges />
+      </ArtifactPrimitive.Root>
+    );
+    expect(html).toContain('aria-label="Artifact: Market report"');
+    expect(html).toContain('data-aifk-artifact=""');
+    expect(html).toContain('data-version="3"');
+    expect(html).toContain('data-review-status="requested"');
+    expect(html).toContain('data-aifk-artifact-content=""');
+    expect(html).toContain('{&quot;sections&quot;:4}');
+    expect(html).toContain("Request changes");
+    expect(html).not.toContain("disabled");
+  });
+
+  it("resolves an artifact from runtime state without a controlled artifact", () => {
+    const runtime = createRuntime("thread-artifact", [{
+      schemaVersion: 3,
+      id: "artifact-event",
+      threadId: "thread-artifact",
+      timestamp: 12,
+      type: "artifact.updated",
+      artifact: { id: "artifact-1", title: "Runtime report", kind: "document", version: 1, status: "ready", content: "Final copy" }
+    }]);
+    const html = renderToStaticMarkup(
+      <AIFrontKitProvider runtime={runtime}>
+        <ArtifactPrimitive.Root artifactId="artifact-1">
+          <ArtifactPrimitive.Title />
+          <ArtifactPrimitive.Content />
+        </ArtifactPrimitive.Root>
+      </AIFrontKitProvider>
+    );
+    expect(html).toContain("Runtime report");
+    expect(html).toContain("Final copy");
+  });
+
+  it("disables review actions unless a requested review matches the ready artifact version", () => {
+    const baseArtifact: Artifact = {
+      id: "artifact-1",
+      title: "Report",
+      kind: "document",
+      version: 2,
+      status: "ready",
+      review: { version: 1, status: "requested", updatedAt: 1 }
+    };
+    const stale = renderToStaticMarkup(
+      <ArtifactPrimitive.Root artifact={baseArtifact} onAccept={() => undefined} onReject={() => undefined}>
+        <ArtifactPrimitive.Accept />
+        <ArtifactPrimitive.Reject />
+      </ArtifactPrimitive.Root>
+    );
+    const resolved = renderToStaticMarkup(
+      <ArtifactPrimitive.Root artifact={{ ...baseArtifact, review: { version: 2, status: "accepted", updatedAt: 2 } }} onAccept={() => undefined} onRequestChanges={() => undefined}>
+        <ArtifactPrimitive.Accept />
+        <ArtifactPrimitive.RequestChanges />
+      </ArtifactPrimitive.Root>
+    );
+    const missingCallbacks = renderToStaticMarkup(
+      <ArtifactPrimitive.Root artifact={{ ...baseArtifact, review: { version: 2, status: "requested", updatedAt: 2 } }}>
+        <ArtifactPrimitive.Accept />
+        <ArtifactPrimitive.RequestChanges />
+      </ArtifactPrimitive.Root>
+    );
+    expect(stale.match(/disabled=""/g)).toHaveLength(2);
+    expect(stale).toContain('data-review-status="stale"');
+    expect(stale).toContain('data-review-stale="true"');
+    expect(resolved.match(/disabled=""/g)).toHaveLength(2);
+    expect(missingCallbacks.match(/disabled=""/g)).toHaveLength(2);
+  });
+
+  it("renders artifact failures as alerts without review actions becoming active", () => {
+    const html = renderToStaticMarkup(
+      <ArtifactPrimitive.Root artifact={{
+        id: "artifact-1",
+        title: "Report",
+        kind: "document",
+        version: 1,
+        status: "failed",
+        error: "The export could not be generated.",
+        review: { version: 1, status: "requested", updatedAt: 2 }
+      }} onAccept={() => undefined}>
+        <ArtifactPrimitive.Error />
+        <ArtifactPrimitive.Accept />
+      </ArtifactPrimitive.Root>
+    );
+    expect(html).toContain('role="alert"');
+    expect(html).toContain("The export could not be generated.");
+    expect(html).toContain('disabled=""');
   });
 
   it("projects a configurable theme onto a scoped root", () => {

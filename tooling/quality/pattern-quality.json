@@ -1,0 +1,114 @@
+{
+  "$schema": "./pattern-quality.schema.json",
+  "schemaVersion": 1,
+  "patterns": [
+    {
+      "name": "agent-progress",
+      "scenarios": ["running", "awaiting-approval", "paused", "complete", "failed"],
+      "evidence": {
+        "accessibility": {
+          "file": "apps/lab/tests/component-quality.spec.ts",
+          "contains": ["covers agent progress and approval decisions as interactive visual states", "AxeBuilder"]
+        },
+        "interaction": {
+          "file": "apps/lab/tests/component-quality.spec.ts",
+          "contains": ["agent-progress", "onStop()"]
+        },
+        "documentation": {
+          "file": "content/docs/patterns/agent-progress.md",
+          "contains": ["AgentProgress"]
+        },
+        "visualRegression": {
+          "file": "apps/lab/tests/component-quality.spec.ts",
+          "contains": ["agent-progress-running-light.webp", "agent-progress-failed-dark.webp", "agent-progress-paused-dark-375.webp"],
+          "artifacts": [
+            "apps/lab/tests/__screenshots__/chromium-darwin/agent-progress-running-light.webp",
+            "apps/lab/tests/__screenshots__/chromium-darwin/agent-progress-failed-dark.webp",
+            "apps/lab/tests/__screenshots__/chromium-darwin/agent-progress-paused-dark-375.webp",
+            "apps/lab/tests/__screenshots__/chromium-linux/agent-progress-running-light.webp",
+            "apps/lab/tests/__screenshots__/chromium-linux/agent-progress-failed-dark.webp",
+            "apps/lab/tests/__screenshots__/chromium-linux/agent-progress-paused-dark-375.webp"
+          ]
+        }
+      }
+    },
+    {
+      "name": "artifact-review",
+      "scenarios": ["requested", "streaming", "submitting", "accepted", "changes-requested", "failed", "conflict", "offline", "empty", "long-content"],
+      "evidence": {
+        "accessibility": {
+          "file": "apps/lab/tests/component-quality.spec.ts",
+          "contains": ["artifact-review", "AxeBuilder"]
+        },
+        "interaction": {
+          "file": "apps/lab/tests/component-quality.spec.ts",
+          "contains": ["artifact-review", "Request changes", "Accept version"]
+        },
+        "documentation": {
+          "file": "content/docs/patterns/artifact-review.md",
+          "contains": ["ArtifactReview"]
+        },
+        "visualRegression": {
+          "file": "apps/lab/tests/component-quality.spec.ts",
+          "contains": ["artifact-review-requested-light.webp", "artifact-review-accepted-dark.webp", "artifact-review-conflict-dark-375.webp"],
+          "artifacts": [
+            "apps/lab/tests/__screenshots__/chromium-darwin/artifact-review-requested-light.webp",
+            "apps/lab/tests/__screenshots__/chromium-darwin/artifact-review-accepted-dark.webp",
+            "apps/lab/tests/__screenshots__/chromium-darwin/artifact-review-conflict-dark-375.webp",
+            "apps/lab/tests/__screenshots__/chromium-linux/artifact-review-requested-light.webp",
+            "apps/lab/tests/__screenshots__/chromium-linux/artifact-review-accepted-dark.webp",
+            "apps/lab/tests/__screenshots__/chromium-linux/artifact-review-conflict-dark-375.webp"
+          ]
+        }
+      }
+    },
+    {
+      "name": "research-agent",
+      "scenarios": ["walkthrough", "awaiting-approval", "offline", "failed", "complete"],
+      "evidence": {
+        "accessibility": {
+          "file": "apps/lab/tests/component-quality.spec.ts",
+          "contains": ["walks the flagship research agent through production recovery states", "AxeBuilder"]
+        },
+        "interaction": {
+          "file": "apps/lab/tests/component-quality.spec.ts",
+          "contains": ["research-agent", "Attempt restore", "Resume"]
+        },
+        "documentation": {
+          "file": "content/docs/patterns/research-agent.md",
+          "contains": ["research-agent"]
+        }
+      }
+    },
+    {
+      "name": "tool-approval",
+      "scenarios": ["requested", "approved", "rejected", "expired"],
+      "evidence": {
+        "accessibility": {
+          "file": "apps/lab/tests/component-quality.spec.ts",
+          "contains": ["covers agent progress and approval decisions as interactive visual states", "AxeBuilder"]
+        },
+        "interaction": {
+          "file": "apps/lab/tests/component-quality.spec.ts",
+          "contains": ["tool-approval", "onApprove()"]
+        },
+        "documentation": {
+          "file": "content/docs/patterns/tool-approval.md",
+          "contains": ["ToolApproval"]
+        },
+        "visualRegression": {
+          "file": "apps/lab/tests/component-quality.spec.ts",
+          "contains": ["tool-approval-requested-light.webp", "tool-approval-approved-dark.webp", "tool-approval-expired-dark-375.webp"],
+          "artifacts": [
+            "apps/lab/tests/__screenshots__/chromium-darwin/tool-approval-requested-light.webp",
+            "apps/lab/tests/__screenshots__/chromium-darwin/tool-approval-approved-dark.webp",
+            "apps/lab/tests/__screenshots__/chromium-darwin/tool-approval-expired-dark-375.webp",
+            "apps/lab/tests/__screenshots__/chromium-linux/tool-approval-requested-light.webp",
+            "apps/lab/tests/__screenshots__/chromium-linux/tool-approval-approved-dark.webp",
+            "apps/lab/tests/__screenshots__/chromium-linux/tool-approval-expired-dark-375.webp"
+          ]
+        }
+      }
+    }
+  ]
+}

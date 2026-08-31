@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aifrontkit.dev/schemas/pattern-quality-v1.json",
+  "title": "AIFrontKit registry pattern quality manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "patterns"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": 1 },
+    "patterns": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/pattern" }
+    }
+  },
+  "$defs": {
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "contains"],
+      "properties": {
+        "file": { "type": "string", "minLength": 1 },
+        "contains": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "artifacts": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "pattern": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "scenarios", "evidence"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "scenarios": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "evidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["accessibility", "interaction", "documentation"],
+          "properties": {
+            "accessibility": { "$ref": "#/$defs/evidence" },
+            "interaction": { "$ref": "#/$defs/evidence" },
+            "documentation": { "$ref": "#/$defs/evidence" },
+            "visualRegression": { "$ref": "#/$defs/evidence" }
+          }
+        }
+      }
+    }
+  }
+}

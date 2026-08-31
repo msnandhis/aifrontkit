@@ -121,6 +121,7 @@ function assertCurrentPayload(event: Record<string, unknown>) {
       return;
     case "artifact.updated":
       if (!event.artifact || typeof event.artifact !== "object") throw new InvalidEventError("artifact.updated artifact must be an object.");
+      assertArtifact(event.artifact as Record<string, unknown>);
       return;
     case "task.started":
       if (event.schemaVersion !== EVENT_SCHEMA_VERSION) throw new InvalidEventError("Task events require schema version 3.");
@@ -181,4 +182,23 @@ function assertProgress(value: unknown) {
   const progress = value as Record<string, unknown>;
   if (typeof progress.current !== "number" || !Number.isFinite(progress.current) || progress.current < 0) throw new InvalidEventError("Progress current must be a non-negative finite number.");
   if (progress.total !== undefined && (typeof progress.total !== "number" || !Number.isFinite(progress.total) || progress.total <= 0 || progress.current > progress.total)) throw new InvalidEventError("Progress total must be positive and at least current.");
+}
+
+function assertArtifact(artifact: Record<string, unknown>) {
+  requiredString(artifact, "id");
+  requiredString(artifact, "title");
+  requiredString(artifact, "kind");
+  if (!Number.isInteger(artifact.version) || (artifact.version as number) < 1) throw new InvalidEventError("Artifact version must be a positive integer.");
+  if (artifact.status !== "streaming" && artifact.status !== "ready" && artifact.status !== "failed") throw new InvalidEventError("Artifact status is invalid.");
+  if (artifact.updatedAt !== undefined && (typeof artifact.updatedAt !== "number" || !Number.isFinite(artifact.updatedAt))) throw new InvalidEventError("Artifact updatedAt must be finite.");
+  if (artifact.error !== undefined && (typeof artifact.error !== "string" || artifact.error === "")) throw new InvalidEventError("Artifact error must be a non-empty string.");
+  if (artifact.review === undefined) return;
+  if (!artifact.review || typeof artifact.review !== "object") throw new InvalidEventError("Artifact review must be an object.");
+  const review = artifact.review as Record<string, unknown>;
+  if (!Number.isInteger(review.version) || (review.version as number) < 1 || (review.version as number) > (artifact.version as number)) {
+    throw new InvalidEventError("Artifact review version must be positive and cannot be newer than the artifact version.");
+  }
+  if (review.status !== "requested" && review.status !== "accepted" && review.status !== "changes-requested") throw new InvalidEventError("Artifact review status is invalid.");
+  if (typeof review.updatedAt !== "number" || !Number.isFinite(review.updatedAt)) throw new InvalidEventError("Artifact review updatedAt must be finite.");
+  if (review.comment !== undefined && (typeof review.comment !== "string" || review.comment.trim() === "")) throw new InvalidEventError("Artifact review comment must be a non-empty string when provided.");
 }

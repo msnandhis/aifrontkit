@@ -42,6 +42,12 @@ describe("component playground contract", () => {
     expect(messageJsx).not.toContain(": MessageModel[]");
     expect(messageJsx).toContain('onClick={() => onAction("copy")}');
     expect(messageJsx).toContain('data-aifk-theme="light"');
+
+    const artifactReview = playgroundDefinitions["artifact-review"];
+    const conflictCode = artifactReview.generateCode({ ...artifactReview.defaults, props: { ...artifactReview.defaults.props, scenario: "conflict" } });
+    expect(conflictCode).toContain('"version": 4');
+    expect(conflictCode).toContain('"version": 3');
+    expect(conflictCode).toContain("onRequestChanges");
   });
 
   it("distinguishes component tags, prop names, and literal values", () => {

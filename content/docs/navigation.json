@@ -52,7 +52,8 @@
         "primitives/tool-call.md",
         "primitives/task.md",
         "primitives/approval.md",
-        "primitives/connection.md"
+        "primitives/connection.md",
+        "primitives/artifact.md"
       ]
     },
     {
@@ -70,6 +71,7 @@
       "pages": [
         "patterns/agent-progress.md",
         "patterns/tool-approval.md",
+        "patterns/artifact-review.md",
         "patterns/research-agent.md"
       ]
     },

@@ -6,6 +6,7 @@ import { promptInputPlayground } from "./prompt-input.playground.js";
 import { toolCallPlayground } from "./tool-call.playground.js";
 import { agentProgressPlayground } from "./agent-progress.playground.js";
 import { toolApprovalPlayground } from "./tool-approval.playground.js";
+import { artifactReviewPlayground } from "./artifact-review.playground.js";
 import { researchAgentPlayground } from "./research-agent.playground.js";
 
 export const playgroundDefinitions: Record<ComponentName, AnyPlaygroundDefinition> = {
@@ -16,6 +17,7 @@ export const playgroundDefinitions: Record<ComponentName, AnyPlaygroundDefinitio
   "tool-call": toolCallPlayground as unknown as AnyPlaygroundDefinition,
   "agent-progress": agentProgressPlayground as unknown as AnyPlaygroundDefinition,
   "tool-approval": toolApprovalPlayground as unknown as AnyPlaygroundDefinition,
+  "artifact-review": artifactReviewPlayground as unknown as AnyPlaygroundDefinition,
   "research-agent": researchAgentPlayground as unknown as AnyPlaygroundDefinition,
 };
 

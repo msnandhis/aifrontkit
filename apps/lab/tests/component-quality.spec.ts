@@ -63,6 +63,7 @@ test("loads every declared scenario through the real registry fixture harness", 
       if (component === "file") await expect(frame.locator("[data-slot=file]")).toBeVisible();
       if (component === "agent-progress") await expect(frame.locator('[data-fixture-pattern="agent-progress"]')).toBeVisible();
       if (component === "tool-approval") await expect(frame.locator('[data-fixture-pattern="tool-approval"]')).toBeVisible();
+      if (component === "artifact-review") await expect(frame.locator('[data-fixture-pattern="artifact-review"]')).toBeVisible();
       if (component === "research-agent") await expect(frame.locator('[data-fixture-pattern="research-agent"]')).toBeVisible();
     }
   }
@@ -138,6 +139,66 @@ test("covers agent progress and approval decisions as interactive visual states"
   expect((await new AxeBuilder({ page }).include(".viewport-frame").analyze()).violations).toEqual([]);
 });
 
+test("reviews an artifact version with keyboard feedback and stale-version safety", async ({ page }) => {
+  const componentSwitcher = page.getByRole("group", { name: "Component" });
+  const fixtureNavigation = page.getByRole("complementary", { name: "Component fixtures" });
+  const frame = page.locator(".viewport-frame");
+
+  await componentSwitcher.getByRole("button", { name: /^Artifact review/ }).click();
+  await fixtureNavigation.getByRole("button", { name: /^Requested/ }).click();
+  const review = frame.locator('[data-fixture-pattern="artifact-review"]');
+  await expect(review.getByRole("heading", { name: "Runtime reconnect policy" })).toBeVisible();
+  await expect(review.getByText("Agent patch from reconnect task")).toBeVisible();
+  await review.getByRole("button", { name: "Accept version" }).click();
+  await expect(page.locator("[data-fixture-event]")).toContainText("onAccept(runtime-reconnect-patch@3)");
+  await expect(review.locator("[data-aifk-artifact]")).toHaveAttribute("data-review-status", "requested");
+
+  await review.getByRole("button", { name: "Request changes" }).click();
+  const feedback = review.getByRole("textbox", { name: "Feedback" });
+  await expect(feedback).toBeFocused();
+  await feedback.press("Escape");
+  await expect(review.getByRole("textbox", { name: "Feedback" })).toHaveCount(0);
+  await expect(review.getByRole("button", { name: "Request changes" })).toBeFocused();
+  await review.getByRole("button", { name: "Request changes" }).click();
+  await review.getByRole("button", { name: "Submit request" }).click();
+  await expect(review.getByRole("alert")).toContainText("Describe the changes needed");
+  await feedback.fill("Keep cancellation idempotent and cover the reconnect timeout.");
+  await feedback.press("Escape");
+  await expect(feedback).toHaveValue("Keep cancellation idempotent and cover the reconnect timeout.");
+  await feedback.press("Control+Enter");
+  await expect(page.locator("[data-fixture-event]")).toContainText("onRequestChanges(runtime-reconnect-patch@3");
+
+  await fixtureNavigation.getByRole("button", { name: /^Submitting/ }).click();
+  await expect(frame.getByText(/Submitting decision/)).toBeVisible();
+  await expect(frame.getByRole("button", { name: "Accept version" })).toBeDisabled();
+  await expect(frame.getByRole("button", { name: "Request changes" })).toBeDisabled();
+
+  await fixtureNavigation.getByRole("button", { name: /^Empty/ }).click();
+  await expect(frame.getByText("No reviewable changes", { exact: true })).toBeVisible();
+  await expect(frame.getByRole("table")).toHaveCount(0);
+
+  await fixtureNavigation.getByRole("button", { name: /^Conflict/ }).click();
+  await expect(frame.getByRole("alert")).toContainText("Newer version available");
+  await expect(frame.getByRole("button", { name: "Accept version" })).toHaveCount(0);
+  await frame.getByRole("button", { name: "Review latest" }).click();
+  await expect(page.locator("[data-fixture-event]")).toContainText("onReviewLatest(runtime-reconnect-patch)");
+
+  await fixtureNavigation.getByRole("button", { name: /^Offline/ }).click();
+  await expect(frame.getByRole("textbox", { name: "Feedback" })).toHaveValue("Please keep the reconnect timeout configurable.");
+  await expect(frame.getByRole("button", { name: "Submit request" })).toBeDisabled();
+  await frame.getByRole("button", { name: "Retry connection" }).click();
+  await expect(page.locator("[data-fixture-event]")).toContainText("onRetry()");
+  await page.getByRole("group", { name: "Preview viewport" }).getByRole("button", { name: "375" }).click();
+  await page.getByRole("group", { name: "Theme" }).getByRole("button", { name: "Dark" }).click();
+  expect(await frame.evaluate((element) => element.scrollWidth <= element.clientWidth + 1)).toBe(true);
+  const actionBox = await frame.getByRole("button", { name: "Submit request" }).boundingBox();
+  expect(actionBox?.height ?? 0).toBeGreaterThanOrEqual(44);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const transitionDuration = await frame.getByRole("button", { name: "Submit request" }).evaluate((element) => Number.parseFloat(getComputedStyle(element).transitionDuration));
+  expect(transitionDuration).toBeLessThanOrEqual(0.001);
+  expect((await new AxeBuilder({ page }).include('[data-fixture-pattern="artifact-review"]').analyze()).violations).toEqual([]);
+});
+
 test("keeps pattern visual contracts portable across themes and narrow layouts", async ({ page }) => {
   const componentSwitcher = page.getByRole("group", { name: "Component" });
   const fixtureNavigation = page.getByRole("complementary", { name: "Component fixtures" });
@@ -186,6 +247,25 @@ test("captures reviewed agent and approval pattern baselines", async ({ page }) 
   await viewport.getByRole("button", { name: "375" }).click();
   await fixtureNavigation.getByRole("button", { name: /^Expired/ }).click();
   await expect(frame).toHaveScreenshot("tool-approval-expired-dark-375.webp");
+});
+
+test("captures reviewed artifact review baselines", async ({ page }) => {
+  const componentSwitcher = page.getByRole("group", { name: "Component" });
+  const fixtureNavigation = page.getByRole("complementary", { name: "Component fixtures" });
+  const frame = page.locator(".viewport-frame");
+  const theme = page.getByRole("group", { name: "Theme" });
+  const viewport = page.getByRole("group", { name: "Preview viewport" });
+
+  await componentSwitcher.getByRole("button", { name: /^Artifact review/ }).click();
+  await viewport.getByRole("button", { name: "768" }).click();
+  await fixtureNavigation.getByRole("button", { name: /^Requested/ }).click();
+  await expect(frame).toHaveScreenshot("artifact-review-requested-light.webp");
+  await theme.getByRole("button", { name: "Dark" }).click();
+  await fixtureNavigation.getByRole("button", { name: /^Accepted/ }).click();
+  await expect(frame).toHaveScreenshot("artifact-review-accepted-dark.webp");
+  await viewport.getByRole("button", { name: "375" }).click();
+  await fixtureNavigation.getByRole("button", { name: /^Conflict/ }).click();
+  await expect(frame).toHaveScreenshot("artifact-review-conflict-dark-375.webp");
 });
 
 test("exercises prompt input keyboard, pending, and rejection semantics", async ({ page }) => {

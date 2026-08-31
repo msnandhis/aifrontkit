@@ -21,7 +21,8 @@
     "./tool": { "types": "./dist/tool/index.d.ts", "import": "./dist/tool/index.js" },
     "./task": { "types": "./dist/task/index.d.ts", "import": "./dist/task/index.js" },
     "./approval": { "types": "./dist/approval/index.d.ts", "import": "./dist/approval/index.js" },
-    "./connection": { "types": "./dist/connection/index.d.ts", "import": "./dist/connection/index.js" }
+    "./connection": { "types": "./dist/connection/index.d.ts", "import": "./dist/connection/index.js" },
+    "./artifact": { "types": "./dist/artifact/index.d.ts", "import": "./dist/artifact/index.js" }
   },
   "scripts": {
     "prebuild": "node ../../scripts/clean-package-dist.mjs",

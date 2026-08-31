@@ -2,6 +2,7 @@ import { readFile, readdir, stat } from "node:fs/promises";
 import { basename, dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
+import { formatPatternQualityReport, validatePatternRegistry } from "./pattern-quality.mjs";
 
 const toolingDirectory = dirname(fileURLToPath(import.meta.url));
 const defaultRepositoryRoot = resolve(toolingDirectory, "../..");
@@ -458,8 +459,16 @@ async function main() {
     registryRoot,
     minimumScore,
   });
-  console.log(jsonOutput ? JSON.stringify(report, null, 2) : formatQualityReport(report));
-  if (report.summary.failed > 0 || report.summary.components === 0) process.exitCode = 1;
+  const patternReport = await validatePatternRegistry({ repositoryRoot: defaultRepositoryRoot });
+  console.log(jsonOutput
+    ? JSON.stringify({ ...report, patternQuality: patternReport }, null, 2)
+    : `${formatQualityReport(report)}\n${formatPatternQualityReport(patternReport)}`);
+  if (
+    report.summary.failed > 0
+    || report.summary.components === 0
+    || patternReport.summary.failed > 0
+    || patternReport.summary.patterns === 0
+  ) process.exitCode = 1;
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

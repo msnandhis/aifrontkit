@@ -193,8 +193,18 @@ export function reduceEvent(state: RuntimeState, input: AIFrontEvent): RuntimeSt
       if (!approval) throw new Error(`Cannot resolve unknown approval ${event.approvalId}.`);
       return { ...state, processedEventIds, approvals: { ...state.approvals, [event.approvalId]: { ...approval, status: event.resolution } } };
     }
-    case "artifact.updated":
-      return { ...state, processedEventIds, artifacts: { ...state.artifacts, [event.artifact.id]: event.artifact } };
+    case "artifact.updated": {
+      const existing = state.artifacts[event.artifact.id];
+      const artifact = { ...event.artifact, updatedAt: event.artifact.updatedAt ?? event.timestamp };
+      // Versions are authoritative. Within one version, a later updatedAt wins
+      // and an exact timestamp tie retains the snapshot already accepted.
+      if (existing && artifact.version < existing.version) return { ...state, processedEventIds };
+      if (existing && artifact.version === existing.version) {
+        const existingUpdatedAt = existing.updatedAt ?? 0;
+        if (artifact.updatedAt <= existingUpdatedAt) return { ...state, processedEventIds };
+      }
+      return { ...state, processedEventIds, artifacts: { ...state.artifacts, [artifact.id]: artifact } };
+    }
     case "task.started": {
       const existing = state.tasks[event.taskId];
       const task: AgentTask = existing ?? {

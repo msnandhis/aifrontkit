@@ -13,6 +13,7 @@ export default defineConfig({
       { find: "@aifrontkit/react/tool", replacement: fileURLToPath(new URL("../../packages/react/dist/tool/index.js", import.meta.url)) },
       { find: "@aifrontkit/react/task", replacement: fileURLToPath(new URL("../../packages/react/dist/task/index.js", import.meta.url)) },
       { find: "@aifrontkit/react/approval", replacement: fileURLToPath(new URL("../../packages/react/dist/approval/index.js", import.meta.url)) },
+      { find: "@aifrontkit/react/artifact", replacement: fileURLToPath(new URL("../../packages/react/dist/artifact/index.js", import.meta.url)) },
       { find: /^@aifrontkit\/react$/, replacement: fileURLToPath(new URL("../../packages/react/dist/index.js", import.meta.url)) },
       { find: /^@aifrontkit\/core$/, replacement: fileURLToPath(new URL("../../packages/core/dist/index.js", import.meta.url)) },
       { find: /^@aifrontkit\/testing$/, replacement: fileURLToPath(new URL("../../packages/testing/dist/index.js", import.meta.url)) }

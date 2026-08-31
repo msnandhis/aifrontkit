@@ -124,6 +124,19 @@ export interface Approval {
   status: "requested" | "approved" | "rejected" | "expired";
 }
 
+export type ArtifactReviewStatus = "requested" | "accepted" | "changes-requested";
+
+/**
+ * The review state for one exact artifact version. A review must never be
+ * carried forward implicitly when a new version of the artifact arrives.
+ */
+export interface ArtifactReview {
+  version: number;
+  status: ArtifactReviewStatus;
+  updatedAt: number;
+  comment?: string;
+}
+
 export interface Artifact {
   id: string;
   title: string;
@@ -131,6 +144,10 @@ export interface Artifact {
   version: number;
   status: "streaming" | "ready" | "failed";
   content?: unknown;
+  /** Optional so persisted v1 artifact snapshots remain source-compatible. */
+  updatedAt?: number;
+  error?: string;
+  review?: ArtifactReview;
 }
 
 export interface TaskProgress {

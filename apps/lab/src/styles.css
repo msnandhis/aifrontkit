@@ -74,7 +74,7 @@ svg { display: block; fill: none; stroke: currentColor; stroke-linecap: round; s
 .component-switcher button { display: inline-flex; align-items: center; gap: 0.3rem; min-height: 1.9rem; padding: 0 0.55rem; border: 0; border-radius: 0.35rem; color: var(--lab-muted); background: transparent; font-size: 0.6875rem; font-weight: 600; cursor: pointer; }
 .component-switcher button:hover { color: var(--lab-text); background: var(--lab-subtle); }
 .component-switcher button[aria-pressed="true"] { color: var(--lab-text); background: var(--lab-subtle); box-shadow: 0 1px 2px rgb(0 0 0 / 7%); }
-.component-switcher small { color: var(--lab-warning); font-size: 0.5625rem; font-weight: 650; text-transform: uppercase; }
+.component-switcher small { display: inline-block; flex: 0 0 auto; inline-size: 0.35rem; block-size: 0.35rem; overflow: hidden; color: transparent; background: var(--lab-warning); border-radius: 50%; font-size: 0; }
 .reset-button { display: inline-flex; align-items: center; justify-content: center; justify-self: end; gap: 0.4rem; min-height: 2rem; margin-inline-end: 1rem; padding: 0 0.7rem; border: 1px solid var(--lab-border); border-radius: 0.45rem; color: var(--lab-muted); background: var(--lab-panel); font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: color 140ms ease, border-color 140ms ease, background-color 140ms ease; }
 .reset-button:hover { color: var(--lab-text); border-color: var(--lab-border-strong); background: var(--lab-subtle); }
 
@@ -135,6 +135,7 @@ svg { display: block; fill: none; stroke: currentColor; stroke-linecap: round; s
 .registry-fixture-preview [data-fixture-context] { display: inline-flex; max-inline-size: 100%; padding: 0.35rem 0.6rem; border: 1px solid var(--aifk-border, ButtonBorder); border-radius: var(--aifk-radius-pill, 999px); color: var(--aifk-text-muted, GrayText); font-size: 0.75rem; overflow-wrap: anywhere; }
 .registry-fixture-preview [data-fixture-submit-count] { display: block; min-block-size: 1.25rem; margin-block-start: 0.5rem; color: var(--aifk-text-muted, GrayText); font-size: 0.75rem; }
 .registry-fixture-preview [data-fixture-pattern] { inline-size: min(100%, 36rem); }
+.registry-fixture-preview [data-fixture-pattern="artifact-review"] { inline-size: min(100%, 68rem); }
 .aifk-tool-approval-fixture > [data-aifk-approval] { display: grid; grid-template-columns: 1fr auto auto; gap: 0.75rem; align-items: center; padding: 1.25rem; color: var(--aifk-text); background: var(--aifk-surface); border: 1px solid var(--aifk-border); border-radius: var(--aifk-radius-large); }
 .aifk-tool-approval-fixture :is(h2, h3, h4), .aifk-tool-approval-fixture [data-slot="approval-summary"], .aifk-tool-approval-fixture dl, .aifk-tool-approval-fixture p { grid-column: 1 / -1; }
 .aifk-tool-approval-fixture :is(h2, h3, h4), .aifk-tool-approval-fixture p { margin: 0; }

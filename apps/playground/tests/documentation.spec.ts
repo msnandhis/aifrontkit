@@ -47,7 +47,7 @@ test("renders every current component through a typed interactive playground", a
     await expect(page.getByRole("combobox", { name: "Scenario" })).toBeVisible();
   }
 
-  const patterns = ["agent-progress", "tool-approval", "research-agent"] as const;
+  const patterns = ["agent-progress", "tool-approval", "artifact-review", "research-agent"] as const;
   for (const pattern of patterns) {
     await page.goto(`/docs/patterns/${pattern}`);
     await expect(page.locator(".component-playground")).toBeVisible();
@@ -161,6 +161,33 @@ test("walks the flagship pattern through approval, offline recovery and completi
   await expect(page.getByRole("status").filter({ hasText: "Complete" }).first()).toBeVisible();
   await expect(page.getByText("market-signal-brief.pdf")).toBeVisible();
   await expect(page.getByRole("heading", { level: 3, name: "Sources" })).toBeVisible();
+});
+
+test("reviews an artifact with feedback, conflict safety and offline recovery", async ({ page }) => {
+  await page.goto("/docs/patterns/artifact-review");
+  await expect(page.getByRole("heading", { level: 2, name: "Runtime reconnect policy" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Request changes" }).click();
+  const feedback = page.getByRole("textbox", { name: "Feedback" });
+  await expect(feedback).toBeFocused();
+  await feedback.fill("Clarify the retry behavior before approval.");
+  await feedback.press(process.platform === "darwin" ? "Meta+Enter" : "Control+Enter");
+  await expect(page.getByRole("status").filter({ hasText: "onRequestChanges" })).toBeVisible();
+
+  await page.getByRole("combobox", { name: "Scenario" }).selectOption("conflict");
+  await expect(page.getByRole("alert")).toContainText("Newer version");
+  await expect(page.getByRole("button", { name: "Accept version" })).toHaveCount(0);
+  await page.getByRole("button", { name: "Review latest" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "onReviewLatest" })).toBeVisible();
+
+  await page.getByRole("combobox", { name: "Scenario" }).selectOption("offline");
+  await expect(page.getByRole("textbox", { name: "Feedback" })).toHaveValue("Clarify the retry behavior before approval.");
+  await expect(page.getByRole("button", { name: "Submit request" })).toBeDisabled();
+  await page.getByRole("button", { name: "Retry connection" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "onRetry" })).toBeVisible();
+
+  await page.setViewportSize({ width: 375, height: 812 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
 });
 
 test("keeps the mobile shell usable and bounded", async ({ page }) => {
