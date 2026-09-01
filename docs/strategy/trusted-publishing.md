@@ -23,7 +23,7 @@ mirrored independently of npm.
 Configure each public npm package with these GitHub Actions values:
 
 - Organization or user: `msnandhis`
-- Repository: `openfrontkit`
+- Repository: `aifrontkit`
 - Workflow filename: `npm-preview-release.yml`
 - Environment: `npm`
 

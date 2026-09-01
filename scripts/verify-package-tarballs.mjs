@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 
 const repositoryRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 const packagesRoot = join(repositoryRoot, "packages");
-const expectedRepository = "git+https://github.com/msnandhis/openfrontkit.git";
+const expectedRepository = "git+https://github.com/msnandhis/aifrontkit.git";
 
 function collectTargets(value) {
   if (typeof value === "string") return [value];
@@ -27,11 +27,14 @@ for (const packageDirectory of packageDirectories) {
   if (manifest.private) continue;
 
   const label = `${manifest.name}@${manifest.version}`;
+  requireCondition(typeof manifest.description === "string" && manifest.description.length >= 40, `${label} must declare a useful package description.`);
+  requireCondition(Array.isArray(manifest.keywords) && manifest.keywords.length >= 5, `${label} must declare focused npm discovery keywords.`);
+  requireCondition(new Set(manifest.keywords).size === manifest.keywords.length, `${label} npm discovery keywords must be unique.`);
   requireCondition(manifest.license === "Apache-2.0", `${label} must declare Apache-2.0.`);
   requireCondition(manifest.repository?.url === expectedRepository, `${label} must declare the canonical GitHub repository.`);
   requireCondition(manifest.repository?.directory === relative(repositoryRoot, packageDirectory), `${label} must declare its monorepo directory.`);
-  requireCondition(manifest.homepage === "https://github.com/msnandhis/openfrontkit#readme", `${label} must declare the canonical homepage.`);
-  requireCondition(manifest.bugs?.url === "https://github.com/msnandhis/openfrontkit/issues", `${label} must declare the canonical issue tracker.`);
+  requireCondition(manifest.homepage === "https://github.com/msnandhis/aifrontkit#readme", `${label} must declare the canonical homepage.`);
+  requireCondition(manifest.bugs?.url === "https://github.com/msnandhis/aifrontkit/issues", `${label} must declare the canonical issue tracker.`);
   requireCondition(manifest.engines?.node === ">=22", `${label} must declare the supported Node.js range.`);
   requireCondition(manifest.publishConfig?.access === "public", `${label} must publish with public access.`);
   requireCondition(manifest.publishConfig?.provenance === true, `${label} must request npm provenance.`);
