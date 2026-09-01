@@ -69,7 +69,7 @@ jobs:
           NPM_BOOTSTRAP_TOKEN: ${{ secrets.NPM_BOOTSTRAP_TOKEN }}
         run: test -n "$NPM_BOOTSTRAP_TOKEN"
       - name: Publish preview packages
-        run: pnpm exec changeset publish --tag next
+        run: pnpm exec changeset publish
         env:
           NPM_CONFIG_PROVENANCE: true
           NODE_AUTH_TOKEN: ${{ inputs.bootstrap && secrets.NPM_BOOTSTRAP_TOKEN || '' }}
