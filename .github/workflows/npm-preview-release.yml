@@ -8,11 +8,6 @@ on:
         required: true
         type: boolean
         default: false
-      bootstrap:
-        description: Use the one-time npm bootstrap token before trusted publishers exist
-        required: true
-        type: boolean
-        default: false
 
 permissions:
   contents: read
@@ -63,13 +58,7 @@ jobs:
         run: node -e 'const pre = require("./.changeset/pre.json"); if (pre.mode !== "pre" || pre.tag !== "next") process.exit(1)'
       - name: Build and verify publish artifacts
         run: pnpm build && pnpm packages:pack
-      - name: Confirm one-time bootstrap credential
-        if: inputs.bootstrap
-        env:
-          NPM_BOOTSTRAP_TOKEN: ${{ secrets.NPM_BOOTSTRAP_TOKEN }}
-        run: test -n "$NPM_BOOTSTRAP_TOKEN"
       - name: Publish preview packages
         run: pnpm release:publish:preview
         env:
           NPM_CONFIG_PROVENANCE: true
-          NODE_AUTH_TOKEN: ${{ inputs.bootstrap && secrets.NPM_BOOTSTRAP_TOKEN || '' }}
