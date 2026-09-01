@@ -1,5 +1,11 @@
 # aifrontkit
 
+## 0.2.0-next.3
+
+### Patch Changes
+
+- 7208ad8: Point package metadata at the canonical AIFrontKit repository and improve factual npm discovery content.
+
 ## 0.2.0-next.2
 
 ### Patch Changes

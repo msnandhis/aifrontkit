@@ -27,6 +27,7 @@
     "preview-release-readiness",
     "prove-oidc-provenance",
     "quiet-responses-stop",
+    "rename-repository-discovery",
     "resumable-agent-checkpoints",
     "tailwind-pattern-parity"
   ]

@@ -1,19 +1,43 @@
 {
   "name": "@aifrontkit/react",
-  "version": "0.2.0-next.2",
+  "version": "0.2.0-next.3",
   "description": "React providers, hooks, and headless primitives for AIFrontKit",
   "type": "module",
   "sideEffects": [
     "./dist/theme.css"
   ],
   "license": "Apache-2.0",
-  "repository": { "type": "git", "url": "git+https://github.com/msnandhis/aifrontkit.git", "directory": "packages/react" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/msnandhis/aifrontkit.git",
+    "directory": "packages/react"
+  },
   "homepage": "https://github.com/msnandhis/aifrontkit#readme",
-  "bugs": { "url": "https://github.com/msnandhis/aifrontkit/issues" },
-  "keywords": ["react", "ai", "ai-ui", "agent-ui", "chat-ui", "headless-ui", "ui-primitives", "accessibility", "design-system", "streaming"],
-  "engines": { "node": ">=22" },
-  "publishConfig": { "access": "public", "provenance": true },
-  "files": ["dist"],
+  "bugs": {
+    "url": "https://github.com/msnandhis/aifrontkit/issues"
+  },
+  "keywords": [
+    "react",
+    "ai",
+    "ai-ui",
+    "agent-ui",
+    "chat-ui",
+    "headless-ui",
+    "ui-primitives",
+    "accessibility",
+    "design-system",
+    "streaming"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "files": [
+    "dist"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
