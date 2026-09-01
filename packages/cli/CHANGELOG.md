@@ -1,5 +1,11 @@
 # aifrontkit
 
+## 0.2.0-next.2
+
+### Patch Changes
+
+- f9dfecc: Publish a credential-free preview through npm trusted publishing so every maintained package carries provenance attestations.
+
 ## 0.2.0-next.1
 
 ### Minor Changes

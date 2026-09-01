@@ -25,6 +25,7 @@
     "clean-source-contracts",
     "consolidate-public-packages",
     "preview-release-readiness",
+    "prove-oidc-provenance",
     "quiet-responses-stop",
     "resumable-agent-checkpoints",
     "tailwind-pattern-parity"
