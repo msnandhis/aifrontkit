@@ -6,7 +6,7 @@ status: experimental
 
 # AI SDK adapter
 
-`@aifrontkit/ai-sdk` is useful only when a backend already emits the Vercel AI SDK
+`@aifrontkit/adapters/ai-sdk` is useful only when a backend already emits the Vercel AI SDK
 UI stream format. It translates supported stream parts into normalized AIFrontKit
 events so the same runtime and UI work without protocol-aware components.
 

@@ -47,29 +47,27 @@ Performance comes primarily from boundaries and data flow, not the source langua
 
 ## Package loading model
 
-The essential path stays small:
+The four-package public surface stays small:
 
 ```text
-@aifrontkit/schema
 @aifrontkit/core
 @aifrontkit/react
-@aifrontkit/primitives
-@aifrontkit/themes
+aifrontkit
 ```
 
-Heavy or specialized capabilities stay optional and lazy:
+Provider-specific capabilities stay optional through subpath exports:
 
 ```text
-@aifrontkit/artifacts
-@aifrontkit/code
-@aifrontkit/media
-@aifrontkit/adapter-*
+@aifrontkit/adapters/ai-sdk
+@aifrontkit/adapters/ag-ui
+@aifrontkit/adapters/langgraph
+@aifrontkit/adapters/external-store
 ```
 
 The Node.js CLI is independently installed or invoked and never enters browser bundles:
 
 ```text
-@aifrontkit/cli
+aifrontkit
 ```
 
 After core contracts stabilize, framework-neutral embedding is added as:
@@ -101,4 +99,3 @@ The target browser/device profile, exact bundle composition, fixture, run count,
 - Profile state reduction, subscriptions, framework rendering, parsing/sanitization, media, and memory independently.
 - Prefer representative low-end-device throttling and sustained streams over microbenchmarks alone.
 - Preserve security, accessibility, correctness, and deterministic recovery while optimizing.
-

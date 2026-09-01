@@ -30,7 +30,7 @@
     "performance:test": "node --test tooling/performance/*.test.mjs",
     "quality:validate": "node tooling/quality/component-quality.mjs",
     "quality:test": "node --test tooling/quality/*.test.mjs",
-    "quality:browser": "pnpm --filter @aifrontkit/core build && pnpm --filter @aifrontkit/tokens build && pnpm --filter @aifrontkit/react build && pnpm --filter @aifrontkit/testing build && playwright test --config apps/lab/playwright.config.ts",
+    "quality:browser": "pnpm --filter @aifrontkit/core build && pnpm --filter @aifrontkit/react build && playwright test --config apps/lab/playwright.config.ts",
     "docs:browser": "playwright test --config apps/playground/playwright.config.ts",
     "check:browser": "pnpm quality:browser && pnpm docs:browser",
     "release:check": "pnpm check && pnpm packages:consumer && pnpm check:browser",

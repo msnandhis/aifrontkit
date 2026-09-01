@@ -11,7 +11,9 @@ import {
   toCssVariables,
   type ResolvedTheme,
   type ThemeConfig
-} from "@aifrontkit/tokens";
+} from "./tokens.js";
+
+export * from "./tokens.js";
 
 export type ThemeInput = ThemeConfig | ResolvedTheme;
 

@@ -12,8 +12,6 @@
   "dependencies": {
     "@aifrontkit/core": "workspace:^",
     "@aifrontkit/react": "workspace:^",
-    "@aifrontkit/testing": "workspace:^",
-    "@aifrontkit/tokens": "workspace:^",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },

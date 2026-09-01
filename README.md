@@ -4,7 +4,7 @@ Public, backend-neutral frontend infrastructure for production AI interfaces.
 
 AIFrontKit separates stable behavior from source-owned design:
 
-- npm packages provide a framework-neutral event/runtime core, React primitives, adapters, tokens, and test fixtures;
+- four npm packages provide the CLI, framework-neutral core, React primitives and optional adapters;
 - the community registry provides editable UI source, patterns, and themes;
 - no account, license key, hosted service, or AIFrontKit platform call is required at application runtime.
 
@@ -16,12 +16,9 @@ synchronized.
 
 ```text
 packages/
-  core/               normalized model, event contract, reducer, runtime, schema versions
-  react/              providers, hooks, and accessible behavioral primitives
-  ai-sdk/             optional Vercel AI SDK event translator
-  ag-ui/              optional AG-UI event translator
-  tokens/             semantic design-token contract and CSS variables
-  testing/            deterministic fixtures and compatibility helpers
+  core/               normalized contracts, runtime, schemas and test helpers
+  react/              providers, primitives, semantic themes and CSS variables
+  adapters/           AI SDK, AG-UI, LangGraph and external-store boundaries
   cli/                source installer, aliases, provenance, and diffs
 registry/
   react/css/          default React implementation with CSS Modules

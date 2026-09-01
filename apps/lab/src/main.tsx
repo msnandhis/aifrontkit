@@ -1,8 +1,8 @@
 import { StrictMode, useMemo, useState, type ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 import { ThemeProvider } from "@aifrontkit/react";
-import type { Density, MotionLevel, Radius, ThemeMode } from "@aifrontkit/tokens";
-import "@aifrontkit/tokens/css";
+import type { Density, MotionLevel, Radius, ThemeMode } from "@aifrontkit/react/theme";
+import "@aifrontkit/react/theme.css";
 import { File as CssFile } from "../../../registry/react/css/components/file/file.js";
 import { File as TailwindFile } from "../../../registry/react/tailwind/components/file/file.js";
 import { componentFixtureContracts, componentFixtureMap, renderRegistryFixture, type LabComponentId } from "./component-fixtures.js";

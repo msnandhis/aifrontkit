@@ -4,7 +4,7 @@ import {
   type PlaygroundEnvironment,
   type PlaygroundRecord,
   type PlaygroundState,
-} from "@aifrontkit/testing";
+} from "@aifrontkit/core/testing";
 import { exampleEnvironmentControlsFor, exampleEnvironmentDefaults, quote } from "../../examples/shared.js";
 import { PromptInput } from "./prompt-input.js";
 

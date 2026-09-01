@@ -21,9 +21,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm --filter @aifrontkit/core build
-      - run: pnpm --filter @aifrontkit/tokens build
       - run: pnpm --filter @aifrontkit/react build
-      - run: pnpm --filter @aifrontkit/testing build
       - run: pnpm exec playwright test --config apps/lab/playwright.config.ts --update-snapshots
       - name: Upload reviewed baseline candidates
         if: always()

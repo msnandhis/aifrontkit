@@ -5,11 +5,8 @@ import { fileURLToPath } from "node:url";
 const root = fileURLToPath(new URL("../", import.meta.url));
 const allowed = {
   core: new Set(),
-  react: new Set(["@aifrontkit/core", "@aifrontkit/tokens"]),
-  "ai-sdk": new Set(["@aifrontkit/core"]),
-  "ag-ui": new Set(["@aifrontkit/core"]),
-  tokens: new Set(),
-  testing: new Set(["@aifrontkit/core"]),
+  react: new Set(["@aifrontkit/core"]),
+  adapters: new Set(["@aifrontkit/core"]),
   cli: new Set()
 };
 const failures = [];

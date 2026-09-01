@@ -50,12 +50,6 @@ importers:
       '@aifrontkit/react':
         specifier: workspace:^
         version: link:../../packages/react
-      '@aifrontkit/testing':
-        specifier: workspace:^
-        version: link:../../packages/testing
-      '@aifrontkit/tokens':
-        specifier: workspace:^
-        version: link:../../packages/tokens
       react:
         specifier: ^19.1.1
         version: 19.2.8
@@ -102,12 +96,6 @@ importers:
       '@aifrontkit/react':
         specifier: workspace:^
         version: link:../../packages/react
-      '@aifrontkit/testing':
-        specifier: workspace:^
-        version: link:../../packages/testing
-      '@aifrontkit/tokens':
-        specifier: workspace:^
-        version: link:../../packages/tokens
       '@mdx-js/react':
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.2.18)(react@19.2.8)
@@ -304,20 +292,7 @@ importers:
         specifier: ^7.1.3
         version: 7.3.6(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.33.0)(yaml@2.9.0)
 
-  packages/ag-ui:
-    dependencies:
-      '@aifrontkit/core':
-        specifier: workspace:^
-        version: link:../core
-    devDependencies:
-      typescript:
-        specifier: ^5.9.2
-        version: 5.9.3
-      vitest:
-        specifier: ^3.2.4
-        version: 3.2.7(@types/debug@4.1.13)(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.33.0)(yaml@2.9.0)
-
-  packages/ai-sdk:
+  packages/adapters:
     dependencies:
       '@aifrontkit/core':
         specifier: workspace:^
@@ -356,9 +331,6 @@ importers:
       '@aifrontkit/core':
         specifier: workspace:^
         version: link:../core
-      '@aifrontkit/tokens':
-        specifier: workspace:^
-        version: link:../tokens
     devDependencies:
       '@types/react':
         specifier: ^19.1.12
@@ -372,28 +344,6 @@ importers:
       react-dom:
         specifier: ^19.1.1
         version: 19.2.8(react@19.2.8)
-      typescript:
-        specifier: ^5.9.2
-        version: 5.9.3
-      vitest:
-        specifier: ^3.2.4
-        version: 3.2.7(@types/debug@4.1.13)(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.33.0)(yaml@2.9.0)
-
-  packages/testing:
-    dependencies:
-      '@aifrontkit/core':
-        specifier: workspace:^
-        version: link:../core
-    devDependencies:
-      typescript:
-        specifier: ^5.9.2
-        version: 5.9.3
-      vitest:
-        specifier: ^3.2.4
-        version: 3.2.7(@types/debug@4.1.13)(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.33.0)(yaml@2.9.0)
-
-  packages/tokens:
-    devDependencies:
       typescript:
         specifier: ^5.9.2
         version: 5.9.3
