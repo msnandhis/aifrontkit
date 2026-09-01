@@ -1,5 +1,14 @@
 # @aifrontkit/core
 
+## 0.2.0-next.1
+
+### Minor Changes
+
+- 3c21447: Consolidate the public surface into four maintained packages. Move provider
+  integrations behind adapter subpaths, semantic themes into React and
+  deterministic test helpers into core while preserving focused tree-shakeable
+  exports and documenting preview migration paths.
+
 ## 0.2.0-next.0
 
 ### Minor Changes

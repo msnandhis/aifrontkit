@@ -15,13 +15,15 @@
     "@aifrontkit/core": "0.1.0",
     "@aifrontkit/react": "0.1.0",
     "@aifrontkit/testing": "0.1.0",
-    "@aifrontkit/tokens": "0.1.0"
+    "@aifrontkit/tokens": "0.1.0",
+    "@aifrontkit/adapters": "0.1.0"
   },
   "changesets": [
     "agent-task-contracts",
     "artifact-review",
     "attachment-recovery",
     "clean-source-contracts",
+    "consolidate-public-packages",
     "preview-release-readiness",
     "quiet-responses-stop",
     "resumable-agent-checkpoints",

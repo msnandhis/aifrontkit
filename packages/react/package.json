@@ -1,31 +1,85 @@
 {
   "name": "@aifrontkit/react",
-  "version": "0.2.0-next.0",
+  "version": "0.2.0-next.1",
   "description": "React providers, hooks, and headless primitives for AIFrontKit",
   "type": "module",
-  "sideEffects": ["./dist/theme.css"],
+  "sideEffects": [
+    "./dist/theme.css"
+  ],
   "license": "Apache-2.0",
-  "repository": { "type": "git", "url": "git+https://github.com/msnandhis/openfrontkit.git", "directory": "packages/react" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/msnandhis/openfrontkit.git",
+    "directory": "packages/react"
+  },
   "homepage": "https://github.com/msnandhis/openfrontkit#readme",
-  "bugs": { "url": "https://github.com/msnandhis/openfrontkit/issues" },
-  "engines": { "node": ">=22" },
-  "publishConfig": { "access": "public", "provenance": true },
-  "files": ["dist"],
+  "bugs": {
+    "url": "https://github.com/msnandhis/openfrontkit/issues"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "files": [
+    "dist"
+  ],
   "exports": {
-    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
-    "./runtime": { "types": "./dist/runtime/index.d.ts", "import": "./dist/runtime/index.js" },
-    "./theme": { "types": "./dist/theme/index.d.ts", "import": "./dist/theme/index.js" },
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./runtime": {
+      "types": "./dist/runtime/index.d.ts",
+      "import": "./dist/runtime/index.js"
+    },
+    "./theme": {
+      "types": "./dist/theme/index.d.ts",
+      "import": "./dist/theme/index.js"
+    },
     "./theme.css": "./dist/theme.css",
-    "./conversation": { "types": "./dist/conversation/index.d.ts", "import": "./dist/conversation/index.js" },
-    "./message": { "types": "./dist/message/index.d.ts", "import": "./dist/message/index.js" },
-    "./composer": { "types": "./dist/composer/index.d.ts", "import": "./dist/composer/index.js" },
-    "./tool": { "types": "./dist/tool/index.d.ts", "import": "./dist/tool/index.js" },
-    "./task": { "types": "./dist/task/index.d.ts", "import": "./dist/task/index.js" },
-    "./approval": { "types": "./dist/approval/index.d.ts", "import": "./dist/approval/index.js" },
-    "./connection": { "types": "./dist/connection/index.d.ts", "import": "./dist/connection/index.js" },
-    "./artifact": { "types": "./dist/artifact/index.d.ts", "import": "./dist/artifact/index.js" },
-    "./attachment": { "types": "./dist/attachment/index.d.ts", "import": "./dist/attachment/index.js" },
-    "./checkpoint": { "types": "./dist/checkpoint/index.d.ts", "import": "./dist/checkpoint/index.js" }
+    "./conversation": {
+      "types": "./dist/conversation/index.d.ts",
+      "import": "./dist/conversation/index.js"
+    },
+    "./message": {
+      "types": "./dist/message/index.d.ts",
+      "import": "./dist/message/index.js"
+    },
+    "./composer": {
+      "types": "./dist/composer/index.d.ts",
+      "import": "./dist/composer/index.js"
+    },
+    "./tool": {
+      "types": "./dist/tool/index.d.ts",
+      "import": "./dist/tool/index.js"
+    },
+    "./task": {
+      "types": "./dist/task/index.d.ts",
+      "import": "./dist/task/index.js"
+    },
+    "./approval": {
+      "types": "./dist/approval/index.d.ts",
+      "import": "./dist/approval/index.js"
+    },
+    "./connection": {
+      "types": "./dist/connection/index.d.ts",
+      "import": "./dist/connection/index.js"
+    },
+    "./artifact": {
+      "types": "./dist/artifact/index.d.ts",
+      "import": "./dist/artifact/index.js"
+    },
+    "./attachment": {
+      "types": "./dist/attachment/index.d.ts",
+      "import": "./dist/attachment/index.js"
+    },
+    "./checkpoint": {
+      "types": "./dist/checkpoint/index.d.ts",
+      "import": "./dist/checkpoint/index.js"
+    }
   },
   "scripts": {
     "prebuild": "node ../../scripts/clean-package-dist.mjs",
@@ -37,7 +91,10 @@
   "dependencies": {
     "@aifrontkit/core": "workspace:^"
   },
-  "peerDependencies": { "react": ">=18.3 <20", "react-dom": ">=18.3 <20" },
+  "peerDependencies": {
+    "react": ">=18.3 <20",
+    "react-dom": ">=18.3 <20"
+  },
   "devDependencies": {
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",
