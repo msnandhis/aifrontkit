@@ -9,7 +9,7 @@ on:
         type: boolean
         default: false
       normalize_preview_tags:
-        description: Move maintained prereleases to next and remove prereleases from latest
+        description: Point next at the maintained prerelease versions
         required: true
         type: boolean
         default: false
