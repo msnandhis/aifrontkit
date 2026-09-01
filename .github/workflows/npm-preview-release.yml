@@ -61,6 +61,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Confirm prerelease mode
         run: node -e 'const pre = require("./.changeset/pre.json"); if (pre.mode !== "pre" || pre.tag !== "next") process.exit(1)'
+      - name: Build and verify publish artifacts
+        run: pnpm build && pnpm packages:pack
       - name: Confirm one-time bootstrap credential
         if: inputs.bootstrap
         env:

@@ -5,6 +5,6 @@
   "title": "AIFrontKit default",
   "description": "Neutral semantic defaults with accessible focus and reduced motion.",
   "files": [{ "path": "registry/themes/default/theme.css", "type": "registry:style" }],
-  "dependencies": ["@aifrontkit/tokens@^0.1.0"],
+  "dependencies": ["@aifrontkit/react@^0.1.0"],
   "meta": { "version": "0.1.0", "schemaMajor": 1, "aifrontkit": ">=0.1.0 <1" }
 }

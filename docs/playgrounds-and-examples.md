@@ -33,7 +33,7 @@ Component props and environment settings are separate axes. Theme, styling flavo
 
 Changing a value must update the rendered preview and generated code from the same normalized state. A normal control change must not remount the component or discard focus, draft input, scroll position, or local interaction state. Scenario identity changes may request an explicit reset when the scenario requires it.
 
-The framework-neutral contract lives in `@aifrontkit/testing`. React definitions live beside their registry components rather than inside an app. File is the first completed reference at `registry/react/css/components/file/file.example.tsx`: the documentation app and Component Lab import that definition directly, while the registry payload still installs only the component and its stylesheet.
+The framework-neutral contract lives in `@aifrontkit/core/testing`. React definitions live beside their registry components rather than inside an app. File is the first completed reference at `registry/react/css/components/file/file.example.tsx`: the documentation app and Component Lab import that definition directly, while the registry payload still installs only the component and its stylesheet.
 
 ## Fixture system
 

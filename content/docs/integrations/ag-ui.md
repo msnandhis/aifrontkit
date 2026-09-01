@@ -6,7 +6,7 @@ status: experimental
 
 # AG-UI adapter
 
-`@aifrontkit/ag-ui` connects a backend that speaks the AG-UI protocol to the
+`@aifrontkit/adapters/ag-ui` connects a backend that speaks the AG-UI protocol to the
 AIFrontKit runtime. It isolates protocol-specific event names and payloads from
 React primitives and source-installed UI.
 
@@ -24,7 +24,8 @@ invent a transcript message.
 
 ## LangGraph checkpoint history
 
-`projectLangGraphCheckpointHistory` translates the structural history returned
+`projectLangGraphCheckpointHistory` from `@aifrontkit/adapters/langgraph`
+translates the structural history returned
 by `getStateHistory()` into thread-scoped checkpoint events. The host supplies a
 stable checkpoint ID and version then explicitly decides whether each point is
 restorable and compatible. Raw values, writes, tasks and provider persistence

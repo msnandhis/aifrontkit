@@ -22,21 +22,22 @@ npx aifrontkit add conversation
 dependencies such as Message, File, and Prompt Input and records exact file
 hashes in `.aifrontkit/installed.json`.
 
-Install runtime behavior as npm packages when your application uses provider-backed
-streaming state:
+Most React applications need one behavior package. It includes core as a
+dependency:
 
 ```bash
-pnpm add @aifrontkit/core @aifrontkit/react
+pnpm add @aifrontkit/react
 ```
 
-Add `@aifrontkit/tokens` when you want the default semantic token contract. Add
-an integration package only when your backend uses that protocol:
+Theme utilities and default CSS ship from React subpaths. Add the adapter
+collection only when your backend uses a supported external protocol:
 
 ```bash
-pnpm add @aifrontkit/ai-sdk
-# or
-pnpm add @aifrontkit/ag-ui
+pnpm add @aifrontkit/adapters
 ```
+
+Install `@aifrontkit/core` directly only when your application imports its
+runtime, event or testing exports itself.
 
 Visual components are editable registry source rather than opaque npm components.
 The AIFrontKit CLI is the canonical installer; it does not require shadcn. Public

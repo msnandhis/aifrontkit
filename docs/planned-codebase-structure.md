@@ -5,12 +5,9 @@ The implemented public repository is package-oriented, with feature-oriented int
 ```text
 aifrontkit/
 ├── packages/
-│   ├── core/src/{model,content,events,runtime,schema,migrations}
-│   ├── react/src/{runtime,message,composer,tool}
-│   ├── ai-sdk/
-│   ├── ag-ui/
-│   ├── tokens/
-│   ├── testing/
+│   ├── core/src/{model,content,events,runtime,schema,migrations,testing}
+│   ├── react/src/{runtime,message,composer,tool,theme}
+│   ├── adapters/src/{ai-sdk,ag-ui,langgraph,external-store}
 │   └── cli/
 ├── contracts/{ui,registry}
 ├── registry/react/{css,tailwind}

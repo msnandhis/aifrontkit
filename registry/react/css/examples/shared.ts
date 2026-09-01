@@ -3,7 +3,7 @@ import type {
   PlaygroundEnvironment,
   PlaygroundRecord,
   PlaygroundState,
-} from "@aifrontkit/testing";
+} from "@aifrontkit/core/testing";
 
 /** React/CSS example defaults. Framework-neutral types live in testing. */
 export const exampleEnvironmentDefaults: PlaygroundEnvironment = {

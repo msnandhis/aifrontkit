@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import "@aifrontkit/tokens/css";
+import "@aifrontkit/react/theme.css";
 import { App } from "./app.js";
 import "./playground.css";
 

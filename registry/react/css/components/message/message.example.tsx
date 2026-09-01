@@ -6,7 +6,7 @@ import {
   type PlaygroundEnvironment,
   type PlaygroundRecord,
   type PlaygroundState,
-} from "@aifrontkit/testing";
+} from "@aifrontkit/core/testing";
 import type { ReactNode } from "react";
 import { exampleEnvironmentControlsFor, exampleEnvironmentDefaults, quote } from "../../examples/shared.js";
 import { Message } from "./message.js";

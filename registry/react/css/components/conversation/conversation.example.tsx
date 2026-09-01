@@ -6,7 +6,7 @@ import {
   type PlaygroundEnvironment,
   type PlaygroundRecord,
   type PlaygroundState,
-} from "@aifrontkit/testing";
+} from "@aifrontkit/core/testing";
 import type { ReactNode } from "react";
 import { exampleEnvironmentControlsFor, exampleEnvironmentDefaults, quote } from "../../examples/shared.js";
 import { Message } from "../message/message.js";
@@ -142,7 +142,7 @@ function messagesFor(props: ConversationExampleProps): readonly MessageModel[] {
     case "long-content":
       return [
         message("user-1", "user", "complete", props.userMessage),
-        message("assistant-1", "assistant", "complete", "A robust response survives long paragraphs without losing a readable measure. It keeps actions close to the content they affect and lets code overflow inside its own region rather than breaking the page.\n\nInstall: pnpm add @aifrontkit/react @aifrontkit/core @aifrontkit/tokens\n\nUnbroken-content-stress: registry_component_conversation_with_a_very_long_identifier_that_must_wrap_without_creating_page_level_horizontal_overflow."),
+        message("assistant-1", "assistant", "complete", "A robust response survives long paragraphs without losing a readable measure. It keeps actions close to the content they affect and lets code overflow inside its own region rather than breaking the page.\n\nInstall: pnpm add @aifrontkit/react @aifrontkit/core\n\nUnbroken-content-stress: registry_component_conversation_with_a_very_long_identifier_that_must_wrap_without_creating_page_level_horizontal_overflow."),
         message("user-2", "user", "complete", "And on narrow screens?"),
         message("assistant-2", "assistant", "complete", "The transcript keeps its rhythm, user messages remain visually distinct, controls retain touch-safe targets, and the composer stays reachable without covering the response."),
       ];

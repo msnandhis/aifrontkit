@@ -1,6 +1,6 @@
 import { createRuntime, type AIFrontEvent } from "@aifrontkit/core";
 import { AIFrontKitProvider } from "@aifrontkit/react";
-import { defineComponentFixtures } from "@aifrontkit/testing";
+import { defineComponentFixtures } from "@aifrontkit/core/testing";
 import { ToolCall } from "./tool-call.js";
 
 export const toolCallQualityScenarios = [

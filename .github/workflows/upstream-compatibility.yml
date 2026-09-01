@@ -46,8 +46,7 @@ jobs:
       - name: Test fixture configuration and adapter projections
         run: |
           pnpm compatibility:test
-          pnpm --filter @aifrontkit/ai-sdk test
-          pnpm --filter @aifrontkit/ag-ui test
+          pnpm --filter @aifrontkit/adapters test
       - name: Compare pinned fixtures with npm releases
         shell: bash
         run: |

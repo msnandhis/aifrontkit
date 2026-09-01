@@ -1,8 +1,7 @@
 ---
 "@aifrontkit/core": minor
 "@aifrontkit/react": minor
-"@aifrontkit/ai-sdk": minor
-"@aifrontkit/ag-ui": minor
+"@aifrontkit/adapters": minor
 "aifrontkit": minor
 ---
 

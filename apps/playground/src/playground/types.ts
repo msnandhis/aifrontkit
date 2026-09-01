@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import {
   createPlaygroundCoordinates as createCanonicalPlaygroundCoordinates,
   definePlaygroundDefinition,
-} from "@aifrontkit/testing";
+} from "@aifrontkit/core/testing";
 import type {
   PlaygroundControl as CanonicalPlaygroundControl,
   PlaygroundControlGroup,
@@ -25,7 +25,7 @@ import type {
   BooleanPlaygroundControl,
   TextPlaygroundControl,
   RangePlaygroundControl,
-} from "@aifrontkit/testing";
+} from "@aifrontkit/core/testing";
 
 export {
   type BooleanPlaygroundControl as BooleanControl,

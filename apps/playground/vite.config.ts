@@ -75,6 +75,7 @@ export default defineConfig({
     alias: [
       { find: /^@mdx-js\/react$/, replacement: fileURLToPath(new URL("./node_modules/@mdx-js/react/index.js", import.meta.url)) },
       { find: "@aifrontkit/core/content", replacement: fileURLToPath(new URL("../../packages/core/dist/content/index.js", import.meta.url)) },
+      { find: "@aifrontkit/core/testing", replacement: fileURLToPath(new URL("../../packages/core/dist/testing/index.js", import.meta.url)) },
       { find: "@aifrontkit/react/conversation", replacement: fileURLToPath(new URL("../../packages/react/dist/conversation/index.js", import.meta.url)) },
       { find: "@aifrontkit/react/composer", replacement: fileURLToPath(new URL("../../packages/react/dist/composer/index.js", import.meta.url)) },
       { find: "@aifrontkit/react/message", replacement: fileURLToPath(new URL("../../packages/react/dist/message/index.js", import.meta.url)) },
@@ -85,7 +86,6 @@ export default defineConfig({
       { find: "@aifrontkit/react/attachment", replacement: fileURLToPath(new URL("../../packages/react/dist/attachment/index.js", import.meta.url)) },
       { find: "@aifrontkit/react/checkpoint", replacement: fileURLToPath(new URL("../../packages/react/dist/checkpoint/index.js", import.meta.url)) },
       { find: "@aifrontkit/react/connection", replacement: fileURLToPath(new URL("../../packages/react/dist/connection/index.js", import.meta.url)) },
-      { find: /^@aifrontkit\/testing$/, replacement: fileURLToPath(new URL("../../packages/testing/dist/index.js", import.meta.url)) },
       { find: /^@aifrontkit\/react$/, replacement: fileURLToPath(new URL("../../packages/react/dist/index.js", import.meta.url)) },
       { find: /^@aifrontkit\/core$/, replacement: fileURLToPath(new URL("../../packages/core/dist/index.js", import.meta.url)) }
     ]

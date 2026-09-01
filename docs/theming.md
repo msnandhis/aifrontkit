@@ -8,7 +8,7 @@ The official default is a polished neutral theme rather than an unstyled baselin
 
 ## APIs
 
-`@aifrontkit/tokens` is framework-neutral. `createTheme(config)` resolves safe defaults, `toCssVariables(theme)` projects serializable CSS custom properties, `getThemeAttributes(theme)` provides scoping attributes, and `checkThemeContrast(theme)` validates the official foreground/background pairs.
+`@aifrontkit/react/theme` exposes framework-neutral theme utilities beside the React provider. `createTheme(config)` resolves safe defaults, `toCssVariables(theme)` projects serializable CSS custom properties, `getThemeAttributes(theme)` provides scoping attributes and `checkThemeContrast(theme)` validates the official foreground/background pairs.
 
 React applications can scope a theme through either provider:
 
@@ -24,7 +24,7 @@ React applications can scope a theme through either provider:
 </ThemeProvider>
 ```
 
-Import `@aifrontkit/tokens/css` when using attribute-driven defaults without the React provider. The JavaScript API and CSS file expose the same semantic naming contract.
+Import `@aifrontkit/react/theme.css` when using attribute-driven defaults. The JavaScript API and CSS file expose the same semantic naming contract.
 
 The TypeScript contract is the only authored token source. Package builds generate `tokens.css` from `createTheme()` and `toCssVariables()`; a stale generated asset fails the token test. Do not edit the generated CSS by hand. This guarantees that provider styles and stylesheet-only usage resolve the same palette, spacing, radius, density, motion, and component-recipe values.
 
