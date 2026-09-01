@@ -8,6 +8,11 @@ on:
         required: true
         type: boolean
         default: false
+      normalize_preview_tags:
+        description: Move maintained prereleases to next and remove prereleases from latest
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -27,5 +32,22 @@ jobs:
           package-manager-cache: false
       - name: Deprecate superseded preview packages
         run: node scripts/deprecate-legacy-previews.mjs --apply
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_BOOTSTRAP_TOKEN }}
+
+  normalize:
+    if: inputs.normalize_preview_tags
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment: npm
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      - name: Normalize maintained preview tags
+        run: node scripts/normalize-preview-tags.mjs
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_BOOTSTRAP_TOKEN }}

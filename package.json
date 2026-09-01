@@ -35,6 +35,7 @@
     "check:browser": "pnpm quality:browser && pnpm docs:browser",
     "release:check": "pnpm check && pnpm packages:consumer && pnpm check:browser",
     "release:deprecate:legacy": "node scripts/deprecate-legacy-previews.mjs",
+    "release:publish:preview": "node scripts/publish-preview-packages.mjs",
     "release:tags:preview": "node scripts/normalize-preview-tags.mjs",
     "lab:dev": "pnpm --filter @aifrontkit/lab dev",
     "check": "pnpm lint && pnpm contracts:validate && pnpm adoption:validate && pnpm adoption:test && pnpm registry:validate && pnpm registry:test && pnpm compatibility:test && pnpm quality:validate && pnpm quality:test && pnpm docs:validate && pnpm docs:test && pnpm performance:test && pnpm build && pnpm performance:check && pnpm packages:pack && pnpm registry:typecheck && pnpm typecheck && pnpm test",
