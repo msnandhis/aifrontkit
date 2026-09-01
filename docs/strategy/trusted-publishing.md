@@ -9,10 +9,9 @@ the operator explicitly enables its `publish` input. It also uses the protected
 `npm` GitHub environment.
 
 The protected `npm` GitHub environment exists and only accepts `release/*`
-branches. Publishing remains externally blocked until the package names are owned
-and every npm package maps its trusted publisher to the exact GitHub repository,
-workflow filename and `npm` environment. Public package manifests declare the
-canonical repository, public access and provenance.
+branches. Each maintained public package maps its trusted publisher to the exact
+GitHub repository, workflow filename and `npm` environment. Public package
+manifests declare the canonical repository, public access and provenance.
 
 No npm token or registry signing private key belongs in repository secrets. npm
 publishing should use GitHub OIDC and npm provenance. Registry manifests use the
@@ -34,13 +33,12 @@ GitHub-hosted runner and grants `id-token: write` only to the publish job. Trust
 publishing generates npm provenance without a long-lived npm token.
 
 npm cannot attach trusted-publisher settings before a package record exists. The
-first coordinated preview therefore uses the workflow's explicit `bootstrap`
+first coordinated preview therefore used the workflow's explicit `bootstrap`
 mode with a short-lived granular `NPM_BOOTSTRAP_TOKEN` stored only in the protected
-`npm` environment. The token must be restricted to the seven intended public
-packages, used once and revoked immediately after publication. After package
-creation, configure the trusted-publisher mapping on every package, remove the
-secret and publish a follow-up preview with `bootstrap` disabled to prove OIDC-only
-publication.
+`npm` environment. The token was restricted to the intended package set. A
+follow-up preview with `bootstrap` disabled proved OIDC-only publication for
+`aifrontkit`, `@aifrontkit/core`, `@aifrontkit/react` and
+`@aifrontkit/adapters` before the bootstrap credential was removed.
 
 npm provenance requires both public packages and a public source repository.
 Trusted publishing can authenticate a private repository but npm will not attach
@@ -58,6 +56,13 @@ Breaking changes before `1.0.0` use a minor Changesets bump rather than a major
 bump. The first coordinated preview plan therefore targets `0.2.0-next.0` after
 entering `next` prerelease mode. Do this on a dedicated release branch because
 Changesets prerelease mode should not block normal work on `main`.
+
+Preview publication uses `scripts/publish-preview-packages.mjs` instead of the
+generic Changesets publish command. Changesets intentionally sends packages that
+have never had a stable release to `latest` even while prerelease mode is active.
+The preview publisher passes `--tag next` for every maintained package so future
+previews cannot move `latest`. The bootstrap previews remain visible under
+`latest` until the first stable release establishes the stable line.
 
 ## Verification gate
 

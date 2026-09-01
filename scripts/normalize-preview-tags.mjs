@@ -22,7 +22,5 @@ for (const entry of await readdir(packagesRoot, { withFileTypes: true })) {
 
   const specifier = `${manifest.name}@${manifest.version}`;
   npm(["dist-tag", "add", specifier, "next"]);
-  const tags = JSON.parse(npm(["view", manifest.name, "dist-tags", "--json"]));
-  if (tags.latest === manifest.version) npm(["dist-tag", "rm", manifest.name, "latest"]);
   console.log(`Normalized preview tags for ${specifier}.`);
 }
