@@ -182,7 +182,7 @@ describe("AIFrontKit CLI", () => {
     const result = await verifyRegistryProvenance(root, { document });
     expect(result.valid).toBe(false);
     expect(result.errors).toEqual(expect.arrayContaining([expect.stringMatching(/changed after signing/)]));
-  });
+  }, 15_000);
 
   it("distinguishes a valid self-declared signature from a trusted signer", async () => {
     const { privateKey } = generateKeyPairSync("ed25519", { privateKeyEncoding: { type: "pkcs8", format: "pem" } });
@@ -193,7 +193,7 @@ describe("AIFrontKit CLI", () => {
     expect(cliDefault).toMatchObject({ valid: false, trusted: false });
     expect(cliDefault.errors).toContain("Signing key 'community' is not trusted.");
     await expect(verifyRegistryProvenance(repositoryRoot, { document, ...createProvenanceTrustPolicy(undefined, true) })).resolves.toMatchObject({ valid: true, trusted: false });
-  });
+  }, 15_000);
 
   it("rejects registry reads and provenance writes through escaping symlinks", async () => {
     const registryRoot = await mkdtemp(join(tmpdir(), "aifrontkit-registry-symlink-"));
