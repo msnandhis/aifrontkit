@@ -108,7 +108,7 @@ function DocumentationShell() {
         <div className="header-actions">
           <button className="search-trigger" type="button" aria-label="Search documentation" onClick={openSearch}><Icon name="search" /><span>Search docs</span><kbd>⌘K</kbd></button>
           <button className="header-icon-button" type="button" onClick={() => setTheme(theme === "light" ? "dark" : "light")} aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}><Icon name={theme === "light" ? "moon" : "sun"} /></button>
-          <a className="header-icon-button" href="https://github.com/msnandhis/openfrontkit" aria-label="Open AIFrontKit on GitHub"><Icon name="github" /></a>
+          <a className="header-icon-button" href="https://github.com/msnandhis/aifrontkit" aria-label="Open AIFrontKit on GitHub"><Icon name="github" /></a>
           <button ref={menuButtonRef} className="mobile-menu-button" type="button" aria-expanded={navigationOpen} aria-controls="docs-navigation" onClick={() => setNavigationOpen((value) => !value)}><Icon name={navigationOpen ? "close" : "menu"} /><span className="sr-only">Toggle documentation navigation</span></button>
         </div>
       </header>
@@ -127,7 +127,7 @@ function DocumentationShell() {
         <aside className="page-outline" aria-label="On this page">
           <p>On this page</p>
           {outline.length ? <nav aria-label="Page sections">{outline.map((item) => <a key={item.id} href={`#${item.id}`} data-level={item.level}>{item.label}</a>)}</nav> : <span className="outline-empty">Page overview</span>}
-          <a className="outline-github" href="https://github.com/msnandhis/openfrontkit"><Icon name="external" />Edit on GitHub</a>
+          <a className="outline-github" href="https://github.com/msnandhis/aifrontkit"><Icon name="external" />Edit on GitHub</a>
         </aside>
       </div>
       {searchOpen ? (

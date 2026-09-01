@@ -6,7 +6,7 @@ AIFrontKit treats polish as a release contract, not a final styling pass. These 
 - [Scorecard and definition of done](./scorecard-and-definition-of-done.md) defines blocking failures, the 100-point review, and the evidence needed to publish.
 - [Workflow and review policy](./workflow-and-review-policy.md) defines how a component moves from a problem statement to a stable release.
 
-The design tokens and visual direction remain authoritative in [`design-system/openfrontkit/MASTER.md`](../../design-system/openfrontkit/MASTER.md). A component's `component.json` records the component-specific contract and required quality evidence. The registry `registry.json` remains the distribution manifest. Neither file replaces the other.
+The design tokens and visual direction remain authoritative in [`design-system/aifrontkit/MASTER.md`](../../design-system/aifrontkit/MASTER.md). A component's `component.json` records the component-specific contract and required quality evidence. The registry `registry.json` remains the distribution manifest. Neither file replaces the other.
 
 The four booleans under `component.json#quality` declare mandatory release gates; they are not self-awarded proof that a review occurred. `quality.evidence` must resolve each declaration to checked-in browser, accessibility, interaction, and documentation evidence that explicitly covers the component. Fixtures must be renderable TSX modules using the real registry source, not scenario-name catalogs. Validation fails closed when a contract, evidence file, renderable fixture, required gate, or version parity is missing.
 

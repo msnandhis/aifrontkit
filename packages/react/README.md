@@ -1,6 +1,12 @@
 # @aifrontkit/react
 
-Accessible React providers, hooks and headless behavior primitives for AIFrontKit.
+Accessible React providers, hooks and headless behavior primitives for AI chat interfaces and agent workflows.
+
+```bash
+npm install @aifrontkit/react
+```
+
+`@aifrontkit/react` includes `@aifrontkit/core` as a dependency. Provide a canonical runtime when streamed events should drive the interface:
 
 ```tsx
 import { AIFrontKitProvider } from "@aifrontkit/react";
@@ -8,7 +14,7 @@ import { AIFrontKitProvider } from "@aifrontkit/react";
 <AIFrontKitProvider runtime={runtime}>{children}</AIFrontKitProvider>
 ```
 
-Visual components remain source-owned registry files. This package supplies stable behavior without coupling applications to an AI provider.
+Focused exports cover conversation, message, composer, tool, task, approval, connection, artifact, attachment and checkpoint behavior. Visual components remain source-owned registry files, so applications can change markup and styles without forking runtime state.
 
 Theme utilities and generated CSS use focused exports:
 
@@ -16,6 +22,8 @@ Theme utilities and generated CSS use focused exports:
 import { createTheme } from "@aifrontkit/react/theme";
 import "@aifrontkit/react/theme.css";
 ```
+
+The theme contract supports light, dark and high-contrast modes plus configurable temperature, density, radius and motion. Applications can use `ThemeProvider`, `createTheme` or raw semantic CSS variables independently.
 
 ## Resumable checkpoints
 
@@ -39,3 +47,5 @@ import "@aifrontkit/react/theme.css";
 ```
 
 The callback receives only provider-neutral identity and version fields. The application owns persistence, authorization, transport and the controlled recovery result.
+
+AIFrontKit is prerelease software. See the [component documentation](https://github.com/msnandhis/aifrontkit/tree/main/content/docs/primitives) and [source registry](https://github.com/msnandhis/aifrontkit/tree/main/registry/react) before adoption.

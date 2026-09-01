@@ -1,20 +1,37 @@
 # @aifrontkit/core
 
-Framework-neutral events, commands, state and browser runtime for production AI interfaces.
+Framework-neutral events, commands, state and browser runtime for AI chat interfaces and long-running agent experiences.
+
+```bash
+npm install @aifrontkit/core
+```
+
+## Runtime
+
+Create one runtime per thread and dispatch normalized events from a custom transport or `@aifrontkit/adapters`:
 
 ```ts
 import { createRuntime } from "@aifrontkit/core/runtime";
 
-const runtime = createRuntime({ threadId: "thread-1" });
+const runtime = createRuntime("thread-1");
 runtime.dispatch(event);
+
+const unsubscribe = runtime.subscribe(() => {
+  console.log(runtime.getState());
+});
 ```
 
-The package has no React, provider or backend dependency. See the [repository documentation](https://github.com/msnandhis/openfrontkit#readme) for contracts and compatibility policy.
+Runtime state includes messages, content parts, tools, approvals, agent tasks, artifacts, connection status and resumable checkpoint projections. Event identifiers are deduplicated and supported older schema generations migrate at the boundary.
 
-Deterministic component and playground helpers are isolated at
-`@aifrontkit/core/testing` so normal runtime imports do not include fixture code.
+## Focused exports
 
-Resumable agent checkpoints are exposed as a separate thread-scoped projection
-through `@aifrontkit/core/checkpoint`. A checkpoint's `title` is its stable
-display label. Its opaque identity and metadata must not be interpreted as raw
-provider or persistence state.
+- `@aifrontkit/core/events` for versioned frontend events
+- `@aifrontkit/core/commands` for user intent commands and transports
+- `@aifrontkit/core/runtime` for deterministic state reduction
+- `@aifrontkit/core/checkpoint` for thread-scoped checkpoint projections
+- `@aifrontkit/core/testing` for deterministic component and playground fixtures
+- `@aifrontkit/core/schemas/v4/event.json` and related JSON schemas for wire validation
+
+The package has no React, DOM, model-provider or backend dependency. It does not execute tools, authorize user actions or persist application data.
+
+AIFrontKit is prerelease software. See the [repository documentation](https://github.com/msnandhis/aifrontkit#readme) and [compatibility policy](https://github.com/msnandhis/aifrontkit/blob/main/content/docs/reference/compatibility.md) before adoption.

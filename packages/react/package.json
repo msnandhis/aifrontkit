@@ -7,25 +7,13 @@
     "./dist/theme.css"
   ],
   "license": "Apache-2.0",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/msnandhis/openfrontkit.git",
-    "directory": "packages/react"
-  },
-  "homepage": "https://github.com/msnandhis/openfrontkit#readme",
-  "bugs": {
-    "url": "https://github.com/msnandhis/openfrontkit/issues"
-  },
-  "engines": {
-    "node": ">=22"
-  },
-  "publishConfig": {
-    "access": "public",
-    "provenance": true
-  },
-  "files": [
-    "dist"
-  ],
+  "repository": { "type": "git", "url": "git+https://github.com/msnandhis/aifrontkit.git", "directory": "packages/react" },
+  "homepage": "https://github.com/msnandhis/aifrontkit#readme",
+  "bugs": { "url": "https://github.com/msnandhis/aifrontkit/issues" },
+  "keywords": ["react", "ai", "ai-ui", "agent-ui", "chat-ui", "headless-ui", "ui-primitives", "accessibility", "design-system", "streaming"],
+  "engines": { "node": ">=22" },
+  "publishConfig": { "access": "public", "provenance": true },
+  "files": ["dist"],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
